@@ -2,6 +2,9 @@
 # matches "bin" in any subfolder
 bin/
 
+#ignore metadata
+.metadata
+
 # ignore all executables
 *.jar
 
