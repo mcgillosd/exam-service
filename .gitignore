@@ -1,0 +1,14 @@
+# ignore all bin directories
+# matches "bin" in any subfolder
+bin/
+
+# ignore all executables
+*.jar
+
+# ignore all files ending with ~
+*~ 
+
+#ignore Excel files
+finals/
+*.xlsx
+
