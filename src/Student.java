@@ -26,7 +26,7 @@ public class Student implements Comparable<Student> {
 	private String email;
 	private String course;
 	private String section;
-	private String examLocation;
+	private String location;
 	private Date examStartTime;
 	private Date examFinishTime;
 	private int examLength;
@@ -131,12 +131,13 @@ public class Student implements Comparable<Student> {
 	public void setSection(String section) {
 		this.section = section;
 	}
-	public String getExamLocation() {
-		return examLocation;
+	public String getLocation() {
+		return location;
 	}
-	public void setExamLocation(String location) {
-		examLocation = location;
+	public void setLocation(String location) {
+		this.location = location;
 	}
+	
 	public Date getExamStartTime() {
 		return examStartTime;
 	}
@@ -158,15 +159,23 @@ public class Student implements Comparable<Student> {
 		//set time to 16:05
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(examStartTime);
-		cal.set(Calendar.HOUR_OF_DAY, 16);
-		cal.set(Calendar.MINUTE, 5);
+		cal.set(Calendar.HOUR_OF_DAY, 19);
+		cal.set(Calendar.MINUTE, 0);
 		Date startLate = cal.getTime();
-		if (examStartTime.after(startLate)) {
+		
+		Calendar calStart = Calendar.getInstance();
+		calStart.setTime(examStartTime);
+		Calendar calFinish = Calendar.getInstance();
+		calFinish.setTime(examStartTime);
+		calFinish.add(Calendar.MINUTE, examLength);
+		Date finish = calFinish.getTime();
+		if (finish.compareTo(startLate) > 0) {
 			//set to 19:00 - the latest time to finish
-			cal.set(Calendar.HOUR_OF_DAY, 19);
-			cal.set(Calendar.MINUTE, 0);
-			cal.add(Calendar.MINUTE, -examLength);
-			examStartTime = cal.getTime();
+			int res = (int)((finish.getTime()/60000) - (startLate.getTime()/60000));
+			//calStart.set(Calendar.HOUR_OF_DAY, 19);
+			calStart.set(Calendar.MINUTE, -res);
+			//cal.add(Calendar.MINUTE, -examLength);
+			examStartTime = calStart.getTime();
 			timeChanged = true;
 		}
 	}
@@ -182,7 +191,7 @@ public class Student implements Comparable<Student> {
 	public boolean timeChanged() {
 		return timeChanged;
 	}
-	public boolean getConflict() {
+	public boolean hasConflict() {
 		return conflict;
 	}
 	public void setConflict(boolean bool) {
@@ -322,6 +331,7 @@ public class Student implements Comparable<Student> {
 				return s1.getExamStartTime().compareTo(s2.getExamStartTime());	
 		}
 	}
+	// sorts by course and section, used to allocate profs names against each row
 	public static class CourseComparator implements Comparator<Student> {
 		public int compare(Student s1, Student s2) {
 			int comp = s1.getCourse().compareTo(s2.getCourse()); 
@@ -332,6 +342,7 @@ public class Student implements Comparable<Student> {
 			}
 		}
 	}
+	// sorts by students names and date of the exam, used to find conflicts
 	public static class StudentDateComparator implements Comparator<Student> {
 		public int compare(Student s1, Student s2) {
 			int comp = s1.getNameLast().compareTo(s2.getNameLast()); 
@@ -346,6 +357,7 @@ public class Student implements Comparable<Student> {
 			}
 		}
 	}
+	// sorts by the prof name, used for lists of students for profs 
 	public static class ProfComparator implements Comparator<Student> {
 		public int compare(Student s1, Student s2) {
 			int comp = s1.getNameProfLast().compareTo(s2.getNameProfLast()); 

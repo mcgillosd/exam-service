@@ -290,7 +290,7 @@ public class Excel {
 				cell.setCellValue(student.getSection());
 				cell.setCellStyle(styles[1]); break;
 			case 6:
-				cell.setCellValue(student.getExamLocation());
+				cell.setCellValue(student.getLocation());
 				cell.setCellStyle(styles[1]); break;
 			case 7:
 				cell.setCellValue(student.getExamStartTime());
@@ -689,11 +689,11 @@ public class Excel {
 					cell.setCellValue(student.getNameProfLast());
 					cell.setCellStyle(styles[1]); break;
 				case 6:
-					if (student.getConflict()) {
+					if (student.hasConflict()) {
 						cell.setCellValue("Conflict");
 					}
 					else
-						cell.setCellValue(student.getExamLocation());
+						cell.setCellValue(student.getLocation());
 					cell.setCellStyle(styles[1]); break;
 				case 7:
 					if (student.timeChanged()) {

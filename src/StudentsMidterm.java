@@ -161,7 +161,8 @@ public class StudentsMidterm {
 				 index += 3; // skip id, phone, email
 				 stud.setCourse(td.get(index++).text());
 				 stud.setSection(td.get(index++).text());
-				 stud.setExamLocation(td.get(index++).text());
+				 index++; // skip location
+				 //stud.setLocation(td.get(index++).text());
 				 stud.setExamStartTime(td.get(index++).text());
 				 stud.setExamLength(td.get(index++).text());
 				 stud.setNameProf(td.get(index++).text());
@@ -211,7 +212,8 @@ public class StudentsMidterm {
         	index += 3; // skip id, phone, email
         	stud.setCourse(td.get(index++).text());
         	stud.setSection(td.get(index++).text());
-        	stud.setExamLocation(td.get(index++).text());
+        	index++; // skip location
+        	//stud.setLocation(td.get(index++).text());
         	stud.setExamStartTime(td.get(index++).text());
         	stud.setExamLength(td.get(index++).text());
         	stud.setNameProf(td.get(index++).text());

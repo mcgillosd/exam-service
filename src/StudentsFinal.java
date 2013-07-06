@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+
 import javax.swing.JLabel;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -29,6 +31,7 @@ public class StudentsFinal {
 	private JLabel label;
 	/**
 	 * Creates a list of students registered for finals and writes data into the file
+	 * @throws CloneNotSupportedException 
 	 */
 	public StudentsFinal(JLabel label, String term) {
 		this.label = label;
@@ -38,6 +41,10 @@ public class StudentsFinal {
 		label.setText("Looking for conflicts");
     	label.paintImmediately(label.getVisibleRect());
     	findConflicts();
+    	label.setText("Allocating rooms");
+    	label.paintImmediately(label.getVisibleRect());
+    	addLocation();
+		
 		label.setText("Writing into Excel");
     	label.paintImmediately(label.getVisibleRect());
     	new Excel().writeFinals(list, term);
@@ -301,7 +308,7 @@ public class StudentsFinal {
 					else
 						s.setComments(comment + ", " + "proof");	
 				}
-				else if (code.equals("XH")) {
+				else if (code.equals("XH") && s.getExtraTime() == null) {
 					s.setExtraTime("T1/2");
 					s.setExamLength();
 				}
@@ -319,7 +326,7 @@ public class StudentsFinal {
 					else
 						s.setComments(comment + ", " + "small room");	
 				}
-				else if (code.equals("XR")) {
+				else if (code.equals("XR") && s.getExtraTime() == null) {
 					s.setExtraTime(""); // regular time
 					s.setExamLength();
 				}
@@ -348,7 +355,7 @@ public class StudentsFinal {
 			}
 			String otherAcc = acc.getOther();
 			if (otherAcc != null) {
-				if (otherAcc.contains("1/3") || otherAcc.contains("1/4")) {
+				if ((otherAcc.contains("1/3") || otherAcc.contains("1/4")) && s.getExtraTime() == null) {
 					String sub = null;
 					if (otherAcc.contains("1/3")) {
 						sub = "1/3";
@@ -390,6 +397,107 @@ public class StudentsFinal {
 			if (s.equals(list.get(i+1))) {
 				s.setConflict(true);
 				list.get(i+1).setConflict(true);
+			}
+		}
+	}
+	private void addLocation() {
+		Collections.sort(list, new Student.DateExamComparator());
+		// first date of the exam session
+		File file = new File("rooms.xlsx");
+		if (! file.exists()) {
+			new Message("File " + file.getName() + " doesn't exist");
+			return;
+		}
+		ListOfRooms rList = new ListOfRooms(file);
+		//ListOfRooms clone = new ListOfRooms(rList);
+		
+		Date currentDate = list.get(0).getDateExam();
+		// get time sample set at 10:00 to check morning exams
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(list.get(0).getExamStartTime());
+		cal.set(Calendar.HOUR_OF_DAY, 10);
+		cal.set(Calendar.MINUTE, 0);
+		Date time = cal.getTime(); // first check if it's a morning exam
+		
+		int i = 0;
+		Student s = list.get(i++);
+		while (i < list.size()) {
+			ListOfRooms clone = (ListOfRooms)rList.clone();
+			 // while dates are the same and morning
+			while (currentDate.compareTo(s.getDateExam()) == 0 && s.getExamStartTime().compareTo(time) <= 0) { 
+				if (! s.hasConflict())  
+					allocateRoom(s, clone);
+				if (i < list.size())
+					s = list.get(i++);
+				else {
+					i++;
+					break;
+				}
+			}
+			clone = (ListOfRooms)rList.clone();
+			// the same day, afternoon
+			while (currentDate.compareTo(s.getDateExam()) == 0) {
+				if (! s.hasConflict()) {
+					allocateRoom(s, clone); 
+				}
+				if (i < list.size())
+					s = list.get(i++);
+				else {
+					i++;
+					break;
+				}
+			}
+			// change date to the next exam date
+			currentDate = s.getDateExam();
+		}
+	}
+	private void allocateRoom(Student s, ListOfRooms roomsList) {
+		if (s.getComments() != null && (s.getComments().contains("rm alone") || s.getComments().contains("scribe"))) {
+			Room r = roomsList.getSmallRoom();
+			if (r != null) {
+				r.takePlace();
+				s.setLocation(r.getId());
+			}
+			else {
+				s.setLocation("room for 1 not found");
+			}
+		}
+		else if (s.getComments() != null && (s.getComments().contains("wynn") || s.getComments().contains("kurzweil"))) {
+			Room r = roomsList.getRoomByName("OSD Lab");
+			if (r != null && ! r.full()) {
+				r.takePlace();
+				s.setLocation(r.getId());
+			}
+			else {
+				s.setLocation("no places in OSD lab");
+			}
+		}
+		else if (s.getComputer() != null && s.getComputer().equals("pc")) {
+			Room r = roomsList.getLab();
+			
+			if (r != null) {
+				r.takePlace();
+				s.setLocation(r.getId());
+			}
+			else { // there are laptops TODO: limited qty of laptops - how many? should students be in the OSD office?
+				r = roomsList.getRoom();
+				if (r != null) {
+					r.takePlace();
+					s.setLocation(r.getId());
+				}
+				else
+					s.setLocation("no more places");
+			}
+		}
+		// no special demands
+		else {
+			Room r = roomsList.getRoom();
+			if (r != null) {
+				r.takePlace();
+				s.setLocation(r.getId());
+			}
+			else {
+				s.setLocation("no more places");
 			}
 		}
 	}
