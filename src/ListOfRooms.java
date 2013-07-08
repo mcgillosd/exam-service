@@ -13,8 +13,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 
 /**
+ * Gets all available rooms together and controls their availability and allocation
+ * 
  * @author Olga Tsibulevskaya
- *
  */
 public class ListOfRooms implements Iterable<Room>, Cloneable {
 	private ArrayList<Room> list = new ArrayList<Room>();
@@ -57,6 +58,10 @@ public class ListOfRooms implements Iterable<Room>, Cloneable {
 		}
 		return false;
 	}
+	/**
+	 * Finds a room which is not a lab and which has at least one place
+	 * @return a room
+	 */
 	public Room getRoom() {
 		for (Room r : list) {
 			if (! r.isLab() && ! r.isSmall() && ! r.full())
@@ -68,7 +73,7 @@ public class ListOfRooms implements Iterable<Room>, Cloneable {
 	 * Finds a room by the name, null if not exist
 	 * @param name name of the room to find
 	 * @return room, which name is specified in arguments, null if
-	 * it doesn't exist
+	 * 		it doesn't exist
 	 */
 	public Room getRoomByName(String name) {
 		for (Room r : list) {
@@ -79,11 +84,9 @@ public class ListOfRooms implements Iterable<Room>, Cloneable {
 	}
 	
 	/**
-	 * Looks for rooms with places up to the number sent in arguments
+	 * Finds a small room (capacity <= 2)
 	 * 
-	 * @param num maximum number of places in the room
-	 * @return list of rooms with the maximum capacity indicated in arguments,
-	 * 	which are not full yet
+	 * @return a small room with at least one place available
 	 */
 	public Room getSmallRoom() {
 		for (Room r : list) {
@@ -92,6 +95,10 @@ public class ListOfRooms implements Iterable<Room>, Cloneable {
 		}
 		return null;
 	}
+	/**
+	 * Finds a lab with at least one place available
+	 * @return
+	 */
 	public Room getLab() {
 		for (Room r : list) {
 			if (r.isLab() && ! r.full())
@@ -114,9 +121,3 @@ public class ListOfRooms implements Iterable<Room>, Cloneable {
 		return lRooms;
 	}
 }
-// TODO: better to write a new column to indicate it's a computer lab or to use constant names to know it's a lab 
-// the same for small rooms or just to define what they mean by a "small room" (max places), then can look up
-// by capacities? but capacity reduced when places allocated
-// Right in the file the same way it should be written in the file (Conference room = conf, etc)
-
-// Midterms - all at once or as they register?

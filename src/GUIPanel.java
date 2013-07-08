@@ -50,9 +50,12 @@ import javax.swing.ButtonGroup;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.BoxLayout;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Creates graphical user interface for the application
@@ -234,20 +237,24 @@ public class GUIPanel extends JPanel {
 	}
 	/* Creates the Finals panel. Not ready yet. */
 	private JPanel createFinalsPanel() {
-		final int numButtons = 2;
+		final int numButtons = 3;
 		JRadioButton[] radioButtons = new JRadioButton[numButtons];
 		final ButtonGroup group = new ButtonGroup();
 		
 		JButton submitButton = null;
 		
 		final String createfile = "createfile";
-		final String downloadAll = "option2";
+		final String assignrooms = "assignrooms";
+		final String createlist = "createlist";
 		
 		radioButtons[0] = new JRadioButton("Create the final exam master list");
 		radioButtons[0].setActionCommand(createfile);
 		
-		radioButtons[1] = new JRadioButton("Option2");
-		radioButtons[1].setActionCommand(downloadAll);
+		radioButtons[1] = new JRadioButton("Assign rooms");
+		radioButtons[1].setActionCommand(assignrooms);
+		
+		radioButtons[2] = new JRadioButton("Create a list of students");
+		radioButtons[2].setActionCommand(createlist);
 		
 		for (int i = 0; i < numButtons; i++)
 			group.add(radioButtons[i]);
@@ -261,8 +268,61 @@ public class GUIPanel extends JPanel {
 				String command = group.getSelection().getActionCommand();
 				// pick a command
 				if (command == createfile) {
-					String term = getOptionPane("Remove empty rows", false);
-					new StudentsFinal(label, term);
+					String term = getOptionPane("Choose a month of the exam", false);
+					new StudentsFinalInit(label, term);
+				}
+				else if (command == assignrooms) {
+					// create a new class of list of students by reading the file
+					String term = getOptionPane("Choose a month of the exam", false);
+					String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
+					final String fileFinals = newterm + " final exam master list.xlsx";
+					
+					File file = new File(fileFinals);
+					if (! file.exists()) {
+						new Message("File " + fileFinals + " doesn't exist");
+						// exit?
+					}
+					label.setText("Getting info from " + fileFinals + " file");
+			    	label.paintImmediately(label.getVisibleRect());
+					StudentsFinalSec sfs = new StudentsFinalSec(file);
+					
+					label.setText("Allocating rooms");
+			    	label.paintImmediately(label.getVisibleRect());
+					sfs.addLocation();
+					new Excel().writeLocation(StudentsFinalSec.getList(), file);
+			    	
+			    	label.setText("Choose an option and click the button");
+			    	label.paintImmediately(label.getVisibleRect());
+				}
+				else if (command == createlist) {
+					ArrayList<Student> list = StudentsFinalSec.getList();
+					if (list.size() > 0) {  // the same session
+						//
+					}
+					else { 
+						String term = getOptionPane("Choose a month of the exam", false);
+						String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
+						final String fileFinals = newterm + " final exam master list.xlsx";
+						
+						File file = new File(fileFinals);
+						if (! file.exists()) {
+							new Message("File " + fileFinals + " doesn't exist");
+							// exit?
+						}
+						label.setText("Getting info from " + fileFinals + " file");
+				    	label.paintImmediately(label.getVisibleRect());
+						new StudentsFinalSec(file);
+						list = StudentsFinalSec.getList();
+					}
+					
+					if (list.size() > 0)
+						new Excel().writeListProf(list, label);
+					else 
+						System.out.println("oops");
+				    	
+					label.setText("Choose an option and click the button");
+					label.paintImmediately(label.getVisibleRect());
+					
 				}
 			}
 		});

@@ -15,20 +15,28 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 
-
 /**
+ * Searches professors emails on the mcgill.ca/directory/staff site
+ *  
  * @author Olga Tsibulevskaya
- *
  */
 public class ProfMail {
 	private String email;
-	
+	/**
+	 * Gets a student and looks for email for his prof
+	 * @param s a student whom prof to find
+	 */
 	public ProfMail(Student s) {
 		String surname = s.getNameProfLast();
 		String name = s.getNameProfFirst();
 		String html = web(surname, name);
 		search(html);
 	}
+	/**
+	 * Looks for email for the professor whose name is specified
+	 * @param surname last name of the professor
+	 * @param name	first name of the professor
+	 */
 	public ProfMail(String surname, String name) {
 		String html = web(surname, name);
 		search(html);
@@ -36,6 +44,12 @@ public class ProfMail {
 	public String getEmail() {
 		return email;
 	}
+	/**
+	 * Gets the whole html page
+	 * @param surname
+	 * @param name
+	 * @return a string with html data 
+	 */
 	private String web(String surname, String name) {
 		String url = "http://www.mcgill.ca/directory/staff/";	
 		HttpClient httpClient = new HttpClient();
@@ -76,12 +90,15 @@ public class ProfMail {
         	InputStream in = httpget.getResponseBodyAsStream();
         	java.util.Scanner s = new java.util.Scanner(in).useDelimiter("\\A");
         	html = s.hasNext() ? s.next() : "";
-        	//System.out.println(html);
-		} catch (IOException e) {
+        } catch (IOException e) {
 			e.printStackTrace();
 		}
         return html;	 
 	}
+	/**
+	 * Extracts email form the html string and sets email
+	 * @param html
+	 */
 	private void search(String html) {
 		 Document doc = Jsoup.parse(html);
 			
@@ -89,7 +106,6 @@ public class ProfMail {
 		 if (! span.isEmpty()) {
 			 String spanS = span.html();
 			 String stripped = spanS.replaceAll("<[^>]*>", "");
-			 System.out.println(stripped + " " + stripped.indexOf("("));
 			 String subspan = stripped.substring(0,stripped.indexOf("("));
 			 CharSequence s1 = "[dot]";
 			 CharSequence s2 = ".";
@@ -100,7 +116,5 @@ public class ProfMail {
 			 spanS = subspan.replaceAll(" ", "");
 			 email = spanS.toLowerCase();
 		 }
-		 else
-			 email = "Not found";
 	}
 }

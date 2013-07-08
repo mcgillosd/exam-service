@@ -182,6 +182,9 @@ public class Student implements Comparable<Student> {
 	public Date getExamFinishTime() {
 		return examFinishTime;
 	}
+	public void setExamFinishTime(Date time) {
+		examFinishTime = time;
+	}
 	public void setExamFinishTime() {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(examStartTime);
@@ -288,8 +291,8 @@ public class Student implements Comparable<Student> {
 	
 	@Override
 	public String toString() {
-		return sid + "\t" + nameLast + "\t" + nameFirst + "\t" + 
-				dateExam + "\t" + course + "\t" + section;  
+		return nameLast + "\t" + nameFirst + "\t" + 
+				dateExam + "\t" + course + "\t" + section + "\t" + nameProfLast + "\t" + nameProfFirst;  
 	}
 			
 	public int compareTo(Student s) {

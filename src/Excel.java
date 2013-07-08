@@ -12,8 +12,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormat;
@@ -228,7 +231,7 @@ public class Excel {
 	}
 	/* Creates an array of styles for Excel cells */
 	private CellStyle[] getAllStyles(Workbook wb) {
-		CellStyle[] styles = new CellStyle[6];
+		CellStyle[] styles = new CellStyle[7];
 		
 		CellStyle styleHeader = wb.createCellStyle();
 		Font fontHeader = setCustomFont(wb, "Arial", 11, true);
@@ -264,6 +267,12 @@ public class Excel {
 		timeChanged.setFillBackgroundColor(IndexedColors.SKY_BLUE.getIndex());
 		timeChanged.setFillPattern(CellStyle.BIG_SPOTS);
 		styles[5] = timeChanged;
+		
+		CellStyle styleVertical = wb.createCellStyle();
+		styleVertical.setFont(fontNormal);
+		styleVertical.setVerticalAlignment(CellStyle.VERTICAL_TOP);
+		styles[6] = styleVertical;
+		
 		return styles;
 	}
 	/* Populates a row */
@@ -534,7 +543,7 @@ public class Excel {
 				CellStyle[] styles = getAllStyles(wb);
 				writeSheet1(list, wb, styles);
 				writeSheet2(list, wb, styles);
-				writeListProf(list, wb);
+			//	writeListProf(list, wb);
 				
 				FileOutputStream fos = new FileOutputStream(file);
 				wb.write(fos);
@@ -686,14 +695,12 @@ public class Excel {
 					cell.setCellValue(student.getCourse());
 					cell.setCellStyle(styles[1]); break;
 				case 5:
-					cell.setCellValue(student.getNameProfLast());
-					cell.setCellStyle(styles[1]); break;
+					cell.setCellValue(student.getNameProfLast() + "\n" + student.getNameProfFirst());
+					cell.setCellStyle(styles[6]); break; 
 				case 6:
 					if (student.hasConflict()) {
 						cell.setCellValue("Conflict");
 					}
-					else
-						cell.setCellValue(student.getLocation());
 					cell.setCellStyle(styles[1]); break;
 				case 7:
 					if (student.timeChanged()) {
@@ -733,13 +740,72 @@ public class Excel {
 		
 		sheet.createFreezePane(0, 1);		    
 	}
-	
-	private void writeListProf(ArrayList<Student> list, XSSFWorkbook wb) {
-		Collections.sort(list, new Student.ProfComparator());
-		Sheet sheet = wb.createSheet("lists by profs");
-		String[] headers = {"Prof name", "List of students" };
+	/**
+	 * Adds locations to the file.
+	 *
+	 * @param list list of students 
+	 * @param file the file where locations should be added (the main file for finals)
+	 */
+	public void writeLocation(ArrayList<Student> list, File file) {
+		try {
+			FileInputStream inp = new FileInputStream(file);
+			XSSFWorkbook wb = new XSSFWorkbook(inp);
+			
+			Sheet sheet = wb.getSheetAt(1);		
+		
+			CellStyle style = wb.createCellStyle();
+			Font fontNormal = setCustomFont(wb, "Calibri", 11, false);
+			style.setFont(fontNormal);
+			
+			int rowEnd = sheet.getLastRowNum();
 					
-		final int NB_COL = 2;
+			for (int rowNum = 1; rowNum <= rowEnd; rowNum++) { 
+				Row row = sheet.getRow(rowNum);
+				Student s = list.get(rowNum-1);
+				Cell cell = row.getCell(6);
+				cell.setCellValue(s.getLocation());
+				cell.setCellStyle(style);
+			}
+			inp.close();
+			// write into the file 
+			FileOutputStream fos = new FileOutputStream(file);
+		    wb.write(fos);
+		    fos.close();
+		} 
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * Creates a new file and writes a list of students by prof. 
+	 * Looks up email addresses for the profs in mcgill.ca/directory/staff.
+	 * 
+	 * @param list list of students
+	 * @param label Label is necessary to give info about the searching process (takes time)
+	 */
+	public void writeListProf(ArrayList<Student> list, JLabel label) {
+		String filename = "List of students for profs.xlsx";
+		File file = new File(filename);
+		if (file.exists()) {
+			int result = JOptionPane.showConfirmDialog(
+					null,"The file already exists, overwrite it?", 
+					"Warning",JOptionPane.YES_NO_OPTION);
+			if (result == JOptionPane.YES_OPTION) {
+				// go on
+			}
+			else return;
+		}
+		
+		Collections.sort(list, new Student.ProfComparator());
+		
+		XSSFWorkbook wb = new XSSFWorkbook();
+		XSSFSheet sheet = wb.createSheet();
+		String[] headers = {"Prof name", "Prof email", "List of students" };
+					
+		final int NB_COL = 3;
 					
 		// creating the first header row
 		Row row = sheet.createRow((short) 0);
@@ -747,7 +813,6 @@ public class Excel {
 		while (colXL < NB_COL) {
 			Cell cell = row.createCell(colXL);
 			cell.setCellValue(headers[colXL++]);
-			colXL++; // skip one, maybe for emails
 		}
 		
 		CellStyle styleVertical = wb.createCellStyle();
@@ -771,14 +836,27 @@ public class Excel {
 			cell.setCellStyle(styleVertical);
 			
 			
-			/*cell = row.createCell(1);
+			cell = row.createCell(1);
 			if (! noProf) {
 				String email = new ProfMail(student).getEmail();
-				cell.setCellValue(email);
+				if (email != null) {
+					label.setText(student.getNameProfLast() + ": " + email);
+					label.paintImmediately(label.getVisibleRect());
+					cell.setCellValue(email);
+				}
+				else {
+					label.setText(student.getNameProfLast() + ": not found");
+					label.paintImmediately(label.getVisibleRect());
+					cell.setCellValue("not found");
+				}
 			}
-			else
+			else {
+				label.setText(student.getNameProfLast() + ": email not found"); // do not need it since profs should be defined 
+				label.paintImmediately(label.getVisibleRect());                 // if no info about profs - "", for sorting purposes
 				cell.setCellValue("email not found");
-			cell.setCellStyle(styleVertical);*/
+			}
+				
+			cell.setCellStyle(styleVertical);
 			
 			cell = row.createCell(2);
 			cell.setCellValue(student.getNameLast() + " " + student.getNameFirst() + " (" + student.getCourse() + ")");
@@ -803,5 +881,18 @@ public class Excel {
 		sheet.autoSizeColumn(0);
 		sheet.autoSizeColumn(1);
 		sheet.autoSizeColumn(2);
+		
+		try {
+			FileOutputStream out = new FileOutputStream(file);
+			wb.write(out);
+			out.close();
+			String message = "File " + filename + " has been created";
+			new Message(message);
+			
+		} catch (FileNotFoundException e) {
+		    e.printStackTrace();
+		} catch (IOException e) {
+		    e.printStackTrace();
+		}
 	}
 }

@@ -25,15 +25,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  * 
  * @author Olga Tsibulevskaya
  */
-public class StudentsFinal {
+public class StudentsFinalInit {
 
 	private ArrayList<Student>list = new ArrayList<Student>();	
 	private JLabel label;
 	/**
 	 * Creates a list of students registered for finals and writes data into the file
-	 * @throws CloneNotSupportedException 
 	 */
-	public StudentsFinal(JLabel label, String term) {
+	public StudentsFinalInit(JLabel label, String term) {
 		this.label = label;
 		setList(term);
 		addProfInfo(term);
@@ -41,9 +40,9 @@ public class StudentsFinal {
 		label.setText("Looking for conflicts");
     	label.paintImmediately(label.getVisibleRect());
     	findConflicts();
-    	label.setText("Allocating rooms");
-    	label.paintImmediately(label.getVisibleRect());
-    	addLocation();
+    //	label.setText("Allocating rooms");
+    	//label.paintImmediately(label.getVisibleRect());
+    	//addLocation();
 		
 		label.setText("Writing into Excel");
     	label.paintImmediately(label.getVisibleRect());
@@ -400,105 +399,5 @@ public class StudentsFinal {
 			}
 		}
 	}
-	private void addLocation() {
-		Collections.sort(list, new Student.DateExamComparator());
-		// first date of the exam session
-		File file = new File("rooms.xlsx");
-		if (! file.exists()) {
-			new Message("File " + file.getName() + " doesn't exist");
-			return;
-		}
-		ListOfRooms rList = new ListOfRooms(file);
-		//ListOfRooms clone = new ListOfRooms(rList);
-		
-		Date currentDate = list.get(0).getDateExam();
-		// get time sample set at 10:00 to check morning exams
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(list.get(0).getExamStartTime());
-		cal.set(Calendar.HOUR_OF_DAY, 10);
-		cal.set(Calendar.MINUTE, 0);
-		Date time = cal.getTime(); // first check if it's a morning exam
-		
-		int i = 0;
-		Student s = list.get(i++);
-		while (i < list.size()) {
-			ListOfRooms clone = (ListOfRooms)rList.clone();
-			 // while dates are the same and morning
-			while (currentDate.compareTo(s.getDateExam()) == 0 && s.getExamStartTime().compareTo(time) <= 0) { 
-				if (! s.hasConflict())  
-					allocateRoom(s, clone);
-				if (i < list.size())
-					s = list.get(i++);
-				else {
-					i++;
-					break;
-				}
-			}
-			clone = (ListOfRooms)rList.clone();
-			// the same day, afternoon
-			while (currentDate.compareTo(s.getDateExam()) == 0) {
-				if (! s.hasConflict()) {
-					allocateRoom(s, clone); 
-				}
-				if (i < list.size())
-					s = list.get(i++);
-				else {
-					i++;
-					break;
-				}
-			}
-			// change date to the next exam date
-			currentDate = s.getDateExam();
-		}
-	}
-	private void allocateRoom(Student s, ListOfRooms roomsList) {
-		if (s.getComments() != null && (s.getComments().contains("rm alone") || s.getComments().contains("scribe"))) {
-			Room r = roomsList.getSmallRoom();
-			if (r != null) {
-				r.takePlace();
-				s.setLocation(r.getId());
-			}
-			else {
-				s.setLocation("room for 1 not found");
-			}
-		}
-		else if (s.getComments() != null && (s.getComments().contains("wynn") || s.getComments().contains("kurzweil"))) {
-			Room r = roomsList.getRoomByName("OSD Lab");
-			if (r != null && ! r.full()) {
-				r.takePlace();
-				s.setLocation(r.getId());
-			}
-			else {
-				s.setLocation("no places in OSD lab");
-			}
-		}
-		else if (s.getComputer() != null && s.getComputer().equals("pc")) {
-			Room r = roomsList.getLab();
-			
-			if (r != null) {
-				r.takePlace();
-				s.setLocation(r.getId());
-			}
-			else { // there are laptops TODO: limited qty of laptops - how many? should students be in the OSD office?
-				r = roomsList.getRoom();
-				if (r != null) {
-					r.takePlace();
-					s.setLocation(r.getId());
-				}
-				else
-					s.setLocation("no more places");
-			}
-		}
-		// no special demands
-		else {
-			Room r = roomsList.getRoom();
-			if (r != null) {
-				r.takePlace();
-				s.setLocation(r.getId());
-			}
-			else {
-				s.setLocation("no more places");
-			}
-		}
-	}
+	
 }

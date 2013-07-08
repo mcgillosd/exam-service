@@ -9,16 +9,23 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
 /**
+ * Gathers info about exam rooms
+ * 
  * @author Olga Tsibulevskaya
- *
  */
 public class Room implements Cloneable {
 	private String name;
 	private String id;
+	/** the flag to distinguish labs from normal rooms */
 	private boolean lab = false;
+	/** small rooms - capacity less than 3 */
 	private boolean small = false;
 	private int capacity;
 	
+	/**
+	 * Creates a room by reading a row in the Excel file. 
+	 * @param r row in the file
+	 */
 	public Room(Row r) {
 		Cell c = r.getCell(0);
 		if (c.getCellType() == Cell.CELL_TYPE_STRING)
@@ -56,6 +63,10 @@ public class Room implements Cloneable {
 			// error
 		}
 	}
+	/**
+	 * Create a room with any given name
+	 * @param name name of the room to be created
+	 */
 	public Room(String name) {
 		this.name = name;
 	}
