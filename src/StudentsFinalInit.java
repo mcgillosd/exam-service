@@ -284,7 +284,7 @@ public class StudentsFinalInit {
 					s.setComputer("Yes");
 				else if (code.equals("XD")) {
 					s.setExtraTime("2x");
-					s.setExamLength();
+				//	s.setExamLength(true);
 				}
 				else if (code.equals("XE")) {
 					String comment = s.getComments();
@@ -309,7 +309,7 @@ public class StudentsFinalInit {
 				}
 				else if (code.equals("XH") && s.getExtraTime() == null) {
 					s.setExtraTime("T1/2");
-					s.setExamLength();
+					//s.setExamLength(true);
 				}
 				else if (code.equals("XL")) {
 					String comment = s.getComments();
@@ -327,7 +327,7 @@ public class StudentsFinalInit {
 				}
 				else if (code.equals("XR") && s.getExtraTime() == null) {
 					s.setExtraTime(""); // regular time
-					s.setExamLength();
+					//s.setExamLength(true);
 				}
 				else if (code.equals("XS")) {
 					String comment = s.getComments();
@@ -359,12 +359,12 @@ public class StudentsFinalInit {
 					if (otherAcc.contains("1/3")) {
 						sub = "1/3";
 						s.setExtraTime("T1/3");
-						s.setExamLength();
+						//s.setExamLength(true);
 					}
 					else {
 						sub = "1/4";
 						s.setExtraTime("T1/4");
-						s.setExamLength();
+						//s.setExamLength(true);
 					}
 					if (otherAcc.contains("on all")) {
 						s.setComments(otherAcc);
@@ -387,7 +387,7 @@ public class StudentsFinalInit {
 		else {
 			s.setWarning("No accommodations data");
 		}
-		s.setExamLength();
+		s.setExamLength(true);  // check if I need to set it before
 	}
 	private void findConflicts() {
 		Collections.sort(list, new Student.StudentDateComparator());

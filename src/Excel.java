@@ -150,10 +150,10 @@ public class Excel {
 				Date dateInFile = null; // existing in the file dates.
 						
 				int rowEnd = sheet.getLastRowNum();
-				System.out.println(rowEnd);
+		//		System.out.println(rowEnd);
 				// start reading the file form the 1st row (exclude the header)
 				for (int rowNum = 1; index < list.size(); rowNum++) { // || rowNum < endRow
-					System.out.println(rowNum);
+				//	System.out.println(rowNum);
 					Row r = sheet.getRow(rowNum);
 					if (r == null) {
 						// in which cases?

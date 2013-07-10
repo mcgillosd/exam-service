@@ -20,7 +20,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class ListOfRooms implements Iterable<Room>, Cloneable {
 	private ArrayList<Room> list = new ArrayList<Room>();
 	
-	public ListOfRooms(File file) {
+	public ListOfRooms(File file, boolean finals) {
 		try {
 			FileInputStream fis = new FileInputStream(file);	
 			XSSFWorkbook wb = new XSSFWorkbook(fis);
@@ -29,7 +29,11 @@ public class ListOfRooms implements Iterable<Room>, Cloneable {
 			int i = 1;
 			Row r = sheet.getRow(i); // 0 is a header
 			while (r.getCell(0) != null) {
-				Room room = new Room(r);
+				Room room;
+				if (finals)
+					room = new Room(r);
+				else
+					room = new RoomMidterm(r);
 				list.add(room);
 				r = sheet.getRow(++i);
 			}

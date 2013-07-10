@@ -5,6 +5,8 @@
  */
 
 
+import java.util.Date;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
@@ -14,13 +16,16 @@ import org.apache.poi.ss.usermodel.Row;
  * @author Olga Tsibulevskaya
  */
 public class Room implements Cloneable {
-	private String name;
-	private String id;
+	protected String name;
+	protected String id;
 	/** the flag to distinguish labs from normal rooms */
-	private boolean lab = false;
+	protected boolean lab = false;
 	/** small rooms - capacity less than 3 */
-	private boolean small = false;
-	private int capacity;
+	protected boolean small = false;
+	protected int capacity;
+	protected Date date;
+	protected Date time;
+	
 	
 	/**
 	 * Creates a room by reading a row in the Excel file. 
@@ -53,7 +58,7 @@ public class Room implements Cloneable {
 		else {
 			// error
 		}
-		c = r.getCell(6);
+		c = r.getCell(4);
 		if (c.getCellType() == Cell.CELL_TYPE_NUMERIC) {
 			capacity = (int)c.getNumericCellValue();
 			if (capacity < 3)

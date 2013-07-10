@@ -48,6 +48,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JRadioButton;
 import javax.swing.ButtonGroup;
 import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.BoxLayout;
 
@@ -64,6 +65,7 @@ import java.util.ArrayList;
  */
 public class GUIPanel extends JPanel {
 	
+	public static int till; // to be removed, for testing purposes
 	private static final long serialVersionUID = 1L;
 	final JFrame frame;
 	final JLabel label;
@@ -119,7 +121,7 @@ public class GUIPanel extends JPanel {
 		}
 		box.add(Box.createRigidArea(new Dimension(0, 10)));
 		
-		Border loweredbevel = BorderFactory.createLoweredBevelBorder();
+		Border loweredbevel = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
 		TitledBorder title = BorderFactory.createTitledBorder(loweredbevel, description);
 		box.setBorder(title);
 		title.setTitlePosition(TitledBorder.ABOVE_TOP);
@@ -197,6 +199,7 @@ public class GUIPanel extends JPanel {
 				String command = group.getSelection().getActionCommand();
 				// pick a command
 				if (command == downloadNew) {
+					till = Integer.parseInt(getOptionPane("Enter a number", true)); // to be deleted, for simulator
 					new StudentsMidterm(frame, label, true);
 				}
 				else if (command == removeEmptyRows) {

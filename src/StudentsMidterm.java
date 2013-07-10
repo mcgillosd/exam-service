@@ -4,10 +4,13 @@
  * Created on 2013-06-10 1:59:46 PM
  */
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -37,6 +40,8 @@ public class StudentsMidterm {
 	/** The last id after a new update has been done */
 	private int lastid;
 	private boolean update = false;
+	private boolean existNew = false;
+	private boolean roomsInit = false;
 	private Excel xl;
 	
 	/**
@@ -81,17 +86,16 @@ public class StudentsMidterm {
 			for (int i = 0; i < 3; i++) {
 				if (lists.get(i).size() > 0) {
 					int index = (i+1)*3; // should be any month of the term, so 3 (W), 6 (S) and 9 (F)
-					existNew = true;
 					String term = new Term(index).getTerm();
-					xl = new Excel();
-					try {
+					//xl = new Excel();
+				/*	try {
 						label.setText("Updating files...");
 						label.paintImmediately(label.getVisibleRect());
 						xl.update(lists.get(i), term);
 					}
 					catch (IOException e) {
 						e.printStackTrace();
-					}
+					}*/
 				}
 			}
 			if (! existNew) {
@@ -100,7 +104,7 @@ public class StudentsMidterm {
 			}
 			else {
 				new Message("The last id before update is " + id);
-				new LastID().setLastID(lastid); // update id;
+				//new LastID().setLastID(lastid); // update id;
 			}
 			label.setText("Choose an option and click the button");
 			label.paintImmediately(label.getVisibleRect());
@@ -145,10 +149,13 @@ public class StudentsMidterm {
 			 Student stud = new Student();
 	        	
 			 Elements td = element.select("td"); 
+			 int item = GUIPanel.till;
 			 
-			 int item = Integer.parseInt(td.get(0).text()); // will be $lastid, new id for the next update
+			// int item = Integer.parseInt(td.get(0).text()); // will be $lastid, new id for the next update
 			 int idMax = id;  // id from the previous update
+		//	System.out.println(item + " " + id);
 			 if (item > idMax) { // new entries have been added since last visit
+				 if (Integer.parseInt(td.get(index).text()) <= item) { // only to test, to be removed
 				 stud.setId(td.get(index++).text()); 
 				 if (! lastIdSet) { // gets the first entry's id - it will be the last updated entry
 					 lastid = stud.getId(); // write it only after update!
@@ -164,7 +171,7 @@ public class StudentsMidterm {
 				 index++; // skip location
 				 //stud.setLocation(td.get(index++).text());
 				 stud.setExamStartTime(td.get(index++).text());
-				 stud.setExamLength(td.get(index++).text());
+				 stud.setLengthMidterm(td.get(index++).text());
 				 stud.setNameProf(td.get(index++).text());
 				 stud.setEmailProf(td.get(index++).text());
 				 stud.setExtraTime(td.get(index++).text());
@@ -172,13 +179,29 @@ public class StudentsMidterm {
 				 stud.setComputer(td.get(index++).text());
 				 index++; // skip comments
 				 //stud.setCampus(td.get(index++).text()); // will need campus
+				 stud.setExamLength(false);
 				 
-				 if (stud.getTerm().contains("Fall"))
-					 listFall.add(stud);
-				 else if (stud.getTerm().contains("Winter"))
-					 listWinter.add(stud);
-				 else if (stud.getTerm().contains("Summer"))
-					 listSummer.add(stud);
+				 if (stud.getTerm().contains("Fall")) {
+					 existNew = true;
+					 if (! listFall.contains(stud));
+					 	listFall.add(stud);
+				 }
+				 else if (stud.getTerm().contains("Winter")) {
+					 existNew = true;
+					 if (! listWinter.contains(stud));
+					 	listWinter.add(stud);
+				 }
+				 else if (stud.getTerm().contains("Summer")) {
+					 existNew = true;
+					 if (! listSummer.contains(stud))
+						 listSummer.add(stud);
+				 }
+				 if (existNew && ! roomsInit) {
+					 initRooms();
+					 roomsInit = true;
+				 }
+				 addLocation(stud); 
+				 }
 			 }	
 			 else
 				 break;
@@ -215,7 +238,7 @@ public class StudentsMidterm {
         	index++; // skip location
         	//stud.setLocation(td.get(index++).text());
         	stud.setExamStartTime(td.get(index++).text());
-        	stud.setExamLength(td.get(index++).text());
+        	stud.setLengthMidterm(td.get(index++).text());
         	stud.setNameProf(td.get(index++).text());
         	stud.setEmailProf(td.get(index++).text());
         	stud.setExtraTime(td.get(index++).text());
@@ -223,8 +246,22 @@ public class StudentsMidterm {
         	stud.setComputer(td.get(index++).text());
         	index++; // skip comments
         	//stud.setCampus(td.get(index++).text()); // will need campus 
+        	stud.setExamLength(false);
         	
         	listOfStudents.add(stud);    
         }
+	}
+	private void initRooms() {
+		File file = new File("rooms_midterm.xlsx");
+		if (! file.exists()) {
+			new Message("File " + file.getName() + " doesn't exist");
+			return;
+		}
+		ListOfRooms rList = new ListOfRooms(file, false);
+		for (Room r : rList)
+			System.out.println(r);
+	}
+	private void addLocation(Student s) {
+		
 	}
 }

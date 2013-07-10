@@ -75,8 +75,8 @@ public class AccessWeb {
 		labelLogin.setHorizontalAlignment(JLabel.CENTER);
 		labelLogin.setFont(font);
 			
-		final JTextField textUser = new JTextField(20);
-		final JPasswordField textPass = new JPasswordField(20);
+		final JTextField textUser = new JTextField(22);
+		final JPasswordField textPass = new JPasswordField(22);
 		textUser.setFont(font);
 		textPass.setFont(font);
 		
@@ -180,7 +180,7 @@ public class AccessWeb {
         	label.paintImmediately(label.getVisibleRect());
         }
         else
-        	label.setText("Error occured: " + result);
+        	label.setText("Connection failed");
          
         InputStream in = httpget.getResponseBodyAsStream();
         java.util.Scanner s = new java.util.Scanner(in).useDelimiter("\\A");

@@ -66,7 +66,7 @@ public class Student implements Comparable<Student> {
 		try {	
 			SimpleDateFormat sdf = new SimpleDateFormat("yyy-MM-dd");
 			dateExam = sdf.parse(sDateE);
-			setTerm(new Term(dateExam));
+			term = new Term(dateExam).getTerm();
 		}
 		catch (ParseException e) {
 			e.printStackTrace(); 
@@ -205,24 +205,29 @@ public class Student implements Comparable<Student> {
 	}
 	// to be changed, have to accept two fields (hours and minutes)
 	// and calculate the length
-	public void setExamLength(String examLength) {
-		this.examLength = Integer.parseInt(examLength); // to be changed when length is ready on the webpage
+	public void setLengthMidterm(String examLength) {
+		this.examLength = 60; // to be changed when length is ready on the webpage
 	}
-	public void setExamLength() { // for finals, exam length is 3 hours
-		int time = 3*60;
+	public void setExamLength(boolean finals) { 
+		int time;
+		if (finals)
+			time = 3*60;  // for finals, exam length is 3 hours
+		else
+			time = 60; // to be changed to the real time for midterms
 		if (extraTime == null)
 			examLength = time;
-		else if (extraTime.equals("T1/2"))
+		else if (extraTime.equals("T1/2") || extraTime.equalsIgnoreCase("Time+1/2"))
 			examLength = (int)(time + time/2.0);
-		else if (extraTime.equals("T1/3"))
+		else if (extraTime.equals("T1/3") || extraTime.equalsIgnoreCase("Time+1/3"))
 			examLength = (int)(time + time/3.0);
-		else if (extraTime.equals("T1/4"))
+		else if (extraTime.equals("T1/4") || extraTime.equalsIgnoreCase("Time+1/4"))
 			examLength = (int)(time + time/4.0);
 		else if (extraTime.equals("2x"))
 			examLength = time*2;
 		else 
-			examLength = time;
-		setExamStartTime();
+			examLength = time; // what else can be?
+		if (finals)
+			setExamStartTime();
 		setExamFinishTime();
 	}
 	public String getNameProf() {
@@ -312,7 +317,10 @@ public class Student implements Comparable<Student> {
 		comp = nameFirst.compareTo(s.getNameFirst());
 		if (comp != 0)
 			return false;
-		return (dateExam.compareTo(s.getDateExam()) == 0);
+		comp = dateExam.compareTo(s.getDateExam()); // check time for midterms, not so important for finals
+		if (comp != 0)
+			return false;
+		return (examStartTime.compareTo(s.getExamStartTime()) == 0);
 	}
 	public boolean equalProf(Student s) {
 		int comp = nameProfLast.compareTo(s.nameProfLast);
