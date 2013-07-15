@@ -4,7 +4,6 @@
  * Created on Jul 2, 2013 2:04:44 PM
  */
 
-
 import java.util.Date;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -67,6 +66,7 @@ public class Room implements Cloneable {
 		else {
 			// error
 		}
+		System.out.println(name);
 	}
 	/**
 	 * Create a room with any given name

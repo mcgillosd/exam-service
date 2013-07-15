@@ -148,7 +148,7 @@ public class StudentsFinalSec {
 			new Message("File " + file.getName() + " doesn't exist");
 			return;
 		}
-		ListOfRooms rList = new ListOfRooms(file, true);
+		ListOfRooms rList = new ListOfRoomsFinal(file);
 				
 		Date currentDate = list.get(0).getDateExam();
 		// get time sample set to 10:00 to check morning exams

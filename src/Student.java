@@ -296,8 +296,8 @@ public class Student implements Comparable<Student> {
 	
 	@Override
 	public String toString() {
-		return nameLast + "\t" + nameFirst + "\t" + 
-				dateExam + "\t" + course + "\t" + section + "\t" + nameProfLast + "\t" + nameProfFirst;  
+		return id + "\t" + nameLast + "\t" + dateExam + "\t" + examStartTime + "\t" + 
+				examLength + "\t" + computer + "\t" + comments;  
 	}
 			
 	public int compareTo(Student s) {

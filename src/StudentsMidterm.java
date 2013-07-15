@@ -43,6 +43,7 @@ public class StudentsMidterm {
 	private boolean existNew = false;
 	private boolean roomsInit = false;
 	private Excel xl;
+	private ListOfRoomsMidterm roomsList;
 	
 	/**
 	 * Triggers access to the web-page in order to get the data,
@@ -77,7 +78,7 @@ public class StudentsMidterm {
 	public void start(String html){
 		if (update) { 
 			setId(new LastID());
-			boolean existNew = false;
+			//boolean existNew = false;
 			setTermLists(html, id);
 			ArrayList<ArrayList<Student>> lists = new ArrayList<ArrayList<Student>>(3);
 			lists.add(listWinter);
@@ -155,6 +156,7 @@ public class StudentsMidterm {
 			 int idMax = id;  // id from the previous update
 		//	System.out.println(item + " " + id);
 			 if (item > idMax) { // new entries have been added since last visit
+				 existNew = true;
 				 if (Integer.parseInt(td.get(index).text()) <= item) { // only to test, to be removed
 				 stud.setId(td.get(index++).text()); 
 				 if (! lastIdSet) { // gets the first entry's id - it will be the last updated entry
@@ -180,25 +182,30 @@ public class StudentsMidterm {
 				 index++; // skip comments
 				 //stud.setCampus(td.get(index++).text()); // will need campus
 				 stud.setExamLength(false);
+				 System.out.println(stud);
 				 
 				 if (stud.getTerm().contains("Fall")) {
-					 existNew = true;
+					// existNew = true;
 					 if (! listFall.contains(stud));
 					 	listFall.add(stud);
 				 }
 				 else if (stud.getTerm().contains("Winter")) {
-					 existNew = true;
+					 //existNew = true;
 					 if (! listWinter.contains(stud));
 					 	listWinter.add(stud);
 				 }
 				 else if (stud.getTerm().contains("Summer")) {
-					 existNew = true;
+					 //existNew = true;
 					 if (! listSummer.contains(stud))
 						 listSummer.add(stud);
 				 }
 				 if (existNew && ! roomsInit) {
-					 initRooms();
-					 roomsInit = true;
+					 System.out.println("init");
+					 roomsList = initRooms();
+					 if (roomsList != null)
+						 roomsInit = true;
+					 else
+						 return;
 				 }
 				 addLocation(stud); 
 				 }
@@ -206,6 +213,67 @@ public class StudentsMidterm {
 			 else
 				 break;
 		 }
+	}
+
+	private ListOfRoomsMidterm initRooms() {
+		File file = new File("rooms_midterm.xlsx");
+		if (! file.exists()) {
+			new Message("File " + file.getName() + " doesn't exist");
+			return null;
+		}
+		ListOfRoomsMidterm rList = new ListOfRoomsMidterm(file);
+		for (Room r : rList)
+			System.out.println(r);
+		return rList;
+	}
+	private void addLocation(Student s) {
+		if (s.getComments() != null && (s.getComments().contains("rm alone") || s.getComments().contains("scribe"))) {
+			RoomMidterm r = roomsList.getSmallRoom(s.getDateExam(), s.getExamStartTime(), s.getExamLength());
+			if (r != null) {
+				r.takePlace();
+				s.setLocation(r.getId());
+			}
+			else {
+				s.setLocation("small room not found");
+			}
+		}
+		else if (s.getComments() != null && (s.getComments().contains("wynn") || s.getComments().contains("kurzweil"))) {
+			RoomMidterm r = roomsList.getRoomByName("OSD Lab", s.getDateExam(), s.getExamStartTime(), s.getExamLength());
+			if (r != null && ! r.full()) {
+				r.takePlace();
+				s.setLocation(r.getId());
+			}
+			else {
+				s.setLocation("no places in OSD lab");
+			}
+		}
+		else if (s.getComputer() != null && s.getComputer().equals("pc")) {
+			RoomMidterm r = roomsList.getLab(s.getDateExam(), s.getExamStartTime(), s.getExamLength());
+			if (r != null) {
+				r.takePlace();
+				s.setLocation(r.getId());
+			}
+			else { // there are laptops TODO: limited qty of laptops - how many? should students be in the OSD office?
+				r = roomsList.getRoom(s.getDateExam(), s.getExamStartTime(), s.getExamLength());
+				if (r != null) {
+					r.takePlace();
+					s.setLocation(r.getId());
+				}
+				else
+					s.setLocation("no more places");
+			}
+		}
+		// no special demands
+		else {
+			RoomMidterm r = roomsList.getRoom(s.getDateExam(), s.getExamStartTime(), s.getExamLength());
+			if (r != null) {
+				r.takePlace();
+				s.setLocation(r.getId());
+			}
+			else {
+				s.setLocation("no more places");
+			}
+		}
 	}
 	/**
 	 * Populates one list, which will contain all information from the web page
@@ -250,18 +318,5 @@ public class StudentsMidterm {
         	
         	listOfStudents.add(stud);    
         }
-	}
-	private void initRooms() {
-		File file = new File("rooms_midterm.xlsx");
-		if (! file.exists()) {
-			new Message("File " + file.getName() + " doesn't exist");
-			return;
-		}
-		ListOfRooms rList = new ListOfRooms(file, false);
-		for (Room r : rList)
-			System.out.println(r);
-	}
-	private void addLocation(Student s) {
-		
 	}
 }

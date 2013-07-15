@@ -7,42 +7,44 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 
 /**
  * Gets all available rooms together and controls their availability and allocation
  * 
  * @author Olga Tsibulevskaya
  */
-public class ListOfRooms implements Iterable<Room>, Cloneable {
-	private ArrayList<Room> list = new ArrayList<Room>();
-	
-	public ListOfRooms(File file, boolean finals) {
+public abstract class ListOfRooms implements Iterable<Room>, Cloneable {
+	protected ArrayList<Room> list = new ArrayList<Room>();
+		
+	protected ListOfRooms(File file) {
 		try {
 			FileInputStream fis = new FileInputStream(file);	
-			XSSFWorkbook wb = new XSSFWorkbook(fis);
+			OPCPackage opcPackage = OPCPackage.open(fis);
+			
+			XSSFWorkbook wb = new XSSFWorkbook(opcPackage);
 			XSSFSheet sheet = wb.getSheetAt(0);
 	
 			int i = 1;
 			Row r = sheet.getRow(i); // 0 is a header
 			while (r.getCell(0) != null) {
-				Room room;
-				if (finals)
-					room = new Room(r);
-				else
-					room = new RoomMidterm(r);
-				list.add(room);
+				initRooms(r);
 				r = sheet.getRow(++i);
 			}
 			fis.close();
 		}
 		catch (IOException e) {
 			e.printStackTrace();
-		}
+		} 
+		catch (InvalidFormatException e) {
+			e.printStackTrace();
+		} 
 	}
+	public abstract void initRooms(Row r);
 	
 	public ArrayList<Room> getRoomsList() {
 		return list;
