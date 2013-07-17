@@ -4,10 +4,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -25,10 +24,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  *
  */
 public class RoomMidterm extends Room {
-	/** for each day it's own list of places and availabilities*/
-	private Map<Date, LinkedList<PlaceSchedule>> map = new HashMap<Date, LinkedList<PlaceSchedule>>();
-	private boolean free = true;
-	private int place;
+	
 	final String filename = "rooms_midterm.xlsx";
 	
 	public RoomMidterm(Row r) {
@@ -44,8 +40,6 @@ public class RoomMidterm extends Room {
 			DataFormat df = wb.createDataFormat();
 			styleDate.setDataFormat(df.getFormat("d-mmm"));
 			
-			//CellStyle styleVertical = wb.createCellStyle();
-			//styleVertical.setVerticalAlignment(CellStyle.VERTICAL_TOP);
 			CellStyle styleWrap = wb.createCellStyle();
 			styleWrap.setWrapText(true);
 			
@@ -88,12 +82,9 @@ public class RoomMidterm extends Room {
 				int rowNum = 1;
 				Row row = sheet.getRow(rowNum);
 				int rowLast = sheet.getLastRowNum() + 1; // column of dates
-				System.out.println("last row: " + rowLast);
-				
-				Cell cell = row.getCell(0);
-				// cell with date
+								
+				Cell cell = row.getCell(0); // cell with the date
 				if (cell == null) {// can be? don't have to initialise and the first column is empty?
-					System.out.println("2d option");
 					fis.close();
 					cell = row.createCell(0);
 					cell.setCellValue(date);
@@ -135,8 +126,11 @@ public class RoomMidterm extends Room {
 								}
 							}
 							// no free places, look for free spots in time
-							colNum = 0;
-							while (++colNum <= capacity) {
+							
+							// bad with random. Take the row, create a list and sort by size. 
+							int col = 0;
+							while (++col <= capacity) {
+								colNum = (short)((int)(Math.random()*capacity) + 1);
 								cell = row.getCell(colNum);
 								// looking for spots
 								String times = cell.getStringCellValue();
@@ -237,24 +231,22 @@ public class RoomMidterm extends Room {
 	}
 	
 	private boolean addPlace(LinkedList<Date> schedule, Date start, Date finish) {
-		for (int i = 0; i < schedule.size(); i++)
-			System.out.println("Schedule: " + schedule.get(i));
-		System.out.println(start + " " + finish);
 		
 		int len = schedule.size();
-		if (finish.before(schedule.get(0))) { // the 1st
+		
+		if (datePlus30(finish).before(schedule.get(0))) { // the 1st
 			schedule.add(0,start);
 			schedule.add(1,finish);
 			return true;
 		}
-		else if (start.after(schedule.get(len-1))) { //the last
+		else if (start.after(datePlus30(schedule.get(len-1)))) { //the last
 			schedule.add(len, finish);
 			schedule.add(len, start);
 			return true;
 		}
 		else {
 			for (int i = 1; i < len-1; i+=2) {
-				if (finish.before(schedule.get(i+1)) && start.after(schedule.get(i))) { // between
+				if (datePlus30(finish).before(schedule.get(i+1)) && start.after(datePlus30(schedule.get(i)))) { // between
 					schedule.add(i+1,start);
 					schedule.add(i+2,finish);
 					return true;
@@ -262,6 +254,13 @@ public class RoomMidterm extends Room {
 			}
 		}
 		return false;
+	}
+	private Date datePlus30(Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.MINUTE, 30);
+		Date timePlus = cal.getTime();
+		return timePlus;
 	}
 	private void bookPlace(LinkedList<Date> schedule, Cell cell) {
 		String time = "";
@@ -287,20 +286,5 @@ public class RoomMidterm extends Room {
 			String total = startS + "-" + finishS;
 			cell.setCellValue(total);
 		}
-	}
-	/*private int dateToInt(Date time) {
-		System.out.println(time);
-		SimpleDateFormat df = new SimpleDateFormat("HH");
-		int hour = Integer.parseInt(df.format(time));
-		df = new SimpleDateFormat("mm");
-		int min = Integer.parseInt(df.format(time));
-		int timeInMin = hour*100 + min;
-		return timeInMin;
-	}*/
-	public boolean free() {
-		return free;
-	}
-	public Map<Date, LinkedList<PlaceSchedule>> getMap() {
-		return map;
 	}
 } 		

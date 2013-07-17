@@ -23,16 +23,16 @@ import org.jsoup.select.Elements;
  * @author Olga Tsibulevskaya
  * @see Student
  */
-public class StudentsMidterm {
+public class StudentsMidtermInit {
 
 	/** General list of all students  */
-	private ArrayList<Student> listOfStudents;
+	private ArrayList<StudentMidterm> listOfStudents;
 	/** List of students who take exams in Fall */
-	private ArrayList<Student> listFall = new ArrayList<Student>();
+	private ArrayList<StudentMidterm> listFall = new ArrayList<StudentMidterm>();
 	/** List of students who take exams in Winter */
-	private ArrayList<Student> listWinter = new ArrayList<Student>();
+	private ArrayList<StudentMidterm> listWinter = new ArrayList<StudentMidterm>();
 	/** List of students who take exams in Summer */
-	private ArrayList<Student> listSummer = new ArrayList<Student>();
+	private ArrayList<StudentMidterm> listSummer = new ArrayList<StudentMidterm>();
 	
 	private JLabel label;
 	/** The last id from the previous update */
@@ -55,7 +55,7 @@ public class StudentsMidterm {
 	 * @param update	if <code>true</code> will only update the files 
 	 * 					starting from the last update's id
 	 */
-	public StudentsMidterm(JFrame frame, JLabel label, boolean update) {
+	public StudentsMidtermInit(JFrame frame, JLabel label, boolean update) {
 		this.label = label;
 		this.update = update;
 		new AccessWeb(frame, label, this);  // do not need frame (most likely)
@@ -82,7 +82,7 @@ public class StudentsMidterm {
 			//boolean existNew = false;
 			
 			setTermLists(html, id);
-			ArrayList<ArrayList<Student>> lists = new ArrayList<ArrayList<Student>>(3);
+			ArrayList<ArrayList<StudentMidterm>> lists = new ArrayList<ArrayList<StudentMidterm>>(3);
 			lists.add(listWinter);
 			lists.add(listSummer);
 			lists.add(listFall);
@@ -90,8 +90,8 @@ public class StudentsMidterm {
 				if (lists.get(i).size() > 0) {
 					int index = (i+1)*3; // should be any month of the term, so 3 (W), 6 (S) and 9 (F)
 					String term = new Term(index).getTerm();
-					//xl = new Excel();
-				/*	try {
+				/*	xl = new Excel();
+					try {
 						label.setText("Updating files...");
 						label.paintImmediately(label.getVisibleRect());
 						xl.update(lists.get(i), term);
@@ -113,7 +113,7 @@ public class StudentsMidterm {
 			label.paintImmediately(label.getVisibleRect());
 		}
 		else { // download all
-			listOfStudents = new ArrayList<Student>();
+			listOfStudents = new ArrayList<StudentMidterm>();
 			setListOfStudents(html);
 			try {
 				Excel xl = new Excel();
@@ -149,7 +149,7 @@ public class StudentsMidterm {
 			 }	
 
 			 int index = 0; // index used to go through all @td (columns)                            
-			 Student stud = new Student();
+			 StudentMidterm stud = new StudentMidterm();
 	        	
 			 Elements td = element.select("td"); 
 			 int item = GUIPanel.till;
@@ -167,14 +167,15 @@ public class StudentsMidterm {
 					 lastIdSet = true;
 				 }
 				 index += 3; // skip time submission, user, IP
-				 stud.setDateExam(td.get(index++).text());
+				 stud.setExamDate(td.get(index++).text());
 				 stud.setNameLast(td.get(index++).text());
 				 stud.setNameFirst(td.get(index++).text());
-				 index += 3; // skip id, phone, email
+				 stud.setSid(td.get(index++).text());
+				 index += 2; // skip id, phone, email
 				 stud.setCourse(td.get(index++).text());
 				 stud.setSection(td.get(index++).text());
+				 
 				 index++; // skip location
-				 //stud.setLocation(td.get(index++).text());
 				 stud.setExamStartTime(td.get(index++).text());
 				 stud.setLengthMidterm(td.get(index++).text());
 				 stud.setNameProf(td.get(index++).text());
@@ -182,9 +183,10 @@ public class StudentsMidterm {
 				 stud.setExtraTime(td.get(index++).text());
 				 stud.setStopwatch(td.get(index++).text());
 				 stud.setComputer(td.get(index++).text());
-				 index++; // skip comments
-				 //stud.setCampus(td.get(index++).text()); // will need campus
-				 stud.setExamLength(false);
+				 stud.setComments(td.get(index++).text());
+				 stud.setCampus(td.get(index++).text()); // will need campus
+				 
+				 stud.setExamLength();
 				 System.out.println(stud);
 				 
 				 String term = stud.getTerm();
@@ -235,7 +237,7 @@ public class StudentsMidterm {
 	}
 	private void addLocation(Student s) {
 		if (s.getComments() != null && (s.getComments().contains("rm alone") || s.getComments().contains("scribe"))) {
-			RoomMidterm r = listOfRooms.getSmallRoom(s.getDateExam(), s.getExamStartTime(), s.getExamFinishTime());
+			RoomMidterm r = listOfRooms.getSmallRoom(s.getExamDate(), s.getExamStartTime(), s.getExamFinishTime());
 			if (r != null) {
 				s.setLocation(r.getId());
 			}
@@ -244,7 +246,7 @@ public class StudentsMidterm {
 			}
 		}
 		else if (s.getComments() != null && (s.getComments().contains("wynn") || s.getComments().contains("kurzweil"))) {
-			RoomMidterm r = listOfRooms.getRoomByName("OSD Lab", s.getDateExam(), s.getExamStartTime(), s.getExamFinishTime());
+			RoomMidterm r = listOfRooms.getRoomByName("OSD Lab", s.getExamDate(), s.getExamStartTime(), s.getExamFinishTime());
 			if (r != null && ! r.full()) {
 				s.setLocation(r.getId());
 			}
@@ -253,12 +255,12 @@ public class StudentsMidterm {
 			}
 		}
 		else if (s.getComputer().equals("pc")) {
-			RoomMidterm r = listOfRooms.getLab(s.getDateExam(), s.getExamStartTime(), s.getExamFinishTime());
+			RoomMidterm r = listOfRooms.getLab(s.getExamDate(), s.getExamStartTime(), s.getExamFinishTime());
 			if (r != null) {
 				s.setLocation(r.getId());
 			}
 			else { // there are laptops TODO: should students be in the OSD office?
-				r = listOfRooms.getRoom(s.getDateExam(), s.getExamStartTime(), s.getExamFinishTime());
+				r = listOfRooms.getRoom(s.getExamDate(), s.getExamStartTime(), s.getExamFinishTime());
 				if (r != null) {
 					s.setLocation(r.getId());
 				}
@@ -268,7 +270,7 @@ public class StudentsMidterm {
 		}
 		// no special demands
 		else {
-			RoomMidterm r = listOfRooms.getRoom(s.getDateExam(), s.getExamStartTime(), s.getExamFinishTime());
+			RoomMidterm r = listOfRooms.getRoom(s.getExamDate(), s.getExamStartTime(), s.getExamFinishTime());
 			if (r != null) {
 				s.setLocation(r.getId());
 			}
@@ -294,12 +296,12 @@ public class StudentsMidterm {
 			}
 
         	int index = 0;                             
-        	Student stud = new Student();
+        	StudentMidterm stud = new StudentMidterm();
         	Elements td = element.select("td");    
         	
         	stud.setId(td.get(index++).text()); 
         	index += 3; // skip time submission, user, IP
-        	stud.setDateExam(td.get(index++).text());
+        	stud.setExamDate(td.get(index++).text());
         	stud.setNameLast(td.get(index++).text());
         	stud.setNameFirst(td.get(index++).text());
         	index += 3; // skip id, phone, email
@@ -316,7 +318,7 @@ public class StudentsMidterm {
         	stud.setComputer(td.get(index++).text());
         	index++; // skip comments
         	//stud.setCampus(td.get(index++).text()); // will need campus 
-        	stud.setExamLength(false);
+        	stud.setExamLength();
         	
         	listOfStudents.add(stud);    
         }

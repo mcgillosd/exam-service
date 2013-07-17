@@ -22,7 +22,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  */
 public class StudentsFinalSec {
 	
-	private static ArrayList<Student>list = new ArrayList<Student>();	
+	private static ArrayList<StudentFinal>list = new ArrayList<StudentFinal>();	
 	private File fileFinals;	
 	/**
 	 * Creates an instance of the class and sets the list	
@@ -33,7 +33,7 @@ public class StudentsFinalSec {
 		setList();
 	}
 	
-	public static ArrayList<Student> getList() {
+	public static ArrayList<StudentFinal> getList() {
 		return list;
 	}
 	/**
@@ -54,14 +54,14 @@ public class StudentsFinalSec {
 			int last = sheet.getLastRowNum();
 			// start reading the file from the 1st row (exclude the header)
 			for (int rowNum = 1; rowNum <= last; rowNum++) {
-				Student student = new Student();
+				StudentFinal student = new StudentFinal();
 				r = sheet.getRow(rowNum);
 				for (int i = 0; i < 13; i++) {
 					switch (i) {
 					case 0 :
 						Cell cell = r.getCell(i);
 						Date date = cell.getDateCellValue();
-						student.setDateExam(date);
+						student.setExamDate(date);
 						break;
 					case 1: 
 						String nameF = r.getCell(i).getStringCellValue();
@@ -150,7 +150,7 @@ public class StudentsFinalSec {
 		}
 		ListOfRooms rList = new ListOfRoomsFinal(file);
 				
-		Date currentDate = list.get(0).getDateExam();
+		Date currentDate = list.get(0).getExamDate();
 		// get time sample set to 10:00 to check morning exams
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(list.get(0).getExamStartTime());
@@ -163,7 +163,7 @@ public class StudentsFinalSec {
 		while (i < list.size()) {
 			ListOfRooms clone = (ListOfRooms)rList.clone();
 			 // while dates are the same and morning
-			while (currentDate.compareTo(s.getDateExam()) == 0 && s.getExamStartTime().compareTo(time) <= 0) { 
+			while (currentDate.compareTo(s.getExamDate()) == 0 && s.getExamStartTime().compareTo(time) <= 0) { 
 				allocateRoom(s, clone);
 				if (i < list.size())
 					s = list.get(i++);
@@ -174,7 +174,7 @@ public class StudentsFinalSec {
 			}
 			clone = (ListOfRooms)rList.clone();
 			// the same day, afternoon
-			while (currentDate.compareTo(s.getDateExam()) == 0) {
+			while (currentDate.compareTo(s.getExamDate()) == 0) {
 				allocateRoom(s, clone); 
 				if (i < list.size())
 					s = list.get(i++);
@@ -184,7 +184,7 @@ public class StudentsFinalSec {
 				}
 			}
 			// change date to the next exam date
-			currentDate = s.getDateExam();
+			currentDate = s.getExamDate();
 		}
 	}
 	private void allocateRoom(Student s, ListOfRooms roomsList) {

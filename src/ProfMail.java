@@ -26,7 +26,7 @@ public class ProfMail {
 	 * Gets a student and looks for email for his prof
 	 * @param s a student whom prof to find
 	 */
-	public ProfMail(Student s) {
+	public ProfMail(StudentFinal s) {
 		String surname = s.getNameProfLast();
 		String name = s.getNameProfFirst();
 		String html = web(surname, name);

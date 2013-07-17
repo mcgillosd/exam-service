@@ -114,7 +114,7 @@ public class Excel {
 	 * @param term	name of the term (ex. 'Summer 2013')
 	 * @throws IOException
 	 */
-	public void update(ArrayList<Student> list, String term) throws IOException {
+	public void update(ArrayList<StudentMidterm> list, String term) throws IOException {
 		// sort the list by the date of the exam
 		Collections.sort(list, new Student.DateExamComparator());
 	
@@ -135,7 +135,7 @@ public class Excel {
 			
 			if (sheet.getLastRowNum() < 2) { // write to the empty file
 				for (int rowXL = 1, i = 0; i < list.size(); i++) {
-					Student student = list.get(i);
+					StudentMidterm student = list.get(i);
 					Row row = sheet.createRow((short) rowXL++);
 					fillRow(row, student, styles);
 				}
@@ -144,9 +144,9 @@ public class Excel {
 			}
 			else { // file already contains entries 
 				int index = 0; // for the list
-				Student student = list.get(index);
+				StudentMidterm student = list.get(index);
 			
-				Date dateToAdd = student.getDateExam(); // date of the entry to be added
+				Date dateToAdd = student.getExamDate(); // date of the entry to be added
 				Date dateInFile = null; // existing in the file dates.
 						
 				int rowEnd = sheet.getLastRowNum();
@@ -177,7 +177,7 @@ public class Excel {
 									if (idInFile == idToAdd) {
 										if (++index < list.size()) {
 											student = list.get(index);
-											dateToAdd = student.getDateExam();
+											dateToAdd = student.getExamDate();
 										} 
 									}
 								}	
@@ -193,7 +193,7 @@ public class Excel {
 									// get the next student
 									if (++index < list.size()) {
 										student = list.get(index);
-										dateToAdd = student.getDateExam();
+										dateToAdd = student.getExamDate();
 									} 
 								} 
 							}
@@ -276,7 +276,7 @@ public class Excel {
 		return styles;
 	}
 	/* Populates a row */
-	private void fillRow(Row row, Student student, CellStyle[] styles) {
+	private void fillRow(Row row, StudentMidterm student, CellStyle[] styles) {
 		for (int colXL = 0; colXL < NB_COL-2; colXL++) {
 			Cell cell = row.createCell(colXL);
 			switch (colXL) {
@@ -284,7 +284,7 @@ public class Excel {
 				cell.setCellValue(student.getId()); 
 				cell.setCellStyle(styles[1]); break;
 			case 1: 
-				cell.setCellValue(student.getDateExam());
+				cell.setCellValue(student.getExamDate());
 				cell.setCellStyle(styles[3]); break;
 			case 2:
 				cell.setCellValue(student.getNameLast());
@@ -343,11 +343,11 @@ public class Excel {
 	/**
 	 * Writes all data from the web page to the file "Midterms.xlsx"
 	 * 
-	 * @param 	list list of all students registered for the midterms,
+	 * @param 	listOfStudents list of all students registered for the midterms,
 	 * @throws IOException
 	 */
-	public void export(ArrayList<Student> list) throws IOException {
-		Collections.sort(list, new Student.DateExamComparator());
+	public void export(ArrayList<StudentMidterm> listOfStudents) throws IOException {
+		Collections.sort(listOfStudents, new Student.DateExamComparator());
 		
 		String excelFileName = "Midterms.xlsx";
 		
@@ -371,8 +371,8 @@ public class Excel {
 			cell.setCellStyle(styles[0]);
 		}
 		
-		for (int rowXL = 1, i = 0; i < list.size(); i++) {
-			Student student = list.get(i);
+		for (int rowXL = 1, i = 0; i < listOfStudents.size(); i++) {
+			StudentMidterm student = listOfStudents.get(i);
 			row = sheet.createRow((short) rowXL++);
 			fillRow(row, student, styles);
 		}
@@ -527,7 +527,7 @@ public class Excel {
 			e.printStackTrace();
 		}
 	}
-	public void writeFinals(ArrayList<Student> list, String term) {
+	public void writeFinals(ArrayList<StudentFinal> list, String term) {
 		Collections.sort(list, new Student.DateExamComparator());
 		
 		String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
@@ -559,7 +559,7 @@ public class Excel {
 			}
 		}
 	}
-	private void writeSheet1(ArrayList<Student> list, XSSFWorkbook wb, CellStyle[] styles) {
+	private void writeSheet1(ArrayList<StudentFinal> list, XSSFWorkbook wb, CellStyle[] styles) {
 		Sheet sheet = wb.createSheet("Sheet1");
 		String[] headers = {"Student ID", "Email", "Name", "Surname", 
 				"Section", "Course ID", "Prof first", "Prof last", 
@@ -578,7 +578,7 @@ public class Excel {
 		}
 		
 		for (int rowXL = 1, i = 0; i < list.size(); i++) {
-			Student student = list.get(i);
+			StudentFinal student = list.get(i);
 			row = sheet.createRow((short) rowXL++);
 			
 			for (int col = 0; col < NB_COL; col++) {
@@ -613,7 +613,7 @@ public class Excel {
 					cell.setCellValue(student.getNameProfLast());
 					cell.setCellStyle(styles[1]); break;
 				case 8:
-					cell.setCellValue(student.getDateExam());
+					cell.setCellValue(student.getExamDate());
 					cell.setCellStyle(styles[3]); break;
 				case 9:
 					cell.setCellValue(student.getExamStartTime());
@@ -650,7 +650,7 @@ public class Excel {
 		sheet.createFreezePane(0, 1);		    
 	}
 	
-	private void writeSheet2(ArrayList<Student> list, XSSFWorkbook wb, CellStyle[] styles) {
+	private void writeSheet2(ArrayList<StudentFinal> list, XSSFWorkbook wb, CellStyle[] styles) {
 						
 		Sheet sheet = wb.createSheet("by day");
 		String[] headers = {"Date", "Name", "Surname", "Section", "Course ID", 
@@ -669,14 +669,14 @@ public class Excel {
 		}
 			
 		for (int rowXL = 1, i = 0; i < list.size(); i++) {
-			Student student = list.get(i);
+			StudentFinal student = list.get(i);
 			row = sheet.createRow((short) rowXL++);
 			
 			for (int col = 0; col < NB_COL-1; col++) { //minus invigilator
 				Cell cell = row.createCell(col);
 				switch (col) {
 				case 0:
-					cell.setCellValue(student.getDateExam()); 
+					cell.setCellValue(student.getExamDate()); 
 					cell.setCellStyle(styles[3]); break;
 				case 1: 
 					cell.setCellValue(student.getNameFirst());
@@ -746,7 +746,7 @@ public class Excel {
 	 * @param list list of students 
 	 * @param file the file where locations should be added (the main file for finals)
 	 */
-	public void writeLocation(ArrayList<Student> list, File file) {
+	public void writeLocation(ArrayList<StudentFinal> list, File file) {
 		try {
 			FileInputStream inp = new FileInputStream(file);
 			XSSFWorkbook wb = new XSSFWorkbook(inp);
@@ -786,7 +786,7 @@ public class Excel {
 	 * @param list list of students
 	 * @param label Label is necessary to give info about the searching process (takes time)
 	 */
-	public void writeListProf(ArrayList<Student> list, JLabel label) {
+	public void writeListProf(ArrayList<StudentFinal> list, JLabel label) {
 		String filename = "List of students for profs.xlsx";
 		File file = new File(filename);
 		if (file.exists()) {
@@ -799,7 +799,7 @@ public class Excel {
 			else return;
 		}
 		
-		Collections.sort(list, new Student.ProfComparator());
+		Collections.sort(list, new StudentFinal.ProfComparator());
 		
 		XSSFWorkbook wb = new XSSFWorkbook();
 		XSSFSheet sheet = wb.createSheet();
@@ -824,7 +824,7 @@ public class Excel {
 		int i = 0;
 		while (i < list.size()) {
 			boolean noProf = false;
-			Student student = list.get(i);
+			StudentFinal student = list.get(i);
 			row = sheet.createRow((short) rowXL++);
 			Cell cell = row.createCell(0);
 			if (student.getNameProfLast() != "")

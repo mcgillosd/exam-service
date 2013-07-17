@@ -200,7 +200,7 @@ public class GUIPanel extends JPanel {
 				// pick a command
 				if (command == downloadNew) {
 					till = Integer.parseInt(getOptionPane("Enter a number", true)); // to be deleted, for simulator
-					new StudentsMidterm(frame, label, true);
+					new StudentsMidtermInit(frame, label, true);
 				}
 				else if (command == removeEmptyRows) {
 					String term = getOptionPane("Remove empty rows", true);
@@ -218,7 +218,7 @@ public class GUIPanel extends JPanel {
 					}
 				}
 				else if (command == downloadAll) {
-					new StudentsMidterm(frame, label, false);
+					new StudentsMidtermInit(frame, label, false);
 				}
 			}
 		});
@@ -298,7 +298,7 @@ public class GUIPanel extends JPanel {
 			    	label.paintImmediately(label.getVisibleRect());
 				}
 				else if (command == createlist) {
-					ArrayList<Student> list = StudentsFinalSec.getList();
+					ArrayList<StudentFinal> list = StudentsFinalSec.getList();
 					if (list.size() > 0) {  // the same session
 						//
 					}

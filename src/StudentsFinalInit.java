@@ -27,7 +27,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  */
 public class StudentsFinalInit {
 
-	private ArrayList<Student>list = new ArrayList<Student>();	
+	private ArrayList<StudentFinal>list = new ArrayList<StudentFinal>();	
 	private JLabel label;
 	/**
 	 * Creates a list of students registered for finals and writes data into the file
@@ -73,7 +73,7 @@ public class StudentsFinalInit {
 			Row r = sheet.getRow(0);
 			// start reading the file form the 1st row (exclude the header)
 			for (int rowNum = 1; ! endOfFile; rowNum++) {
-				Student student = new Student();
+				StudentFinal student = new StudentFinal();
 				r = sheet.getRow(rowNum);
 				for (int i = 0; i < 7; i++) {
 					switch (i) {
@@ -102,7 +102,7 @@ public class StudentsFinalInit {
 						student.setCourse(course); break;
 					case 5:
 						Date date = r.getCell(i).getDateCellValue();
-						student.setDateExam(date); break;
+						student.setExamDate(date); break;
 					case 6:
 						// gets the date in year 1899, has to increment to be after 1900
 						// to write correctly in Excel
@@ -145,7 +145,7 @@ public class StudentsFinalInit {
 			XSSFSheet sheet = wb.getSheetAt(0);
 						
 			int rowNum = 1;
-			for (Student s : list) {
+			for (StudentFinal s : list) {
 				boolean found = false;
 				// have to save only the first row of the course which may have different sections
 				boolean first = true;
@@ -247,7 +247,7 @@ public class StudentsFinalInit {
 	private void addAccommodations(ArrayList<Accommodations> listAcc) {
 		Collections.sort(list);
 		int i = 0;
-		for (Student s : list) {
+		for (StudentFinal s : list) {
 			String id = s.getSid();
 			while (id.compareTo(listAcc.get(i).getId()) > 0) {
 				i++;
@@ -261,7 +261,7 @@ public class StudentsFinalInit {
 			}
 		}
 	}
-	private void setAccommodations(Student s, Accommodations acc) {
+	private void setAccommodations(StudentFinal s, Accommodations acc) {
 		if (acc != null) {
 			s.setEmail(acc.getEmailAcc());
 			ArrayList<String> listCodes = acc.getList();
@@ -387,12 +387,12 @@ public class StudentsFinalInit {
 		else {
 			s.setWarning("No accommodations data");
 		}
-		s.setExamLength(true);  // check if I need to set it before
+		s.setExamLength();  // check if I need to set it before
 	}
 	private void findConflicts() {
 		Collections.sort(list, new Student.StudentDateComparator());
 		for (int i = 0; i < list.size()-1; i++) {
-			Student s = list.get(i);
+			StudentFinal s = list.get(i);
 			if (s.equals(list.get(i+1))) {
 				s.setConflict(true);
 				list.get(i+1).setConflict(true);

@@ -38,7 +38,7 @@ public class AccessWeb {
 	private JFrame frame;
 	private JLabel label;
 	private final JDialog dialog;
-	private final StudentsMidterm sd;
+	private final StudentsMidtermInit sd;
 	
 	/**
 	 * Creates a new panel to login, sets <code>StudentsMidterm</code> data
@@ -49,7 +49,7 @@ public class AccessWeb {
 	 * @param sd	<code>StudentsList</code> will be used to call them 
 	 * 				back after an ActionListener event
 	 */
-	public AccessWeb(JFrame frame, JLabel label, StudentsMidterm sd) {
+	public AccessWeb(JFrame frame, JLabel label, StudentsMidtermInit sd) {
 		this.label = label;
 		label.setText("Please login");
 		this.frame = frame;
