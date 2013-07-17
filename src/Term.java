@@ -20,6 +20,7 @@ import java.util.Date;
 public class Term { 
 			
 	private String term;
+	private String season;
 	private int year;
 	/**
 	 * Creates a term, based on the current date
@@ -58,18 +59,27 @@ public class Term {
 	 * @param month month of the term
 	 */
 	public void setTerm(int month) {
-		if (month > 0 && month < 5)
+		if (month > 0 && month < 5) {
 			term = "Winter " + year;
-		else if (month > 4 && month < 9)
+			season = "Winter";
+		}
+		else if (month > 4 && month < 9) {
 			term = "Summer " + year;
-		else if (month > 8 && month < 13)
+			season = "Summer";
+		}
+		else if (month > 8 && month < 13) {
 			term = "Fall " + year;
+			season = "Fall";
+		}
 	} 
 	public String getTerm() {
 		return term;
 	}
 	public int getYear() {
 		return year;
+	}
+	public String getSeason() {
+		return season;
 	}
 	/**
 	 * Returns the final month of the term, for finals

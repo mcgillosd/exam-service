@@ -2,3 +2,11 @@
 2. Invigilators
 3. Interface
 4. Tests (including Midterms new form)
+5. Log
+6. To web
+7. Editor (divide by empty lines, etc)
+8. To stop when errors (stop button)
+9. Midterm: to make them download if rooms file doesn't exist or stop?
+   If to stop, then impossible to allocate in future 
+   or write another option to allocate later
+10. Accomodation - better redo until the last column

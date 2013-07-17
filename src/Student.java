@@ -276,7 +276,7 @@ public class Student implements Comparable<Student> {
 		if (comp.equalsIgnoreCase("Yes"))
 			computer = "pc";
 		else
-			computer = "";
+			computer = ""; // or null?
 	}
 	public String getComments() {
 		return comments;
@@ -297,7 +297,7 @@ public class Student implements Comparable<Student> {
 	@Override
 	public String toString() {
 		return id + "\t" + nameLast + "\t" + dateExam + "\t" + examStartTime + "\t" + 
-				examLength + "\t" + computer + "\t" + comments;  
+				examFinishTime + "\t" + computer + "\t" + comments;  
 	}
 			
 	public int compareTo(Student s) {

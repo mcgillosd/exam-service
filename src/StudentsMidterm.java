@@ -43,8 +43,8 @@ public class StudentsMidterm {
 	private boolean existNew = false;
 	private boolean roomsInit = false;
 	private Excel xl;
-	private ListOfRoomsMidterm roomsList;
-	
+	private ListOfRoomsMidterm listOfRooms;
+	private String season = new Term().getSeason();
 	/**
 	 * Triggers access to the web-page in order to get the data,
 	 * which will be used to create lists of students.
@@ -66,6 +66,7 @@ public class StudentsMidterm {
 	 */
 	public void setId(LastID lastId) {
 		this.id = lastId.getID();
+		System.out.println(id);
 	}
 	/**
 	 * Invokes setters to create lists of students
@@ -79,6 +80,7 @@ public class StudentsMidterm {
 		if (update) { 
 			setId(new LastID());
 			//boolean existNew = false;
+			
 			setTermLists(html, id);
 			ArrayList<ArrayList<Student>> lists = new ArrayList<ArrayList<Student>>(3);
 			lists.add(listWinter);
@@ -105,7 +107,7 @@ public class StudentsMidterm {
 			}
 			else {
 				new Message("The last id before update is " + id);
-				//new LastID().setLastID(lastid); // update id;
+				new LastID().setLastID(lastid); // update id;
 			}
 			label.setText("Choose an option and click the button");
 			label.paintImmediately(label.getVisibleRect());
@@ -154,10 +156,11 @@ public class StudentsMidterm {
 			 
 			// int item = Integer.parseInt(td.get(0).text()); // will be $lastid, new id for the next update
 			 int idMax = id;  // id from the previous update
-		//	System.out.println(item + " " + id);
+			 //System.out.println(item + " " + id);
 			 if (item > idMax) { // new entries have been added since last visit
 				 existNew = true;
-				 if (Integer.parseInt(td.get(index).text()) <= item) { // only to test, to be removed
+				 if (Integer.parseInt(td.get(index).text()) <= item 
+						 && Integer.parseInt(td.get(index).text()) > id) { // only to test, to be removed
 				 stud.setId(td.get(index++).text()); 
 				 if (! lastIdSet) { // gets the first entry's id - it will be the last updated entry
 					 lastid = stud.getId(); // write it only after update!
@@ -184,31 +187,35 @@ public class StudentsMidterm {
 				 stud.setExamLength(false);
 				 System.out.println(stud);
 				 
-				 if (stud.getTerm().contains("Fall")) {
+				 String term = stud.getTerm();
+				 if (term.contains("Fall")) {
 					// existNew = true;
 					 if (! listFall.contains(stud));
 					 	listFall.add(stud);
 				 }
-				 else if (stud.getTerm().contains("Winter")) {
+				 else if (term.contains("Winter")) {
 					 //existNew = true;
 					 if (! listWinter.contains(stud));
 					 	listWinter.add(stud);
 				 }
-				 else if (stud.getTerm().contains("Summer")) {
+				 else if (term.contains("Summer")) {
 					 //existNew = true;
 					 if (! listSummer.contains(stud))
 						 listSummer.add(stud);
 				 }
 				 if (existNew && ! roomsInit) {
 					 System.out.println("init");
-					 roomsList = initRooms();
-					 if (roomsList != null)
+					 listOfRooms = initRooms();
+					 if (listOfRooms != null)
 						 roomsInit = true;
 					 else
 						 return;
 				 }
-				 addLocation(stud); 
-				 }
+				 // add location only for the current term
+			//	 if (term.contains(season))
+				 if (term.contains("Winter")) // just to test
+					 addLocation(stud); 
+			 }
 			 }	
 			 else
 				 break;
@@ -228,9 +235,8 @@ public class StudentsMidterm {
 	}
 	private void addLocation(Student s) {
 		if (s.getComments() != null && (s.getComments().contains("rm alone") || s.getComments().contains("scribe"))) {
-			RoomMidterm r = roomsList.getSmallRoom(s.getDateExam(), s.getExamStartTime(), s.getExamLength());
+			RoomMidterm r = listOfRooms.getSmallRoom(s.getDateExam(), s.getExamStartTime(), s.getExamFinishTime());
 			if (r != null) {
-				r.takePlace();
 				s.setLocation(r.getId());
 			}
 			else {
@@ -238,25 +244,22 @@ public class StudentsMidterm {
 			}
 		}
 		else if (s.getComments() != null && (s.getComments().contains("wynn") || s.getComments().contains("kurzweil"))) {
-			RoomMidterm r = roomsList.getRoomByName("OSD Lab", s.getDateExam(), s.getExamStartTime(), s.getExamLength());
+			RoomMidterm r = listOfRooms.getRoomByName("OSD Lab", s.getDateExam(), s.getExamStartTime(), s.getExamFinishTime());
 			if (r != null && ! r.full()) {
-				r.takePlace();
 				s.setLocation(r.getId());
 			}
 			else {
 				s.setLocation("no places in OSD lab");
 			}
 		}
-		else if (s.getComputer() != null && s.getComputer().equals("pc")) {
-			RoomMidterm r = roomsList.getLab(s.getDateExam(), s.getExamStartTime(), s.getExamLength());
+		else if (s.getComputer().equals("pc")) {
+			RoomMidterm r = listOfRooms.getLab(s.getDateExam(), s.getExamStartTime(), s.getExamFinishTime());
 			if (r != null) {
-				r.takePlace();
 				s.setLocation(r.getId());
 			}
-			else { // there are laptops TODO: limited qty of laptops - how many? should students be in the OSD office?
-				r = roomsList.getRoom(s.getDateExam(), s.getExamStartTime(), s.getExamLength());
+			else { // there are laptops TODO: should students be in the OSD office?
+				r = listOfRooms.getRoom(s.getDateExam(), s.getExamStartTime(), s.getExamFinishTime());
 				if (r != null) {
-					r.takePlace();
 					s.setLocation(r.getId());
 				}
 				else
@@ -265,9 +268,8 @@ public class StudentsMidterm {
 		}
 		// no special demands
 		else {
-			RoomMidterm r = roomsList.getRoom(s.getDateExam(), s.getExamStartTime(), s.getExamLength());
+			RoomMidterm r = listOfRooms.getRoom(s.getDateExam(), s.getExamStartTime(), s.getExamFinishTime());
 			if (r != null) {
-				r.takePlace();
 				s.setLocation(r.getId());
 			}
 			else {

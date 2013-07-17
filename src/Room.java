@@ -66,7 +66,6 @@ public class Room implements Cloneable {
 		else {
 			// error
 		}
-		System.out.println(name);
 	}
 	/**
 	 * Create a room with any given name
