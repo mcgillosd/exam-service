@@ -1,5 +1,5 @@
 /*
- * StudentsMidterm.java
+ * StudentsMidtermInit.java
  * 
  * Created on 2013-06-10 1:59:46 PM
  */
@@ -8,14 +8,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import javax.swing.JFrame;
-import javax.swing.JLabel;
+import javax.swing.JTextArea;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 /**
  * Collects students into lists, 
  * if necessary sorts them by the term in which they take exams
@@ -34,17 +32,21 @@ public class StudentsMidtermInit {
 	/** List of students who take exams in Summer */
 	private ArrayList<StudentMidterm> listSummer = new ArrayList<StudentMidterm>();
 	
-	private JLabel label;
+	private JTextArea label = PanelMidterms.label;
+	
 	/** The last id from the previous update */
-	private int id;
+	static int id;
 	/** The last id after a new update has been done */
 	private int lastid;
+	
 	private boolean update = false;
 	private boolean existNew = false;
 	private boolean roomsInit = false;
+	
 	private Excel xl;
 	private ListOfRoomsMidterm listOfRooms;
 	private String season = new Term().getSeason();
+	private ListOfAccommodations listAcc;
 	/**
 	 * Triggers access to the web-page in order to get the data,
 	 * which will be used to create lists of students.
@@ -55,10 +57,8 @@ public class StudentsMidtermInit {
 	 * @param update	if <code>true</code> will only update the files 
 	 * 					starting from the last update's id
 	 */
-	public StudentsMidtermInit(JFrame frame, JLabel label, boolean update) {
-		this.label = label;
+	public StudentsMidtermInit(boolean update) {
 		this.update = update;
-		new AccessWeb(frame, label, this);  // do not need frame (most likely)
 	}
 	/**
 	 * Gets the last id of the previous update and registers it
@@ -66,7 +66,6 @@ public class StudentsMidtermInit {
 	 */
 	public void setId(LastID lastId) {
 		this.id = lastId.getID();
-		System.out.println(id);
 	}
 	/**
 	 * Invokes setters to create lists of students
@@ -79,8 +78,7 @@ public class StudentsMidtermInit {
 	public void start(String html){
 		if (update) { 
 			setId(new LastID());
-			//boolean existNew = false;
-			
+						
 			setTermLists(html, id);
 			ArrayList<ArrayList<StudentMidterm>> lists = new ArrayList<ArrayList<StudentMidterm>>(3);
 			lists.add(listWinter);
@@ -90,38 +88,36 @@ public class StudentsMidtermInit {
 				if (lists.get(i).size() > 0) {
 					int index = (i+1)*3; // should be any month of the term, so 3 (W), 6 (S) and 9 (F)
 					String term = new Term(index).getTerm();
-				/*	xl = new Excel();
+					label.append("-- Updating Excel files\n");
+					xl = new Excel();
 					try {
-						label.setText("Updating files...");
-						label.paintImmediately(label.getVisibleRect());
 						xl.update(lists.get(i), term);
 					}
 					catch (IOException e) {
 						e.printStackTrace();
-					}*/
+					}
 				}
 			}
 			if (! existNew) {
-				String message = "There are no new entries";
-				new Message(message);
+				label.append("> There are no new entries\n");
 			}
 			else {
-				new Message("The last id before update is " + id);
+				label.append("> The last id before update is " + id + "\n");
 				new LastID().setLastID(lastid); // update id;
 			}
-			label.setText("Choose an option and click the button");
-			label.paintImmediately(label.getVisibleRect());
+			label.append("> Choose an option and click the button\n");
+			//label.paintImmediately(label.getVisibleRect());
 		}
 		else { // download all
 			listOfStudents = new ArrayList<StudentMidterm>();
 			setListOfStudents(html);
 			try {
 				Excel xl = new Excel();
-				label.setText("Writing data to the file...");
-				label.paintImmediately(label.getVisibleRect());
+				label.append("> Writing data to the file...\n");
+				//label.paintImmediately(label.getVisibleRect());
 				xl.export(listOfStudents);
-				label.setText("Choose an option and click the button");
-				label.paintImmediately(label.getVisibleRect());
+				label.append("> Choose an option and click the button\n");
+				//label.paintImmediately(label.getVisibleRect());
 			} 
 			catch (IOException e) {
 				e.printStackTrace();
@@ -152,11 +148,11 @@ public class StudentsMidtermInit {
 			 StudentMidterm stud = new StudentMidterm();
 	        	
 			 Elements td = element.select("td"); 
-			 int item = GUIPanel.till;
+			 int item = PanelMidterms.till;  // to be deleted
 			 
 			// int item = Integer.parseInt(td.get(0).text()); // will be $lastid, new id for the next update
 			 int idMax = id;  // id from the previous update
-			 //System.out.println(item + " " + id);
+			 System.out.println(item + " " + id);
 			 if (item > idMax) { // new entries have been added since last visit
 				 existNew = true;
 				 if (Integer.parseInt(td.get(index).text()) <= item 
@@ -171,50 +167,52 @@ public class StudentsMidtermInit {
 				 stud.setNameLast(td.get(index++).text());
 				 stud.setNameFirst(td.get(index++).text());
 				 stud.setSid(td.get(index++).text());
-				 index += 2; // skip id, phone, email
+				 index += 2; // skip phone, email
 				 stud.setCourse(td.get(index++).text());
 				 stud.setSection(td.get(index++).text());
 				 
 				 index++; // skip location
 				 stud.setExamStartTime(td.get(index++).text());
-				 stud.setLengthMidterm(td.get(index++).text());
+				// stud.setLength(td.get(index++).text());
+				 String hours = td.get(index++).text();
+				 String minutes = td.get(index++).text();
+				 stud.setLength(calculateLength(hours, minutes));
+				 
 				 stud.setNameProf(td.get(index++).text());
 				 stud.setEmailProf(td.get(index++).text());
 				 stud.setExtraTime(td.get(index++).text());
 				 stud.setStopwatch(td.get(index++).text());
 				 stud.setComputer(td.get(index++).text());
-				 stud.setComments(td.get(index++).text());
+				 stud.setCommentsFromForm(td.get(index++).text());
 				 stud.setCampus(td.get(index++).text()); // will need campus
 				 
 				 stud.setExamLength();
-				 System.out.println(stud);
-				 
+								 
 				 String term = stud.getTerm();
 				 if (term.contains("Fall")) {
-					// existNew = true;
 					 if (! listFall.contains(stud));
 					 	listFall.add(stud);
 				 }
 				 else if (term.contains("Winter")) {
-					 //existNew = true;
 					 if (! listWinter.contains(stud));
 					 	listWinter.add(stud);
 				 }
 				 else if (term.contains("Summer")) {
-					 //existNew = true;
 					 if (! listSummer.contains(stud))
 						 listSummer.add(stud);
 				 }
 				 if (existNew && ! roomsInit) {
 					 System.out.println("init");
 					 listOfRooms = initRooms();
+					 listAcc = new ListOfAccommodations();
 					 if (listOfRooms != null)
 						 roomsInit = true;
 					 else
 						 return;
 				 }
-				 // add location only for the current term
-			//	 if (term.contains(season))
+				 listAcc.findAccommodations(stud);
+				 /* add location only for the current term */
+			//	 if (term.contains(season)) // correct
 				 if (term.contains("Winter")) // just to test
 					 addLocation(stud); 
 			 }
@@ -223,7 +221,15 @@ public class StudentsMidtermInit {
 				 break;
 		 }
 	}
-
+	private int calculateLength(String hours, String minutes) {
+		String[] hoursA = hours.split(" ");
+		String[] minutesA = minutes.split(" ");
+		int h = Integer.parseInt(hoursA[0]);
+		int m = Integer.parseInt(minutesA[0]);
+		int len = h*60 + m;
+		return len;
+	}
+	
 	private ListOfRoomsMidterm initRooms() {
 		File file = new File("rooms_midterm.xlsx");
 		if (! file.exists()) {
@@ -259,7 +265,7 @@ public class StudentsMidtermInit {
 			if (r != null) {
 				s.setLocation(r.getId());
 			}
-			else { // there are laptops TODO: should students be in the OSD office?
+			else {
 				r = listOfRooms.getRoom(s.getExamDate(), s.getExamStartTime(), s.getExamFinishTime());
 				if (r != null) {
 					s.setLocation(r.getId());
@@ -308,16 +314,15 @@ public class StudentsMidtermInit {
         	stud.setCourse(td.get(index++).text());
         	stud.setSection(td.get(index++).text());
         	index++; // skip location
-        	//stud.setLocation(td.get(index++).text());
         	stud.setExamStartTime(td.get(index++).text());
-        	stud.setLengthMidterm(td.get(index++).text());
+        //	stud.setLengthMidterm(td.get(index++).text());
         	stud.setNameProf(td.get(index++).text());
         	stud.setEmailProf(td.get(index++).text());
         	stud.setExtraTime(td.get(index++).text());
         	stud.setStopwatch(td.get(index++).text());
         	stud.setComputer(td.get(index++).text());
         	index++; // skip comments
-        	//stud.setCampus(td.get(index++).text()); // will need campus 
+        	stud.setCampus(td.get(index++).text()); // will need campus 
         	stud.setExamLength();
         	
         	listOfStudents.add(stud);    

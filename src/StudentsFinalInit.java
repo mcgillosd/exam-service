@@ -12,7 +12,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 
-import javax.swing.JLabel;
+import javax.swing.JTextArea;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -28,30 +28,29 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class StudentsFinalInit {
 
 	private ArrayList<StudentFinal>list = new ArrayList<StudentFinal>();	
-	private JLabel label;
+	private JTextArea label = PanelFinals.label;
 	/**
 	 * Creates a list of students registered for finals and writes data into the file
 	 */
-	public StudentsFinalInit(JLabel label, String term) {
-		this.label = label;
+	public StudentsFinalInit(String term) {
 		setList(term);
 		addProfInfo(term);
-		getAccomodations();
-		label.setText("Looking for conflicts");
+		
+		label.append("> Getting accommodations info\n");
+	    label.paintImmediately(label.getVisibleRect());
+	    ListOfAccommodations listAcc = new ListOfAccommodations();
+	    listAcc.addAccommodations(list);
+		
+		label.append("> Looking for conflicts\n");
     	label.paintImmediately(label.getVisibleRect());
     	findConflicts();
-    //	label.setText("Allocating rooms");
-    	//label.paintImmediately(label.getVisibleRect());
-    	//addLocation();
+   
 		
-		label.setText("Writing into Excel");
+		label.append("> Writing into Excel\n");
     	label.paintImmediately(label.getVisibleRect());
     	new Excel().writeFinals(list, term);
-    	//label.setText("Adding profs mails");
-    	//label.paintImmediately(label.getVisibleRect());
     	
-    	//new ProfMail(list.get(0));	
-    	label.setText("Choose an option and click the button");
+    	label.append("> Choose an option by clicking the button\n");
     	label.paintImmediately(label.getVisibleRect());
 	}
 	private void setList(String term) {
@@ -60,7 +59,7 @@ public class StudentsFinalInit {
 		if (! fileOSDReport.exists())
 			new Message("File " + osdReport + " doesn't exist");
 		
-		label.setText("Getting info from " + osdReport + " file");
+		label.append("-- Getting info from " + osdReport + " file\n");
     	label.paintImmediately(label.getVisibleRect());
 		
 		try {
@@ -136,7 +135,7 @@ public class StudentsFinalInit {
 		if (! fileFinalSchedule.exists())
 			new Message("File " + finalSchedule + " doesn't exist");
 			
-		label.setText("Getting info from " + finalSchedule + " file");
+		label.append("> Getting info from " + finalSchedule + " file\n");
 	    label.paintImmediately(label.getVisibleRect());
 			
 		try {
@@ -202,193 +201,7 @@ public class StudentsFinalInit {
 			e.printStackTrace();
 		}
 	}
-	private void getAccomodations() {
-		ArrayList<Accommodations> listAcc = new ArrayList<Accommodations>();
-		
-		final String accommodations = "accommodations.xlsx";
-		File fileAccommodations = new File("finals/" + accommodations);
-		
-		if (! fileAccommodations.exists())
-			new Message("File " + accommodations + " doesn't exist");
-			
-		label.setText("Getting info from " + accommodations + " file");
-	    label.paintImmediately(label.getVisibleRect());
-	    
-		try {
-			FileInputStream fis = new FileInputStream(fileAccommodations);	
-			XSSFWorkbook wb = new XSSFWorkbook(fis);
-			XSSFSheet sheet = wb.getSheetAt(0);
-	
-			Cell cell = sheet.getRow(0).getCell(0);
-			int rowNum = 0;
-			while (! cell.getStringCellValue().equalsIgnoreCase("ID")) {
-				cell = sheet.getRow(rowNum++).getCell(0);
-				if (cell == null)
-					cell = sheet.getRow(rowNum++).getCell(0);
-					
-			}
-						
-			Row r = sheet.getRow(rowNum);
-			cell = r.getCell(0);
-			while (cell != null) {
-				Accommodations acc = new Accommodations(r);
-				listAcc.add(acc);
-				r = sheet.getRow(++rowNum);
-				cell = r.getCell(0);
-			}
-			fis.close();
-			Collections.sort(listAcc, new Accommodations.IdAccComparator());
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		addAccommodations(listAcc);
-	}
-	private void addAccommodations(ArrayList<Accommodations> listAcc) {
-		Collections.sort(list);
-		int i = 0;
-		for (StudentFinal s : list) {
-			String id = s.getSid();
-			while (id.compareTo(listAcc.get(i).getId()) > 0) {
-				i++;
-			}
-			if (id.compareTo(listAcc.get(i).getId()) == 0) {
-				Accommodations acc = listAcc.get(i);
-				setAccommodations(s, acc);
-			}
-			else { //id < idAcc
-				setAccommodations(s, null);
-			}
-		}
-	}
-	private void setAccommodations(StudentFinal s, Accommodations acc) {
-		if (acc != null) {
-			s.setEmail(acc.getEmailAcc());
-			ArrayList<String> listCodes = acc.getList();
-			for (String code : listCodes) {
-				if (code.equals("XA")) {
-					String comment = s.getComments();
-					if (comment == null)
-						s.setComments("rm alone");
-					else
-						s.setComments(comment + ", " + "rm alone");
-				}
-				else if (code.equals("XB")) {
-					String comment = s.getComments();
-					if (comment == null)
-						s.setComments("braille");
-					else
-						s.setComments(comment + ", " + "braille");	
-				}
-				else if (code.equals("XC"))
-					s.setComputer("Yes");
-				else if (code.equals("XD")) {
-					s.setExtraTime("2x");
-				//	s.setExamLength(true);
-				}
-				else if (code.equals("XE")) {
-					String comment = s.getComments();
-					if (comment == null)
-						s.setComments("enlarge");
-					else
-						s.setComments(comment + ", " + "enlarge");
-				}			
-				else if (code.equals("XF")) {
-					String comment = s.getComments();
-					if (comment == null)
-						s.setComments("formula sheet");
-					else
-						s.setComments(comment + ", " + "formula sheet");	
-				}
-				else if (code.equals("XG")) {
-					String comment = s.getComments();
-					if (comment == null)
-						s.setComments("proof");
-					else
-						s.setComments(comment + ", " + "proof");	
-				}
-				else if (code.equals("XH") && s.getExtraTime() == null) {
-					s.setExtraTime("T1/2");
-					//s.setExamLength(true);
-				}
-				else if (code.equals("XL")) {
-					String comment = s.getComments();
-					if (comment == null)
-						s.setComments("calculator");
-					else
-						s.setComments(comment + ", " + "calculator");	
-				}
-				else if (code.equals("XM")) {
-					String comment = s.getComments();
-					if (comment == null)
-						s.setComments("small room");
-					else
-						s.setComments(comment + ", " + "small room");	
-				}
-				else if (code.equals("XR") && s.getExtraTime() == null) {
-					s.setExtraTime(""); // regular time
-					//s.setExamLength(true);
-				}
-				else if (code.equals("XS")) {
-					String comment = s.getComments();
-					if (comment == null)
-						s.setComments("scribe");
-					else
-						s.setComments(comment + ", " + "scribe");	
-				}
-				else if (code.equals("XT")) {
-					String comment = s.getComments();
-					if (comment == null)
-						s.setComments("on tape");
-					else
-						s.setComments(comment + ", " + "on tape");	
-				}
-				else if (code.equals("XW"))
-					s.setStopwatch("Yes");
-				else if (code.equals("XX")) {
-					// nothing
-				}
-				else {
-					s.setWarning("Unknown code: " + code);
-				}
-			}
-			String otherAcc = acc.getOther();
-			if (otherAcc != null) {
-				if ((otherAcc.contains("1/3") || otherAcc.contains("1/4")) && s.getExtraTime() == null) {
-					String sub = null;
-					if (otherAcc.contains("1/3")) {
-						sub = "1/3";
-						s.setExtraTime("T1/3");
-						//s.setExamLength(true);
-					}
-					else {
-						sub = "1/4";
-						s.setExtraTime("T1/4");
-						//s.setExamLength(true);
-					}
-					if (otherAcc.contains("on all")) {
-						s.setComments(otherAcc);
-						s.setWarning("Please check extra time");
-					}
-					else {
-						int index = otherAcc.indexOf(sub);
-						int len = otherAcc.length();
-						if (index+4 < len) {
-							String comment = otherAcc.substring(index+4);
-							s.setComments(comment);
-						}
-					}
-				}
-			}
-			else {
-				//
-			}
-		}
-		else {
-			s.setWarning("No accommodations data");
-		}
-		s.setExamLength();  // check if I need to set it before
-	}
+
 	private void findConflicts() {
 		Collections.sort(list, new Student.StudentDateComparator());
 		for (int i = 0; i < list.size()-1; i++) {

@@ -5,8 +5,15 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -128,17 +135,25 @@ public class RoomMidterm extends Room {
 							// no free places, look for free spots in time
 							
 							// bad with random. Take the row, create a list and sort by size. 
+							HashMap<Integer, LinkedList<Date>> map = new HashMap<Integer, LinkedList<Date>>();
 							int col = 0;
 							while (++col <= capacity) {
-								colNum = (short)((int)(Math.random()*capacity) + 1);
-								cell = row.getCell(colNum);
+								//colNum = (short)((int)(Math.random()*capacity) + 1);
+								cell = row.getCell(col);
 								// looking for spots
 								String times = cell.getStringCellValue();
 								String[] tarray = times.split(" ");
 								LinkedList<Date> schedule = getSchedule(tarray);
+								map.put(col, schedule);
+							}
+							Map<Integer, LinkedList<Date>> sorted = sort(map);
+						    						    
+						    for (Map.Entry<Integer, LinkedList<Date>> entry : sorted.entrySet()) {
+																
+								LinkedList<Date> schedule = entry.getValue();
 								if (addPlace(schedule, start, finish)) {
 									fis.close();
-									bookPlace(schedule, cell); 
+									bookPlace(schedule, row.getCell(entry.getKey())); 
 									cell.setCellStyle(styleWrap);
 									
 									int len = schedule.size()/2;
@@ -286,5 +301,18 @@ public class RoomMidterm extends Room {
 			String total = startS + "-" + finishS;
 			cell.setCellValue(total);
 		}
+	}
+	private Map<Integer, LinkedList<Date>> sort(Map<Integer, LinkedList<Date>> map) {
+		List<Entry<Integer, LinkedList<Date>>> list = new LinkedList<Entry<Integer, LinkedList<Date>>>(map.entrySet());
+	
+		Collections.sort(list, new Comparator<Entry<Integer, LinkedList<Date>>>() {
+			public int compare(Entry<Integer, LinkedList<Date>> a, Entry<Integer, LinkedList<Date>> b) {
+				return ((Integer)(a.getValue()).size()).compareTo((Integer)((b.getValue()).size()));
+			}
+		});
+		Map<Integer, LinkedList<Date>> sorted = new LinkedHashMap<Integer, LinkedList<Date>>();
+		for (Entry<Integer, LinkedList<Date>> entry : list)
+			sorted.put(entry.getKey(), entry.getValue());
+		return sorted;
 	}
 } 		

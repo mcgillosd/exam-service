@@ -25,6 +25,7 @@ public class GUIFrame {
 		frame.setSize(600,460);
 
 		GUIPanel newContentPane = new GUIPanel(frame);
+		//GUIBuild newContentPane = new GUIBuild(frame);
 		newContentPane.setOpaque(true); 
 		frame.setContentPane(newContentPane);
 

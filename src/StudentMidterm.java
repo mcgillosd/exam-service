@@ -1,5 +1,7 @@
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /*
  * Created on Jul 17, 2013 1:32:55 PM
@@ -14,7 +16,9 @@ public class StudentMidterm extends Student {
 	/** The number given to students when they submit the form */
 	private int id;
 	private String nameProf;
+	private String commentsFromForm;
 	private String term;
+	private int length;
 	
 	public StudentMidterm() {
 		super();
@@ -55,11 +59,32 @@ public class StudentMidterm extends Student {
 		try {	
 			SimpleDateFormat sdf = new SimpleDateFormat("h:mm a");
 			examStartTime = sdf.parse(examTime);
+			validateTime();
 		}
 		catch (ParseException e) {
 			e.printStackTrace();
 			String message = "There is an error in the time of the exam field";
 			new Message(message);
+		}
+	}
+	private void validateTime() {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(examStartTime);
+		cal.set(Calendar.HOUR_OF_DAY, 8);
+		cal.set(Calendar.MINUTE, 0);
+		Date time800 = cal.getTime();
+		cal.set(Calendar.HOUR_OF_DAY, 20);
+		cal.set(Calendar.MINUTE, 59);
+		Date time2030 = cal.getTime();
+		if (examStartTime.before(time800)) {
+			cal.setTime(examStartTime);
+			cal.add(Calendar.HOUR, 12);
+			examStartTime = cal.getTime();
+		}
+		else if (examStartTime.after(time2030)) {
+			cal.setTime(examStartTime);
+			cal.add(Calendar.HOUR, -12);
+			examStartTime = cal.getTime();
 		}
 	}
 	public String getNameProf() {
@@ -68,14 +93,23 @@ public class StudentMidterm extends Student {
 	public void setNameProf(String nameProf) {
 		this.nameProf = nameProf;
 	}
-	
+	public String getCommentsFromForm() {
+		return commentsFromForm;
+	}
+	public void setCommentsFromForm(String s) {
+		commentsFromForm = s;
+	}
+	public int getLength() {
+		return length;
+	}
 	// to be changed, have to accept two fields (hours and minutes)
 	// and calculate the length
-	public void setLengthMidterm(String examLength) {
-		this.examLength = 60; // to be changed when length is ready on the webpage
+	public void setLength(int length) {
+		//this.length = 60; // to be changed when length is ready on the webpage
+		this.length = length; 
 	}
 	public void setExamLength() { // TODO: time change
-		int time = 60; // to be changed to the real time for midterms
+		int time = length; // to be changed to the real time for midterms
 		if (extraTime == null)
 			examLength = time;
 		else if (extraTime.equals("T1/2") || extraTime.equalsIgnoreCase("Time+1/2"))

@@ -126,4 +126,53 @@ public abstract class ListOfRooms implements Iterable<Room>, Cloneable {
 		lRooms.list = clone;
 		return lRooms;
 	}
+	public void allocateRoom(Student s) {
+		if (s.getComments() != null && (s.getComments().contains("rm alone") || s.getComments().contains("scribe"))) {
+			Room r = getSmallRoom();
+			if (r != null) {
+				r.takePlace();
+				s.setLocation(r.getId());
+			}
+			else {
+				s.setLocation("small room not found");
+			}
+		}
+		else if (s.getComments() != null && (s.getComments().contains("wynn") || s.getComments().contains("kurzweil"))) {
+			Room r = getRoomByName("OSD Lab");
+			if (r != null && ! r.full()) {
+				r.takePlace();
+				s.setLocation(r.getId());
+			}
+			else {
+				s.setLocation("no places in OSD lab");
+			}
+		}
+		else if (s.getComputer() != null && s.getComputer().equals("pc")) {
+			Room r = getLab();
+			if (r != null) {
+				r.takePlace();
+				s.setLocation(r.getId());
+			}
+			else { // there are laptops TODO: limited qty of laptops - how many? should students be in the OSD office?
+				r = getRoom();
+				if (r != null) {
+					r.takePlace();
+					s.setLocation(r.getId());
+				}
+				else
+					s.setLocation("no more places");
+			}
+		}
+		// no special demands
+		else {
+			Room r = getRoom();
+			if (r != null) {
+				r.takePlace();
+				s.setLocation(r.getId());
+			}
+			else {
+				s.setLocation("no more places");
+			}
+		}
+	}
 }

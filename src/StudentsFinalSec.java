@@ -164,7 +164,7 @@ public class StudentsFinalSec {
 			ListOfRooms clone = (ListOfRooms)rList.clone();
 			 // while dates are the same and morning
 			while (currentDate.compareTo(s.getExamDate()) == 0 && s.getExamStartTime().compareTo(time) <= 0) { 
-				allocateRoom(s, clone);
+				clone.allocateRoom(s);
 				if (i < list.size())
 					s = list.get(i++);
 				else {
@@ -175,7 +175,7 @@ public class StudentsFinalSec {
 			clone = (ListOfRooms)rList.clone();
 			// the same day, afternoon
 			while (currentDate.compareTo(s.getExamDate()) == 0) {
-				allocateRoom(s, clone); 
+				clone.allocateRoom(s); 
 				if (i < list.size())
 					s = list.get(i++);
 				else {
@@ -187,7 +187,7 @@ public class StudentsFinalSec {
 			currentDate = s.getExamDate();
 		}
 	}
-	private void allocateRoom(Student s, ListOfRooms roomsList) {
+	/*private void allocateRoom(Student s, ListOfRooms roomsList) {
 		if (s.getComments() != null && (s.getComments().contains("rm alone") || s.getComments().contains("scribe"))) {
 			Room r = roomsList.getSmallRoom();
 			if (r != null) {
@@ -235,5 +235,5 @@ public class StudentsFinalSec {
 				s.setLocation("no more places");
 			}
 		}
-	}
+	}*/
 }
