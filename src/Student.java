@@ -4,9 +4,20 @@
  * Created on 2013-06-10 1:10:29 PM 
  */
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Comparator;
+
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 /**
  * Gathers and keeps information about a student.
  * Receives the data from the web-page and sets the properties
@@ -46,6 +57,9 @@ public abstract class Student implements Comparable<Student> {
 	
 	/** Shows a warning in case something is missing/wrong */
 	protected String warning; 
+	
+	/* for comparator */
+	ArrayList<String> rooms = new ArrayList<String>();
 	
 	/**
 	 * Creates an empty container
@@ -176,6 +190,65 @@ public abstract class Student implements Comparable<Student> {
 		String id = s.sid;
 		return this.sid.compareTo(id);
 	}
+	public int compareTime(Student s) {
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.HOUR_OF_DAY, 11);
+		cal.set(Calendar.MINUTE, 59);
+		Date time = cal.getTime();
+		if ((examStartTime.before(time) && s.examStartTime.before(time)) || 
+				(examStartTime.after(time) && s.examStartTime.after(time)))
+			return 0;
+		if (examStartTime.before(time) && s.examStartTime.after(time))
+			return -1;
+		return 1;
+	}
+	private void setRooms() {
+				
+		File file = new File("rooms.xlsx");
+		if (! file.exists()) {
+			new Message("File " + file.getName() + " doesn't exist");
+			return;
+		}
+		try {
+			FileInputStream fis = new FileInputStream(file);	
+			OPCPackage opcPackage = OPCPackage.open(fis);
+		
+			XSSFWorkbook wb = new XSSFWorkbook(opcPackage);
+			XSSFSheet sheet = wb.getSheetAt(0);
+
+			int i = 1;
+			Row r = sheet.getRow(i); // 0 is a header
+			while (r.getCell(0) != null) {
+				if (r.getCell(1).getCellType() == Cell.CELL_TYPE_STRING)
+					rooms.add(r.getCell(1).getStringCellValue());
+				else
+					rooms.add(Double.toString(r.getCell(1).getNumericCellValue()));
+				r = sheet.getRow(++i);
+			}
+			fis.close();
+			rooms.add("room not found");
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		} 
+		catch (InvalidFormatException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	public int compareLocation(Student s) {
+		if (rooms.size() == 0)
+			setRooms();
+				
+		if (rooms.indexOf(location) >= 0 && rooms.indexOf(s.location) >= 0) {
+			if (rooms.indexOf(location) < rooms.indexOf(s.location))
+				return -1;
+			if (rooms.indexOf(location) > rooms.indexOf(s.location))
+				return 1;
+			return 0;
+		}
+		return 0;
+	}
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) 
@@ -207,6 +280,24 @@ public abstract class Student implements Comparable<Student> {
 				return comp;
 			else
 				return s1.getExamStartTime().compareTo(s2.getExamStartTime());	
+		}
+	}
+	/**
+	 * Compares by the exam date and by location to write into the file sorted
+	 */
+	public static class DateExamLocationComparator implements Comparator<Student> {
+		public int compare(Student s1, Student s2) {
+			int comp = s1.getExamDate().compareTo(s2.getExamDate());  
+			if (comp != 0)
+				return comp;
+			else {
+				comp = s1.compareTime(s2);
+				if (comp != 0)
+					return comp;
+				else {
+					return s1.compareLocation(s2);
+				}
+			}
 		}
 	}
 	// sorts by course and section, used to allocate profs names against each row

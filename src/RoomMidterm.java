@@ -55,7 +55,6 @@ public class RoomMidterm extends Room {
 			if (sheet == null) {
 				fis.close();
 				
-				System.out.println("create sheet " + id);
 				sheet = wb.createSheet(id);
 				Row row = sheet.createRow((short) 0);
 				Cell cell = row.createCell(0);
@@ -172,7 +171,6 @@ public class RoomMidterm extends Room {
 						}
 						// no given date
 						else if (date.compareTo(dateInFile) < 0) { // add new date
-							System.out.println("date less " + rowNum);
 							fis.close();
 							
 							sheet.shiftRows(rowNum, rowLast-1, 1);
@@ -198,7 +196,7 @@ public class RoomMidterm extends Room {
 						rowNum++;
 					} // end of while for rows
 					// didn't find the date, come to the end, then add new date
-					System.out.println("date more " + rowNum);
+				
 					fis.close();
 					row = sheet.createRow(rowNum);
 					cell = row.createCell(0); // date

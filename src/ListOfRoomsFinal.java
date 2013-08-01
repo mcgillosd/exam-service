@@ -18,7 +18,6 @@ public class ListOfRoomsFinal extends ListOfRooms {
 	
 	public void initRooms(Row r) {
 		Room room = new Room(r);
-		System.out.println("Final: " + room);
 		list.add(room);
 	}
 }

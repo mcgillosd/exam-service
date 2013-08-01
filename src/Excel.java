@@ -3,7 +3,6 @@
  * 
  * Created on 2013-06-11 12:13:25 PM
  */
-//import java.awt.Font;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -13,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
@@ -40,6 +38,7 @@ public class Excel {
 	private final int NB_COL = 18;
 	private JTextArea labelMidterm = PanelMidterms.label;
 	private JTextArea labelFinal = PanelFinals.label;
+	private JTextArea labelEditor = PanelEditor.label;
 	/**
 	 * Creates an empty container
 	 */
@@ -58,7 +57,7 @@ public class Excel {
 	public void create(String name) {
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		
-		Font font = setCustomFont(workbook, "Arial", 10, true);
+		Font font = setCustomFont(workbook, "Calibri", 10, true);
 		CellStyle style = workbook.createCellStyle();
 		style.setFont(font);
 		
@@ -99,6 +98,8 @@ public class Excel {
 				workbook.write(out);
 				out.close();
 				labelMidterm.append("-- File " + filename + " has been created\n");
+				labelMidterm.paintImmediately(labelMidterm.getVisibleRect());
+
 			}
 		} catch (FileNotFoundException e) {
 		    e.printStackTrace();
@@ -122,6 +123,7 @@ public class Excel {
 		setFile(filename);
 		
 		if (! file.exists()) {
+			System.out.println("Doesn't exist");
 			create(term);
 		}
 
@@ -133,7 +135,8 @@ public class Excel {
 			
 			XSSFSheet sheet = wb.getSheetAt(0);
 			
-			if (sheet.getLastRowNum() < 2) { // write to the empty file
+			if (sheet.getLastRowNum() < 1) { // write to the empty file
+				System.out.println("Id empty file: " + list.get(0).getId());
 				for (int rowXL = 1, i = 0; i < list.size(); i++) {
 					StudentMidterm student = list.get(i);
 					Row row = sheet.createRow((short) rowXL++);
@@ -221,6 +224,8 @@ public class Excel {
 			fos.flush();
 			fos.close();
 			labelMidterm.append("-- File " + file.getName() + " has been updated\n");
+			labelMidterm.paintImmediately(labelMidterm.getVisibleRect());
+
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -314,7 +319,17 @@ public class Excel {
 				cell.setCellValue(student.getExamFinishTime());
 				cell.setCellStyle(styles[4]); break;
 			case 9:
-				cell.setCellValue(student.getExamLength());
+				int length = student.getExamLength();
+				int hour = length / 60;
+				int min = length % 60;
+				if (hour != 0 && min != 0)
+					cell.setCellValue(hour + " hours " + min + " mins");
+				else if (hour != 0 && min == 0)
+					cell.setCellValue(hour + " hours");
+				else if (hour == 0 && min != 0)
+					cell.setCellValue(min + " mins");
+				else
+					cell.setCellValue("time not known");
 				cell.setCellStyle(styles[1]); break;
 			case 10:
 				cell.setCellValue(student.getNameProf());
@@ -396,149 +411,156 @@ public class Excel {
 		fos.flush();
 		fos.close();
 		labelMidterm.append("-- File " + excelFileName + " has been created\n");
+		labelMidterm.paintImmediately(labelMidterm.getVisibleRect());
+
 	}
 	/**
 	 * Adds two empty rows between two different dates of the exam.
 	 * 
 	 * @param term the term part of the file name
-	 * @param frame	frame to show the message dialog
+	 * @param exam	Midterm or Final
 	 */
-	public void addEmptyRows(String term, JFrame frame) {
-		String filename = term + " exam schedule.xlsx";
-		setFile(filename);
-		
-		if (! file.exists()) {
-			JOptionPane.showMessageDialog(
-					frame, "File " + filename + "doesn't exist", 
-					"Message", JOptionPane.INFORMATION_MESSAGE);
-		}
-		try {
-			FileInputStream inp = new FileInputStream(file);
-			XSSFWorkbook wb = new XSSFWorkbook(inp);
-			Sheet sheet = wb.getSheetAt(0);		
-		
-			int rowEnd = sheet.getLastRowNum()+1;
-						
-			Row row = sheet.getRow(1);
-			/* shift the first row - why? (I forgot) */
-			sheet.shiftRows(1, rowEnd, 1);
-			
-			Cell cell = null;
-			Date datePrevious = null;
-			Date date = null;
-			final int COL_NUM = 1; /* # of the 'date of the exam' column */
-			
-			cell = row.getCell(COL_NUM);
-			if (cell == null) {
-				/* remove empty rows first */ 
-				removeEmptyRows(term, frame, false);
+	public void addEmptyRows(String exam, String term) {
+		if (exam.equalsIgnoreCase("Midterm")) {
+			String filename = term + " exam schedule.xlsx";
+			setFile(filename);
+			if (! file.exists()) {
+				JOptionPane.showMessageDialog(
+						null, "File " + filename + "doesn't exist", 
+						"Message", JOptionPane.INFORMATION_MESSAGE);
 			}
-			else {
-				datePrevious = cell.getDateCellValue();
-			}
-									
-			for (int rowNum = 2; rowNum < rowEnd; rowNum++) {
-				row = sheet.getRow(rowNum);
-				if (row == null) {
-					// remove empty rows, a message that it is empty?
+			try {
+				FileInputStream inp = new FileInputStream(file);
+				XSSFWorkbook wb = new XSSFWorkbook(inp);
+				Sheet sheet = wb.getSheetAt(0);		
+			
+				int rowEnd = sheet.getLastRowNum()+1;
+							
+				Row row = sheet.getRow(1);
+				/* shift the first row - why? (I forgot) */
+				sheet.shiftRows(1, rowEnd, 1);
+				
+				Cell cell = null;
+				Date datePrevious = null;
+				Date date = null;
+				final int COL_NUM = 1; /* # of the 'date of the exam' column */
+				
+				cell = row.getCell(COL_NUM);
+				if (cell == null) {
+					/* remove empty rows first */ 
+					//removeEmptyRows(term, frame, false);
 				}
 				else {
-					cell = row.getCell(COL_NUM);
-					if (cell == null) {
-						// maybe to check if the whole row is empty, if yes remove empty?
-						String mess = "The date is missing in the row " + (rowNum+1) +
-								". Please check the file and remove empty rows first";
-						new Message(mess);
-						return;
+					datePrevious = cell.getDateCellValue();
+				}
+										
+				for (int rowNum = 2; rowNum < rowEnd; rowNum++) {
+					row = sheet.getRow(rowNum);
+					if (row == null) {
+						// remove empty rows, a message that it is empty?
 					}
 					else {
-						date = cell.getDateCellValue();
-						if (! (datePrevious.equals(date))) {
-							sheet.shiftRows(rowNum, rowEnd, 2);
-							rowEnd+=2;
-							rowNum++;
+						cell = row.getCell(COL_NUM);
+						if (cell == null) {
+							// maybe to check if the whole row is empty, if yes remove empty?
+							String mess = "The date is missing in the row " + (rowNum+1) +
+									". Please check the file and remove empty rows first";
+							new Message(mess);
+							return;
 						}
+						else {
+							date = cell.getDateCellValue();
+							if (! (datePrevious.equals(date))) {
+								sheet.shiftRows(rowNum, rowEnd, 2);
+								rowEnd+=2;
+								rowNum++;
+							}
+						}
+						datePrevious = date;
 					}
-					datePrevious = date;
 				}
+				inp.close();
+				FileOutputStream fos = new FileOutputStream(file);
+			    wb.write(fos);
+			    fos.close();
+			    
+			    labelEditor.append("-- File " + filename + " has been updated\n");
+				labelEditor.paintImmediately(labelEditor.getVisibleRect());
+				
+			} 
+			catch (FileNotFoundException e) {
+				e.printStackTrace();
 			}
-			inp.close();
-			FileOutputStream fos = new FileOutputStream(file);
-		    wb.write(fos);
-		    fos.close();
-		    // the label depends
-		    //label.append("> File " + filename + " has been updated\n");
-			//label.paintImmediately(PanelTabs.label.getVisibleRect());
-		} 
-		catch (FileNotFoundException e) {
-			e.printStackTrace();
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+		 		
 		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-	 
 	}
 	/**
 	 * Removes empty rows. 2 cases: a row is null or the first cell
 	 * in the row (with id number) is blank.
 	 * 
 	 * @param term	the term part of the file name
-	 * @param frame	frame for the message dialog
+	 * @param exam	Midterm or Final
 	 * @param message	if <code>true</code> then the message will pop up		
 	 */
-	public void removeEmptyRows(String term, JFrame frame, boolean message) {
-		String filename = term + " exam schedule.xlsx";
-		setFile(filename);
-		
-		if (! file.exists()) {
-			JOptionPane.showMessageDialog(
-					frame, "File " + filename + "doesn't exist", 
-					"Message", JOptionPane.INFORMATION_MESSAGE);
-		}
-	
-		try {
-			FileInputStream inp = new FileInputStream(file);
-			XSSFWorkbook wb = new XSSFWorkbook(inp);
+	public void removeEmptyRows(String exam, String term, boolean message) {
+		if (exam.equalsIgnoreCase("Midterm")) {
+			String filename = term + " exam schedule.xlsx";
+			setFile(filename);
 			
-			Sheet sheet = wb.getSheetAt(0);		
+			if (! file.exists()) {
+				JOptionPane.showMessageDialog(
+						null, "File " + filename + "doesn't exist", 
+						"Message", JOptionPane.INFORMATION_MESSAGE);
+			}
 		
-			int rowStart = sheet.getFirstRowNum();
-			int rowEnd = sheet.getLastRowNum();
-					
-			for (int rowNum = rowStart; rowNum < rowEnd; rowNum++) { 
-				Row row = sheet.getRow(rowNum);
-				if (row == null) {
-					sheet.shiftRows(rowNum+1, rowEnd, -1);						
-					rowEnd--;														
-					rowNum--;	
-				}
-				else { // row has been created, but it is blank 
-					Cell cell = row.getCell(0);
-					if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) { 
+			try {
+				FileInputStream inp = new FileInputStream(file);
+				XSSFWorkbook wb = new XSSFWorkbook(inp);
+				
+				Sheet sheet = wb.getSheetAt(0);		
+			
+				int rowStart = sheet.getFirstRowNum();
+				int rowEnd = sheet.getLastRowNum();
+						
+				for (int rowNum = rowStart; rowNum < rowEnd; rowNum++) { 
+					Row row = sheet.getRow(rowNum);
+					if (row == null) {
 						sheet.shiftRows(rowNum+1, rowEnd, -1);						
 						rowEnd--;														
-						rowNum--;													
+						rowNum--;	
+					}
+					else { // row has been created, but it is blank 
+						Cell cell = row.getCell(0);
+						if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) { 
+							sheet.shiftRows(rowNum+1, rowEnd, -1);						
+							rowEnd--;														
+							rowNum--;													
+						}
 					}
 				}
+				inp.close();
+				// write into the file 
+				FileOutputStream fos = new FileOutputStream(file);
+			    wb.write(fos);
+			    fos.close();
+			    // done
+			    if (message) {
+			    	labelEditor.append("-- File " + filename + " has been updated\n");
+					labelEditor.paintImmediately(labelEditor.getVisibleRect());
+			    }
+			} 
+			catch (FileNotFoundException e) {
+				e.printStackTrace();
 			}
-			inp.close();
-			// write into the file 
-			FileOutputStream fos = new FileOutputStream(file);
-		    wb.write(fos);
-		    fos.close();
-		    // done
-		    if (message) {
-		    	//label.append("> File " + filename + " has been updated\n");
-				//label.paintImmediately(PanelTabs.label.getVisibleRect());
-		    }
-		} 
-		catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
+			catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
+	
 	public void writeFinals(ArrayList<StudentFinal> list, String term) {
 		Collections.sort(list, new Student.DateExamComparator());
 		
@@ -560,6 +582,8 @@ public class Excel {
 				wb.write(fos);
 				fos.close();
 				labelFinal.append("-- File " + fileFinals + " has been created\n");
+				labelFinal.paintImmediately(labelFinal.getVisibleRect());
+
 			}
 			catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -755,7 +779,7 @@ public class Excel {
 	 * @param list list of students 
 	 * @param file the file where locations should be added (the main file for finals)
 	 */
-	public void writeLocation(ArrayList<StudentFinal> list, File file) {
+	/*public void writeLocation(ArrayList<StudentFinal> list, File file) {
 		try {
 			FileInputStream inp = new FileInputStream(file);
 			XSSFWorkbook wb = new XSSFWorkbook(inp);
@@ -781,6 +805,117 @@ public class Excel {
 		    wb.write(fos);
 		    fos.close();
 		} 
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}*/
+	public void writeLocation(ArrayList<StudentFinal> list, File file) {
+		Collections.sort(list, new Student.DateExamLocationComparator());
+		
+		try {
+			FileInputStream inp = new FileInputStream(file);
+			XSSFWorkbook wb = new XSSFWorkbook(inp);
+			
+			CellStyle[] styles = getAllStyles(wb);
+		
+			
+			Sheet sheet = wb.getSheetAt(1);
+			String[] headers = {"Date", "Name", "Surname", "Section", "Course ID", 
+					"Prof last", "Location" , "Start", "Finish", 
+					"Extra", "SW", "PC", "Other", "Invigilator"};
+						
+			final int NB_COL = 14;
+						
+			/* creating the first header row */
+			Row row = sheet.createRow((short) 0);
+			int colXL = 0;
+			while (colXL < NB_COL) {
+				Cell cell = row.createCell(colXL);
+				cell.setCellValue(headers[colXL++]);
+				cell.setCellStyle(styles[2]);
+			}
+				
+			for (int rowXL = 1, i = 0; i < list.size(); i++) {
+				StudentFinal student = list.get(i);
+				row = sheet.createRow((short) rowXL++);
+				
+				for (int col = 0; col < NB_COL-1; col++) { //minus invigilator
+					Cell cell = row.createCell(col);
+					switch (col) {
+					case 0:
+						cell.setCellValue(student.getExamDate()); 
+						cell.setCellStyle(styles[3]); break;
+					case 1: 
+						cell.setCellValue(student.getNameFirst());
+						cell.setCellStyle(styles[1]); break;
+					case 2:
+						cell.setCellValue(student.getNameLast());
+						cell.setCellStyle(styles[1]); break;
+					case 3: 
+						String section = student.getSection();
+						if (section.length() == 1) {
+							section = "00" + section;
+						}
+						cell.setCellValue(section);
+						cell.setCellStyle(styles[1]); break;
+					case 4: 
+						cell.setCellValue(student.getCourse());
+						cell.setCellStyle(styles[1]); break;
+					case 5:
+						cell.setCellValue(student.getNameProfLast() + "\n" + student.getNameProfFirst());
+						cell.setCellStyle(styles[6]); break; 
+					case 6:
+						cell.setCellValue(student.getLocation());
+						cell.setCellStyle(styles[1]); break;
+					case 7:
+						if (student.timeChanged()) {
+							cell.setCellValue(student.getExamStartTime());
+							cell.setCellStyle(styles[5]); break;
+						}
+						else {
+							cell.setCellValue(student.getExamStartTime());
+							cell.setCellStyle(styles[4]); break;
+						}
+					case 8:
+						cell.setCellValue(student.getExamFinishTime());
+						cell.setCellStyle(styles[4]); break;
+					case 9:
+						cell.setCellValue(student.getExtraTime());
+						cell.setCellStyle(styles[1]); break;
+					case 10:
+						cell.setCellValue(student.getStopwatch());
+						cell.setCellStyle(styles[1]); break;
+					case 11:
+						cell.setCellValue(student.getComputer());
+						cell.setCellStyle(styles[1]); break;
+					case 12:
+						cell.setCellValue(student.getComments());
+						cell.setCellStyle(styles[1]); break;
+					}
+				} // end of columns
+			} // end of rows
+										
+			sheet.autoSizeColumn(0);
+			sheet.setColumnWidth(1, 16*255);
+			sheet.setColumnWidth(2, 12*255); 
+			sheet.setColumnWidth(3, 12*255); 
+			sheet.autoSizeColumn(5);
+			sheet.setColumnWidth(6, 12*255); 
+			sheet.setColumnWidth(7, 12*255);
+			
+			sheet.createFreezePane(0, 1);
+			
+		
+			FileOutputStream fos = new FileOutputStream(file);
+			wb.write(fos);
+			fos.close();
+			labelFinal.append("-- File " + file.getName() + " has been updated\n");
+			labelFinal.paintImmediately(labelFinal.getVisibleRect());
+
+		}
 		catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -850,6 +985,7 @@ public class Excel {
 				String email = new ProfMail(student).getEmail();
 				if (email != null) {
 					labelFinal.setText("-- " + student.getNameProfLast() + ": " + email + " --\n");
+					labelFinal.paintImmediately(labelFinal.getVisibleRect());
 					cell.setCellValue(email);
 				}
 				else {
@@ -895,7 +1031,8 @@ public class Excel {
 			wb.write(out);
 			out.close();
 			labelFinal.append("-- File " + filename + " has been created\n");
-					
+			labelFinal.paintImmediately(labelFinal.getVisibleRect());
+
 		} catch (FileNotFoundException e) {
 		    e.printStackTrace();
 		} catch (IOException e) {

@@ -36,21 +36,21 @@ public class StudentsFinalInit {
 		setList(term);
 		addProfInfo(term);
 		
-		label.append("> Getting accommodations info\n");
+		label.append("-- Getting accommodations info\n");
 	    label.paintImmediately(label.getVisibleRect());
 	    ListOfAccommodations listAcc = new ListOfAccommodations();
 	    listAcc.addAccommodations(list);
 		
-		label.append("> Looking for conflicts\n");
+		label.append("-- Looking for conflicts\n");
     	label.paintImmediately(label.getVisibleRect());
     	findConflicts();
    
 		
-		label.append("> Writing into Excel\n");
+		label.append("-- Writing into Excel\n");
     	label.paintImmediately(label.getVisibleRect());
     	new Excel().writeFinals(list, term);
     	
-    	label.append("> Choose an option by clicking the button\n");
+    	label.append("-- Choose an option by clicking the button\n");
     	label.paintImmediately(label.getVisibleRect());
 	}
 	private void setList(String term) {
@@ -135,7 +135,7 @@ public class StudentsFinalInit {
 		if (! fileFinalSchedule.exists())
 			new Message("File " + finalSchedule + " doesn't exist");
 			
-		label.append("> Getting info from " + finalSchedule + " file\n");
+		label.append("-- Getting info from " + finalSchedule + " file\n");
 	    label.paintImmediately(label.getVisibleRect());
 			
 		try {

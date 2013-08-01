@@ -18,6 +18,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 /**
@@ -35,6 +36,8 @@ public class Login extends JPanel {
 	private JDialog dialog;
 	private JTextField textUser;
 	private JPasswordField textPass;
+	
+	private JTextArea label = PanelMidterms.label;
 
 	/** 
 	 * Creates a dialog for Login option
@@ -113,8 +116,19 @@ public class Login extends JPanel {
 				char[] password = textPass.getPassword();
 				dialog.setVisible(false);
 				dialog.dispose();
-				String html = new WebConnect().connect(user, password);
-				new StudentsMidtermInit(update).start(html);
+				WebConnect wc = new WebConnect();
+				int result = wc.connect(user, password);
+				if (result == 302) { 
+					label.append("-- Authentication successful\n");
+					label.paintImmediately(label.getVisibleRect());
+					String html = wc.getContent();
+					new StudentsMidtermInit(update).start(html);
+			    }
+				else {
+					label.append("-- Authentication failed\n");
+					label.paintImmediately(label.getVisibleRect());
+					new Login(update);
+			    }
 			}
 			else {
 				dialog.setVisible(false);

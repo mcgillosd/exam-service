@@ -63,13 +63,17 @@ public class PanelFinals extends PanelTabs {
 				// exit?
 			}
 			label.append("-- Getting info from " + fileFinals + " file\n");
+			label.paintImmediately(label.getVisibleRect());
 			StudentsFinalSec sfs = new StudentsFinalSec(file);
 			
 			label.append("-- Allocating rooms\n");
+			label.paintImmediately(label.getVisibleRect());
+			
 			sfs.addLocation();
 			new Excel().writeLocation(StudentsFinalSec.getList(), file);
 	    	
-	    	label.append("-- Choose an option by clicking the button\n");
+	    	label.append("-- Choose an option and click the button\n");
+	    	label.paintImmediately(label.getVisibleRect());
 		}
 		else if (command.equalsIgnoreCase("List for professors")){
 			ArrayList<StudentFinal> list = StudentsFinalSec.getList();

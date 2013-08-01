@@ -39,6 +39,11 @@ public class PanelEditor extends PanelTabs {
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		System.out.println("Event: " + e.getActionCommand());
+		if (e.getActionCommand().equalsIgnoreCase("Add empty rows")) {
+			new Combo(true);
+		}
+		else {
+			new Combo(false);
+		}
 	}
 }

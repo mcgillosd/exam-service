@@ -134,7 +134,7 @@ public abstract class ListOfRooms implements Iterable<Room>, Cloneable {
 				s.setLocation(r.getId());
 			}
 			else {
-				s.setLocation("small room not found");
+				s.setLocation("room not found");
 			}
 		}
 		else if (s.getComments() != null && (s.getComments().contains("wynn") || s.getComments().contains("kurzweil"))) {
@@ -144,7 +144,7 @@ public abstract class ListOfRooms implements Iterable<Room>, Cloneable {
 				s.setLocation(r.getId());
 			}
 			else {
-				s.setLocation("no places in OSD lab");
+				s.setLocation("room not found");
 			}
 		}
 		else if (s.getComputer() != null && s.getComputer().equals("pc")) {
@@ -160,7 +160,7 @@ public abstract class ListOfRooms implements Iterable<Room>, Cloneable {
 					s.setLocation(r.getId());
 				}
 				else
-					s.setLocation("no more places");
+					s.setLocation("room not found");
 			}
 		}
 		// no special demands
@@ -171,7 +171,7 @@ public abstract class ListOfRooms implements Iterable<Room>, Cloneable {
 				s.setLocation(r.getId());
 			}
 			else {
-				s.setLocation("no more places");
+				s.setLocation("room not found");
 			}
 		}
 	}

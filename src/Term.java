@@ -40,7 +40,11 @@ public class Term {
 		year = cal.get(Calendar.YEAR);
 		setTerm(month);
 	}
-	
+	public Term(String season, int year) {
+		term = season + " " + year;
+		this.season = season;
+		this.year = year;
+	}
 	/**
 	 * Creates a term according to the date provided in the arguments
 	 * @param date the date for which to determine a term
@@ -72,6 +76,24 @@ public class Term {
 			season = "Fall";
 		}
 	} 
+	public Term termNext() {
+		String seasonNext = "";
+		int yearNext = 0;
+		if (season.equals("Fall")) {
+			seasonNext = "Winter";
+			yearNext = year + 1;
+		}
+		if (season.equals("Winter")) {
+			seasonNext = "Summer";
+			yearNext = year;
+		}
+		if (season.equals("Summer")) {
+			seasonNext = "Fall";
+			yearNext = year;
+		}
+		Term next = new Term(seasonNext, yearNext);
+		return next;
+	}
 	public String getTerm() {
 		return term;
 	}

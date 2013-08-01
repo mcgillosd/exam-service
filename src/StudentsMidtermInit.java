@@ -89,6 +89,7 @@ public class StudentsMidtermInit {
 					int index = (i+1)*3; // should be any month of the term, so 3 (W), 6 (S) and 9 (F)
 					String term = new Term(index).getTerm();
 					label.append("-- Updating Excel files\n");
+					label.paintImmediately(label.getVisibleRect());
 					xl = new Excel();
 					try {
 						xl.update(lists.get(i), term);
@@ -99,25 +100,27 @@ public class StudentsMidtermInit {
 				}
 			}
 			if (! existNew) {
-				label.append("> There are no new entries\n");
+				label.append("-- There are no new entries\n");
+				label.paintImmediately(label.getVisibleRect());
 			}
 			else {
-				label.append("> The last id before update is " + id + "\n");
+				label.append("-- The last id before update is " + id + "\n");
+				label.paintImmediately(label.getVisibleRect());
 				new LastID().setLastID(lastid); // update id;
 			}
-			label.append("> Choose an option and click the button\n");
-			//label.paintImmediately(label.getVisibleRect());
+			label.append("-- Choose an option and click the button\n");
+			label.paintImmediately(label.getVisibleRect());
 		}
 		else { // download all
 			listOfStudents = new ArrayList<StudentMidterm>();
 			setListOfStudents(html);
 			try {
 				Excel xl = new Excel();
-				label.append("> Writing data to the file...\n");
-				//label.paintImmediately(label.getVisibleRect());
+				label.append("-- Writing data to the file...\n");
+				label.paintImmediately(label.getVisibleRect());
 				xl.export(listOfStudents);
-				label.append("> Choose an option and click the button\n");
-				//label.paintImmediately(label.getVisibleRect());
+				label.append("-- Choose an option and click the button\n");
+				label.paintImmediately(label.getVisibleRect());
 			} 
 			catch (IOException e) {
 				e.printStackTrace();
@@ -138,6 +141,8 @@ public class StudentsMidtermInit {
 		 boolean firstSkipped = false;
 	     boolean lastIdSet = false;
 	     
+	     String text = label.getText();
+	     
 		 for(Element element : doc.select("tr")) { 
 			 if(! firstSkipped) { // the first $tr is the header
 				 firstSkipped = true;
@@ -152,9 +157,10 @@ public class StudentsMidtermInit {
 			 
 			// int item = Integer.parseInt(td.get(0).text()); // will be $lastid, new id for the next update
 			 int idMax = id;  // id from the previous update
-			 System.out.println(item + " " + id);
+			 
 			 if (item > idMax) { // new entries have been added since last visit
 				 existNew = true;
+				 
 				 if (Integer.parseInt(td.get(index).text()) <= item 
 						 && Integer.parseInt(td.get(index).text()) > id) { // only to test, to be removed
 				 stud.setId(td.get(index++).text()); 
@@ -162,6 +168,10 @@ public class StudentsMidtermInit {
 					 lastid = stud.getId(); // write it only after update!
 					 lastIdSet = true;
 				 }
+				 
+				 label.setText(text + "-- Processing ID " + stud.getId() + "\n");
+				 label.paintImmediately(label.getVisibleRect());
+				 
 				 index += 3; // skip time submission, user, IP
 				 stud.setExamDate(td.get(index++).text());
 				 stud.setNameLast(td.get(index++).text());
@@ -173,11 +183,13 @@ public class StudentsMidtermInit {
 				 
 				 index++; // skip location
 				 stud.setExamStartTime(td.get(index++).text());
-				// stud.setLength(td.get(index++).text());
-				 String hours = td.get(index++).text();
+				 
+				 index++; // to be deleted, to test with the old form
+				 
+				 /*String hours = td.get(index++).text();  // for the new form
 				 String minutes = td.get(index++).text();
 				 stud.setLength(calculateLength(hours, minutes));
-				 
+				 */
 				 stud.setNameProf(td.get(index++).text());
 				 stud.setEmailProf(td.get(index++).text());
 				 stud.setExtraTime(td.get(index++).text());
@@ -202,7 +214,6 @@ public class StudentsMidtermInit {
 						 listSummer.add(stud);
 				 }
 				 if (existNew && ! roomsInit) {
-					 System.out.println("init");
 					 listOfRooms = initRooms();
 					 listAcc = new ListOfAccommodations();
 					 if (listOfRooms != null)
@@ -237,8 +248,6 @@ public class StudentsMidtermInit {
 			return null;
 		}
 		ListOfRoomsMidterm rList = new ListOfRoomsMidterm(file);
-		for (Room r : rList)
-			System.out.println(r);
 		return rList;
 	}
 	private void addLocation(Student s) {

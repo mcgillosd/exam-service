@@ -23,7 +23,10 @@ public class WebConnect {
 
 	private JTextArea label = PanelMidterms.label;
 	
-	/**
+	final String url = "https://www.mcgill.ca/osd/node/169/webform-results/table?results=0";
+    //final String url = "https://www.mcgill.ca/osd/node/879/webform-results/table";
+	private HttpClient httpclient; 
+    /**
 	 * Creates a new panel to login, sets <code>StudentsMidterm</code> data
 	 * to be used for calling after ActionListeners events
 	 * 
@@ -33,7 +36,9 @@ public class WebConnect {
 	 * 				back after an ActionListener event
 	 */
 	public WebConnect() {
-		
+		httpclient = new HttpClient();
+        httpclient.getHttpConnectionManager().
+                getParams().setConnectionTimeout(30000);
 	}
 	
 	/**
@@ -43,18 +48,11 @@ public class WebConnect {
 	 * @param password
 	 * @return A <code>String</code> with content of the page
 	 */
-	public String connect(String user, char[] password) {
+	public int connect(String user, char[] password) {
 		
 		label.append("-- Authentication\n");
 		label.paintImmediately(label.getVisibleRect());
-		
-        HttpClient httpclient = new HttpClient();
-        httpclient.getHttpConnectionManager().
-                getParams().setConnectionTimeout(30000);
-             
-       // final String url = "https://www.mcgill.ca/osd/node/169/webform-results/table?results=0";
-        final String url = "https://www.mcgill.ca/osd/node/879/webform-results/table";
-        
+	
         PostMethod httppost = new PostMethod(url);
        
         httppost.addParameter("name", user);
@@ -70,18 +68,15 @@ public class WebConnect {
         catch(Exception e) {
             e.printStackTrace();
         }
-      
-        if (result == 302) { 
-        	label.append("-- Authentication successful\n");
-        }
-        else {
-        	label.append("-- Authentication failed\n");
-        }
         httppost.releaseConnection();
- 
-        /* Authorised, now get the content */
- 
-        GetMethod httpget = new GetMethod(url);
+        return result;
+	}
+	public String getContent() {
+		label.append("-- Accessing the database\n");
+    	label.paintImmediately(label.getVisibleRect());
+		
+    	GetMethod httpget = new GetMethod(url);
+        int result = 0;	
         try {
            	result = httpclient.executeMethod(httpget);
         }
