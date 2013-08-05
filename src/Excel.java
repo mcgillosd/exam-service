@@ -494,7 +494,95 @@ public class Excel {
 			catch (IOException e) {
 				e.printStackTrace();
 			}
-		 		
+		}
+		else if (exam.equalsIgnoreCase("Final")) {
+			String[] split = term.split(" ");
+			String termS = split[0];
+			String month = "";
+			if (termS.equalsIgnoreCase("Fall"))
+				month = "December";
+			else if (termS.equalsIgnoreCase("Winter"))
+				month = "April";
+			else
+				month = "August";
+			
+			String filename = month + " " + split[1] + " final exam master list.xlsx";
+			setFile(filename);
+			if (! file.exists()) {
+				JOptionPane.showMessageDialog(
+						null, "File " + filename + "doesn't exist", 
+						"Message", JOptionPane.INFORMATION_MESSAGE);
+			}
+			try {
+				FileInputStream inp = new FileInputStream(file);
+				XSSFWorkbook wb = new XSSFWorkbook(inp);
+				Sheet sheet = wb.getSheetAt(1);		
+			
+				int rowEnd = sheet.getLastRowNum()+1;
+							
+				Row row = sheet.getRow(1);
+			
+				if (row == null) {
+					removeEmptyRows(exam, term, false);
+				}
+				Cell cell = null;
+				String locationPrevious = null;
+				String location = null;
+				final int COL_NUM = 6; /* # of the 'location' column */
+				
+				cell = row.getCell(COL_NUM);
+				if (cell == null) {
+					// error					
+				}
+				else {
+					locationPrevious = cell.getStringCellValue();
+				}
+										
+				for (int rowNum = 2; rowNum < rowEnd; rowNum++) {
+					row = sheet.getRow(rowNum);
+					if (row == null) {
+						// remove empty rows, a message that it is empty?
+					}
+					else {
+						cell = row.getCell(COL_NUM);
+						if (cell == null) {
+							// maybe to check if the whole row is empty, if yes remove empty?
+							String mess = "The date is missing in the row " + (rowNum+1) +
+									". Please check the file and remove empty rows first";
+							new Message(mess);
+							return;
+						}
+						else {
+							location = cell.getStringCellValue();
+							if (! (locationPrevious.equals(location))) {
+								if ( (! (locationPrevious.equals("small") && location.equals("conf"))) && 
+										(! (location.equals("small") && locationPrevious.equals("conf"))) ) {
+									System.out.println(locationPrevious + " "  + location + " " + rowNum);
+									sheet.shiftRows(rowNum, rowEnd, 1);
+									rowEnd+=1;
+									rowNum++;
+								}
+								
+							}
+						}
+						locationPrevious = location;
+					}
+				}
+				inp.close();
+				FileOutputStream fos = new FileOutputStream(file);
+			    wb.write(fos);
+			    fos.close();
+			    
+			    labelEditor.append("-- File " + filename + " has been updated\n");
+				labelEditor.paintImmediately(labelEditor.getVisibleRect());
+				
+			} 
+			catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	/**
@@ -521,6 +609,69 @@ public class Excel {
 				XSSFWorkbook wb = new XSSFWorkbook(inp);
 				
 				Sheet sheet = wb.getSheetAt(0);		
+			
+				int rowStart = sheet.getFirstRowNum();
+				int rowEnd = sheet.getLastRowNum();
+						
+				for (int rowNum = rowStart; rowNum < rowEnd; rowNum++) { 
+					Row row = sheet.getRow(rowNum);
+					if (row == null) {
+						sheet.shiftRows(rowNum+1, rowEnd, -1);						
+						rowEnd--;														
+						rowNum--;	
+					}
+					else { // row has been created, but it is blank 
+						Cell cell = row.getCell(0);
+						if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) { 
+							sheet.shiftRows(rowNum+1, rowEnd, -1);						
+							rowEnd--;														
+							rowNum--;													
+						}
+					}
+				}
+				inp.close();
+				// write into the file 
+				FileOutputStream fos = new FileOutputStream(file);
+			    wb.write(fos);
+			    fos.close();
+			    // done
+			    if (message) {
+			    	labelEditor.append("-- File " + filename + " has been updated\n");
+					labelEditor.paintImmediately(labelEditor.getVisibleRect());
+			    }
+			} 
+			catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		else if (exam.equalsIgnoreCase("Final")) {
+			String[] split = term.split(" ");
+			String termS = split[0];
+			String month = "";
+			if (termS.equalsIgnoreCase("Fall"))
+				month = "December";
+			else if (termS.equalsIgnoreCase("Winter"))
+				month = "April";
+			else
+				month = "August";
+			
+			String filename = month + " " + split[1] + " final exam master list.xlsx";
+			setFile(filename);
+			
+			if (! file.exists()) {
+				JOptionPane.showMessageDialog(
+						null, "File " + filename + "doesn't exist", 
+						"Message", JOptionPane.INFORMATION_MESSAGE);
+			}
+		
+			try {
+				FileInputStream inp = new FileInputStream(file);
+				XSSFWorkbook wb = new XSSFWorkbook(inp);
+				
+				Sheet sheet = wb.getSheetAt(1);		
 			
 				int rowStart = sheet.getFirstRowNum();
 				int rowEnd = sheet.getLastRowNum();

@@ -24,6 +24,7 @@ public class StudentsFinalSec {
 	
 	private static ArrayList<StudentFinal>list = new ArrayList<StudentFinal>();	
 	private File fileFinals;	
+	static ArrayList<String> rooms = new ArrayList<String>();
 	/**
 	 * Creates an instance of the class and sets the list	
 	 * @param file
@@ -150,6 +151,10 @@ public class StudentsFinalSec {
 		}
 		ListOfRooms rList = new ListOfRoomsFinal(file);
 				
+		for (Room room : rList)
+			rooms.add(room.getId());
+		rooms.add("room not found");
+		
 		Date currentDate = list.get(0).getExamDate();
 		// get time sample set to 10:00 to check morning exams
 		Calendar cal = Calendar.getInstance();
