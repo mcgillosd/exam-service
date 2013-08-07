@@ -123,7 +123,6 @@ public class Excel {
 		setFile(filename);
 		
 		if (! file.exists()) {
-			System.out.println("Doesn't exist");
 			create(term);
 		}
 
@@ -136,7 +135,6 @@ public class Excel {
 			XSSFSheet sheet = wb.getSheetAt(0);
 			
 			if (sheet.getLastRowNum() < 1) { // write to the empty file
-				System.out.println("Id empty file: " + list.get(0).getId());
 				for (int rowXL = 1, i = 0; i < list.size(); i++) {
 					StudentMidterm student = list.get(i);
 					Row row = sheet.createRow((short) rowXL++);
@@ -557,7 +555,7 @@ public class Excel {
 							if (! (locationPrevious.equals(location))) {
 								if ( (! (locationPrevious.equals("small") && location.equals("conf"))) && 
 										(! (location.equals("small") && locationPrevious.equals("conf"))) ) {
-									System.out.println(locationPrevious + " "  + location + " " + rowNum);
+									//System.out.println(locationPrevious + " "  + location + " " + rowNum);
 									sheet.shiftRows(rowNum, rowEnd, 1);
 									rowEnd+=1;
 									rowNum++;

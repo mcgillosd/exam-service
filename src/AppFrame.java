@@ -57,9 +57,8 @@ public class AppFrame extends JFrame {
 		
 		setContentPane(contentPane);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
-		//pack();   // check on Windows, works on Linux without pack()
 		setVisible(true);
-		//setResizable(false); // doesn't work on Linux
+				
 	}
 	private JPanel createTop() {
 		JPanel panel = new JPanel();
@@ -69,7 +68,9 @@ public class AppFrame extends JFrame {
 		Border paddingBorder = BorderFactory.createEmptyBorder(0,100,0,0);
 		BufferedImage myPicture;
 		try {
-			myPicture = ImageIO.read(new File("img/mcgill_logo.gif"));
+			//myPicture = ImageIO.read(new File("img/mcgill_logo.gif"));
+			
+			myPicture = ImageIO.read(getClass().getResource("/img/mcgill_logo.gif"));
 			JLabel picLabel = new JLabel(new ImageIcon(myPicture));
 			picLabel.setBorder(paddingBorder);
 			panel.add(picLabel);

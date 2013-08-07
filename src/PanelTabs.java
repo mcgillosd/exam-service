@@ -49,7 +49,9 @@ public abstract class PanelTabs extends JPanel implements ActionListener {
 		JButton[] buttons = createButtons(); 
 				
 		Font font = new Font("Georgia", Font.PLAIN, 26);
-			
+		Dimension d = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+		int height = (int)d.getHeight();
+		
 		for (int i = 0; i < buttons.length; i++) {
 			buttons[i].setMaximumSize(new Dimension(280, 50));
 			buttons[i].setFont(font);
@@ -58,9 +60,9 @@ public abstract class PanelTabs extends JPanel implements ActionListener {
 			buttons[i].addActionListener(this);
 			if (i == 0) {
 				if (buttons.length == 3) 
-					panel.add(Box.createRigidArea(new Dimension(0,100)));
+					panel.add(Box.createRigidArea(new Dimension(0,(int)(height*0.13)))); //100
 				else
-					panel.add(Box.createRigidArea(new Dimension(0,140)));
+					panel.add(Box.createRigidArea(new Dimension(0,(int)(height*0.18)))); //140
 			}
 			else
 				panel.add(Box.createRigidArea(new Dimension(0,30)));
@@ -88,7 +90,10 @@ public abstract class PanelTabs extends JPanel implements ActionListener {
 		scroll.setMaximumSize(new Dimension(500, 260));
 		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		
-		panel.add(Box.createRigidArea(new Dimension(0,80)));
+		Dimension d = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+		int height = (int)d.getHeight();
+		
+		panel.add(Box.createRigidArea(new Dimension(0,(int)(height*0.1)))); //
 		panel.add(scroll);
 		
 		JPanel panel_buttons = new JPanel();

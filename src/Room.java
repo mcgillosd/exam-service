@@ -4,8 +4,6 @@
  * Created on Jul 2, 2013 2:04:44 PM
  */
 
-import java.util.Date;
-
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
@@ -14,7 +12,7 @@ import org.apache.poi.ss.usermodel.Row;
  * 
  * @author Olga Tsibulevskaya
  */
-public class Room implements Cloneable {
+public abstract class Room implements Cloneable {
 	protected String name;
 	protected String id;
 	/** the flag to distinguish labs from normal rooms */
@@ -22,9 +20,7 @@ public class Room implements Cloneable {
 	/** small rooms - capacity less than 3 */
 	protected boolean small = false;
 	protected int capacity;
-	protected Date date;
-	protected Date time;
-	
+
 	
 	/**
 	 * Creates a room by reading a row in the Excel file. 

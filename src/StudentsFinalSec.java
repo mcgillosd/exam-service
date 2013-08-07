@@ -53,9 +53,25 @@ public class StudentsFinalSec {
 					
 			Row r = sheet.getRow(0);
 			int last = sheet.getLastRowNum();
+		
 			// start reading the file from the 1st row (exclude the header)
 			for (int rowNum = 1; rowNum <= last; rowNum++) {
 				StudentFinal student = new StudentFinal();
+				r = sheet.getRow(rowNum);
+				if (r == null) {
+					String[] name = fileFinals.getName().split(" ");
+					String term = "";
+					if (name[0].equalsIgnoreCase("December"))
+						term = "Fall";
+					else if (name[0].equalsIgnoreCase("April"))
+						term = "Winter";
+					else if (name[0].equalsIgnoreCase("August"))
+						term = "Summer";
+					else {
+						// error
+					}
+					new Excel().removeEmptyRows("Final", term + " " + name[1], false);
+				}
 				r = sheet.getRow(rowNum);
 				for (int i = 0; i < 13; i++) {
 					switch (i) {
@@ -150,7 +166,7 @@ public class StudentsFinalSec {
 			return;
 		}
 		ListOfRooms rList = new ListOfRoomsFinal(file);
-				
+		
 		for (Room room : rList)
 			rooms.add(room.getId());
 		rooms.add("room not found");
@@ -166,7 +182,7 @@ public class StudentsFinalSec {
 		int i = 0;
 		Student s = list.get(i++);
 		while (i < list.size()) {
-			ListOfRooms clone = (ListOfRooms)rList.clone();
+			ListOfRoomsFinal clone = (ListOfRoomsFinal)rList.clone();
 			 // while dates are the same and morning
 			while (currentDate.compareTo(s.getExamDate()) == 0 && s.getExamStartTime().compareTo(time) <= 0) { 
 				clone.allocateRoom(s);
@@ -177,7 +193,7 @@ public class StudentsFinalSec {
 					break;
 				}
 			}
-			clone = (ListOfRooms)rList.clone();
+			clone = (ListOfRoomsFinal)rList.clone();
 			// the same day, afternoon
 			while (currentDate.compareTo(s.getExamDate()) == 0) {
 				clone.allocateRoom(s); 

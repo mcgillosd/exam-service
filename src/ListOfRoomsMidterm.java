@@ -8,7 +8,7 @@ import java.util.Date;
 import org.apache.poi.ss.usermodel.Row;
 /**
  * @author Olga Tsibulevskaya
- *
+ * @see ListOfRooms
  */
 public class ListOfRoomsMidterm extends ListOfRooms {
 

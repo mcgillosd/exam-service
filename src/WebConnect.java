@@ -23,6 +23,8 @@ public class WebConnect {
 
 	private JTextArea label = PanelMidterms.label;
 	
+	final String urlInv = "https://www.mcgill.ca/osd/node/884/webform-results/table?results=0";
+	
 	final String url = "https://www.mcgill.ca/osd/node/169/webform-results/table?results=0";
     //final String url = "https://www.mcgill.ca/osd/node/879/webform-results/table";
 	private HttpClient httpclient; 
