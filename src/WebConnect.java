@@ -21,11 +21,13 @@ import org.apache.commons.httpclient.methods.PostMethod;
  */
 public class WebConnect {
 
-	private JTextArea label = PanelMidterms.label;
+	private JTextArea label;
+	
+	private String url;
 	
 	final String urlInv = "https://www.mcgill.ca/osd/node/884/webform-results/table?results=0";
 	
-	final String url = "https://www.mcgill.ca/osd/node/169/webform-results/table?results=0";
+	final String urlMidterm = "https://www.mcgill.ca/osd/node/169/webform-results/table?results=0";
     //final String url = "https://www.mcgill.ca/osd/node/879/webform-results/table";
 	private HttpClient httpclient; 
     /**
@@ -37,12 +39,25 @@ public class WebConnect {
 	 * @param sd	<code>StudentsList</code> will be used to call them 
 	 * 				back after an ActionListener event
 	 */
-	public WebConnect() {
+	public WebConnect(boolean midterm) {
 		httpclient = new HttpClient();
         httpclient.getHttpConnectionManager().
                 getParams().setConnectionTimeout(30000);
+        if (midterm) {
+        	setUrl(urlMidterm);
+        	setLabel(PanelMidterms.label);
+        }
+        else {
+        	setUrl(urlInv);
+        	setLabel(PanelFinals.label);
+        }
 	}
-	
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	public void setLabel(JTextArea label) {
+		this.label = label;
+	}
 	/**
 	 * Connects to the web page
 	 * 
@@ -55,8 +70,8 @@ public class WebConnect {
 		label.append("-- Authentication\n");
 		label.paintImmediately(label.getVisibleRect());
 	
-        PostMethod httppost = new PostMethod(url);
-       
+		PostMethod httppost = new PostMethod(url);
+		
         httppost.addParameter("name", user);
         String pass = new String(password);
         httppost.addParameter("pass", pass);
@@ -106,5 +121,39 @@ public class WebConnect {
        
         httpget.releaseConnection();
         return html;		 
+	}
+	public String getInvigilatorsPage() {
+		String html = "";
+		label.append("-- Accessing the database\n");
+    	label.paintImmediately(label.getVisibleRect());
+		
+    	GetMethod httpget = new GetMethod(url);
+        int result = 0;	
+        try {
+           	result = httpclient.executeMethod(httpget);
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+         
+        if (result == 200) {
+        	label.append("-- Downloading data from the database\n");
+        	label.paintImmediately(label.getVisibleRect());
+        }
+        else {
+        	label.append("-- Connection failed\n");
+        	label.paintImmediately(label.getVisibleRect());
+        }
+        
+        try {
+        	InputStream in = httpget.getResponseBodyAsStream();
+        	java.util.Scanner s = new java.util.Scanner(in).useDelimiter("\\A");
+        	html = s.hasNext() ? s.next() : "";
+        } catch (IOException e) {
+        	e.printStackTrace();
+		}
+       
+        httpget.releaseConnection();
+		return html;
 	}
 }

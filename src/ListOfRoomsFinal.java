@@ -13,16 +13,26 @@ import org.apache.poi.ss.usermodel.Row;
  */
 public class ListOfRoomsFinal extends ListOfRooms {
 
+	
 	private Date noon;
 	
 	public ListOfRoomsFinal(File file) {
 		super(file);
 	}
+	/* copy constructor */
+	public ListOfRoomsFinal(ListOfRoomsFinal another) {
+		for (int i = 0; i < another.listMain.size(); i++)
+			listMain.add(i, new RoomFinal(another.listMain.get(i)));
+		for (int i = 0; i < another.listTemp.size(); i++)
+			listTemp.add(i, another.listTemp.get(i));
+		noon = another.noon;
+	}
 	
 	public void initRooms(Row r) {
 		RoomFinal room = new RoomFinal(r);
-		if (room.getDate() == null)
-			list.add(room);
+		if (room.getDate() == null) {
+			listMain.add(room);
+		}
 		else {
 			listTemp.add(room);
 		}
@@ -94,7 +104,7 @@ public class ListOfRoomsFinal extends ListOfRooms {
 	 * @return a room
 	 */
 	public Room getRoom() {
-		for (Room r : list) {
+		for (Room r : listMain) {
 			if (! r.isLab() && ! r.isSmall() && ! r.full())
 				return r;
 		}
@@ -128,7 +138,7 @@ public class ListOfRoomsFinal extends ListOfRooms {
 	 * 		it doesn't exist
 	 */
 	public Room getRoomByName(String name) {
-		for (Room r : list) {
+		for (Room r : listMain) {
 			if (r.getName().equals(name) && ! r.full())
 				return r;
 		}
@@ -141,7 +151,7 @@ public class ListOfRoomsFinal extends ListOfRooms {
 	 * @return a small room with at least one place available
 	 */
 	public Room getSmallRoom() {
-		for (Room r : list) {
+		for (Room r : listMain) {
 			if (r.isSmall() && ! r.full())
 				return r;
 		}
@@ -152,7 +162,7 @@ public class ListOfRoomsFinal extends ListOfRooms {
 	 * @return
 	 */
 	public Room getLab() {
-		for (Room r : list) {
+		for (Room r : listMain) {
 			if (r.isLab() && ! r.full())
 				return r;
 		}

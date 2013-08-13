@@ -31,6 +31,8 @@ public class StudentsMidtermInit {
 	private ArrayList<StudentMidterm> listWinter = new ArrayList<StudentMidterm>();
 	/** List of students who take exams in Summer */
 	private ArrayList<StudentMidterm> listSummer = new ArrayList<StudentMidterm>();
+
+	private ArrayList<StudentMidterm> macdonald = new ArrayList<StudentMidterm>();
 	
 	private JTextArea label = PanelMidterms.label;
 	
@@ -99,6 +101,11 @@ public class StudentsMidtermInit {
 					}
 				}
 			}
+			if (macdonald.size() > 0) {
+				label.append("-- Adding Macdonald campus\n");
+				label.paintImmediately(label.getVisibleRect());
+				new Excel().writeMacdonald(macdonald);
+			}
 			if (! existNew) {
 				label.append("-- There are no new entries\n");
 				label.paintImmediately(label.getVisibleRect());
@@ -136,102 +143,108 @@ public class StudentsMidtermInit {
 	 * 				that id
 	 */
 	private void setTermLists(String html, int id) {
-		 Document doc = Jsoup.parse(html);
-			
-		 boolean firstSkipped = false;
-	     boolean lastIdSet = false;
-	     
-	     String text = label.getText();
-	     
-		 for(Element element : doc.select("tr")) { 
-			 if(! firstSkipped) { // the first $tr is the header
-				 firstSkipped = true;
-				 continue;
-			 }	
+		Document doc = Jsoup.parse(html);
+		
+		boolean firstSkipped = false;
+		boolean lastIdSet = false;
+		
+		String text = label.getText();
+		
+		for(Element element : doc.select("tr")) { 
+			if(! firstSkipped) { // the first $tr is the header
+				firstSkipped = true;
+				continue;
+			}	
 
-			 int index = 0; // index used to go through all @td (columns)                            
-			 StudentMidterm stud = new StudentMidterm();
+			int index = 0; // index used to go through all @td (columns)                            
+			StudentMidterm stud = new StudentMidterm();
 	        	
-			 Elements td = element.select("td"); 
-			 int item = PanelMidterms.till;  // to be deleted
+			Elements td = element.select("td"); 
+			int item = PanelMidterms.till;  // to be deleted
 			 
 			// int item = Integer.parseInt(td.get(0).text()); // will be $lastid, new id for the next update
-			 int idMax = id;  // id from the previous update
+			int idMax = id;  // id from the previous update
 			 
-			 if (item > idMax) { // new entries have been added since last visit
-				 existNew = true;
+			if (item > idMax) { // new entries have been added since last visit
+				existNew = true;
 				 
-				 if (Integer.parseInt(td.get(index).text()) <= item 
-						 && Integer.parseInt(td.get(index).text()) > id) { // only to test, to be removed
-				 stud.setId(td.get(index++).text()); 
-				 if (! lastIdSet) { // gets the first entry's id - it will be the last updated entry
-					 lastid = stud.getId(); // write it only after update!
-					 lastIdSet = true;
-				 }
+				if (Integer.parseInt(td.get(index).text()) <= item 
+						&& Integer.parseInt(td.get(index).text()) > id) { // only to test, to be removed
+				stud.setId(td.get(index++).text()); 
+				if (! lastIdSet) { // gets the first entry's id - it will be the last updated entry
+					lastid = stud.getId(); // write it only after update!
+					lastIdSet = true;
+				}
 				 
-				 label.setText(text + "-- Processing ID " + stud.getId() + "\n");
-				 label.paintImmediately(label.getVisibleRect());
+				label.setText(text + "-- Processing ID " + stud.getId() + "\n");
+				label.paintImmediately(label.getVisibleRect());
 				 
-				 index += 3; // skip time submission, user, IP
-				 stud.setExamDate(td.get(index++).text());
-				 stud.setNameLast(td.get(index++).text());
-				 stud.setNameFirst(td.get(index++).text());
-				 stud.setSid(td.get(index++).text());
-				 index += 2; // skip phone, email
-				 stud.setCourse(td.get(index++).text());
-				 stud.setSection(td.get(index++).text());
+				index += 3; // skip time submission, user, IP
+				stud.setExamDate(td.get(index++).text());
+				stud.setNameLast(td.get(index++).text());
+				stud.setNameFirst(td.get(index++).text());
+				stud.setSid(td.get(index++).text());
+				index += 2; // skip phone, email
+				stud.setCourse(td.get(index++).text());
+				stud.setSection(td.get(index++).text());
+				
+				index++; // skip location
+				stud.setExamStartTime(td.get(index++).text());
 				 
-				 index++; // skip location
-				 stud.setExamStartTime(td.get(index++).text());
+				index++; // to be deleted, to test with the old form
 				 
-				 index++; // to be deleted, to test with the old form
-				 
-				 /*String hours = td.get(index++).text();  // for the new form
+				/*String hours = td.get(index++).text();  // for the new form
 				 String minutes = td.get(index++).text();
 				 stud.setLength(calculateLength(hours, minutes));
 				 */
-				 stud.setNameProf(td.get(index++).text());
-				 stud.setEmailProf(td.get(index++).text());
-				 stud.setExtraTime(td.get(index++).text());
-				 stud.setStopwatch(td.get(index++).text());
-				 stud.setComputer(td.get(index++).text());
-				 stud.setCommentsFromForm(td.get(index++).text());
-				 stud.setCampus(td.get(index++).text()); // will need campus
+				stud.setNameProf(td.get(index++).text());
+				stud.setEmailProf(td.get(index++).text());
+				stud.setExtraTime(td.get(index++).text());
+				stud.setStopwatch(td.get(index++).text());
+				stud.setComputer(td.get(index++).text());
+				stud.setCommentsFromForm(td.get(index++).text());
+				stud.setCampus(td.get(index++).text()); // will need campus
 				 
-				 stud.setExamLength();
-								 
-				 String term = stud.getTerm();
-				 if (term.contains("Fall")) {
-					 if (! listFall.contains(stud));
-					 	listFall.add(stud);
-				 }
-				 else if (term.contains("Winter")) {
-					 if (! listWinter.contains(stud));
-					 	listWinter.add(stud);
-				 }
-				 else if (term.contains("Summer")) {
-					 if (! listSummer.contains(stud))
-						 listSummer.add(stud);
-				 }
-				 if (existNew && ! roomsInit) {
-					 listOfRooms = initRooms();
-					 listAcc = new ListOfAccommodations();
-					 if (listOfRooms != null)
-						 roomsInit = true;
-					 else
-						 return;
-				 }
-				 listAcc.findAccommodations(stud);
-				 /* add location only for the current term */
-			//	 if (term.contains(season)) // correct
-				 if (term.contains("Winter")) // just to test
-					 addLocation(stud); 
-			 }
-			 }	
-			 else
-				 break;
-		 }
+				stud.setExamLength();
+				
+				String term = stud.getTerm();
+				if (stud.getCampus().equalsIgnoreCase("Downtown")) {
+					if (term.contains("Fall")) {
+						if (! listFall.contains(stud))
+							listFall.add(stud);
+					}
+					else if (term.contains("Winter")) {
+						if (! listWinter.contains(stud))
+							listWinter.add(stud);
+					}
+					else if (term.contains("Summer")) {
+						if (! listSummer.contains(stud))
+							listSummer.add(stud);
+					}
+				}
+				else 
+					macdonald.add(stud);
+				
+				if (existNew && ! roomsInit) {
+					listOfRooms = initRooms();
+					listAcc = new ListOfAccommodations();
+					if (listOfRooms != null)
+						roomsInit = true;
+					else
+						return;
+				}
+				listAcc.findAccommodations(stud);
+				/* add location only for the current term */
+			//	 if (term.contains(season) && ! stud.getCampus().equalsIgnoreCase("Macdonald")) // correct
+				if (term.contains("Winter") && ! stud.getCampus().equalsIgnoreCase("Macdonald")) // just to test
+					addLocation(stud); 
+			}
+			}
+			else
+				break;
+		}
 	}
+	
 	private int calculateLength(String hours, String minutes) {
 		String[] hoursA = hours.split(" ");
 		String[] minutesA = minutes.split(" ");

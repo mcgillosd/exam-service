@@ -30,6 +30,13 @@ public class RoomFinal extends Room {
 		if (c != null)
 			time = c.getStringCellValue();
 	}
+	public RoomFinal(Room another) {
+		super(another);
+		RoomFinal room = (RoomFinal)another;
+		date = room.date;
+		time = room.time;
+	}
+	
 	public Date getDate() {
 		return date;
 	}

@@ -50,6 +50,8 @@ public abstract class Student implements Comparable<Student> {
 	/** Shows a warning in case something is missing/wrong */
 	protected String warning; 
 	
+	protected Invigilator[] invigilator;
+	
 	/* for comparator */
 	ArrayList<String> rooms = new ArrayList<String>();
 	
@@ -174,10 +176,18 @@ public abstract class Student implements Comparable<Student> {
 	public void setWarning(String warning) {
 		this.warning = warning;
 	}
+	public String getCampus() {
+		return campus;
+	}
 	public void setCampus(String sCampus) {
 		campus = sCampus;				
 	}
-	
+	public Invigilator[] getInvigilator() {
+		return invigilator;
+	}
+	public void setInvigilator(Invigilator[] inv) {
+		invigilator = inv;
+	}
 	public int compareTo(Student s) {
 		String id = s.sid;
 		return this.sid.compareTo(id);

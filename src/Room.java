@@ -63,12 +63,12 @@ public abstract class Room implements Cloneable {
 			// error
 		}
 	}
-	/**
-	 * Create a room with any given name
-	 * @param name name of the room to be created
-	 */
-	public Room(String name) {
-		this.name = name;
+	public Room(Room another) {
+		name = another.name;
+		id = another.id;
+		capacity = another.capacity;
+		lab = another.lab;
+		small = another.small;
 	}
 	@Override
 	public boolean equals(Object obj) {

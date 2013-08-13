@@ -35,7 +35,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class Excel {
 	
 	private File file;
-	private final int NB_COL = 18;
+	private int nbCol = 18;
 	private JTextArea labelMidterm = PanelMidterms.label;
 	private JTextArea labelFinal = PanelFinals.label;
 	private JTextArea labelEditor = PanelEditor.label;
@@ -47,6 +47,9 @@ public class Excel {
 	}
 	public void setFile(String filename) {
 		file = new File(filename);
+	}
+	public void setNbCol(int num) {
+		nbCol = num;
 	}
 	/**
 	 * Creates an empty Excel file with headers
@@ -63,6 +66,8 @@ public class Excel {
 		
 		XSSFSheet sheet = workbook.createSheet(name);
 		
+		setNbCol(18);
+		
 		String[] headers = {"#", "Date", "Family name", "First name", "Course number", 
 				"Section", "Exam location", "Start", "Finish", "Length", 
 				"Professor name", "Professor email", "Extra time", 
@@ -71,7 +76,7 @@ public class Excel {
 		Row row = sheet.createRow((short) 0);
 		int colXL = 0;
 		// write headers
-		while (colXL < NB_COL) {
+		while (colXL < nbCol) {
 			Cell cell = row.createCell(colXL);
 			cell.setCellValue(headers[colXL++]);
 			cell.setCellStyle(style);
@@ -105,6 +110,135 @@ public class Excel {
 		    e.printStackTrace();
 		} catch (IOException e) {
 		    e.printStackTrace();
+		}
+	}
+	public void writeMacdonald(ArrayList<StudentMidterm> list) {
+		Collections.sort(list, new Student.DateExamComparator());
+
+		String term = new Term().getTerm();
+		
+		String filename = term + " exam schedule.xlsx";
+		setFile(filename);
+		
+		if (! file.exists()) {
+			new Message("File " + filename + " does not exist");
+		}
+		
+		setNbCol(14);
+		
+		try {
+			FileInputStream fis = new FileInputStream(file);	
+			XSSFWorkbook wb = new XSSFWorkbook(fis);
+		
+			CellStyle[] styles = getAllStyles(wb);
+			
+			XSSFSheet sheet = wb.getSheet("Macdonald");
+			
+			if (sheet == null) {
+				sheet = wb.createSheet("Macdonald");
+				String[] headers = {"#", "Date", "Family name", "First name", "Course number", 
+						"Section", "Start", "Professor name", "Professor email", "Extra time", 
+						"Stopwatch", "PC", "Accommodation", "Comments" };
+			
+				Row row = sheet.createRow((short) 0);
+				int colXL = 0;
+				// write headers
+				while (colXL < nbCol) {
+					Cell cell = row.createCell(colXL);
+					cell.setCellValue(headers[colXL++]);
+					cell.setCellStyle(styles[1]);
+				}
+				modifyWidth(sheet);
+				sheet.createFreezePane(0, 1);
+				for (int rowXL = 1, i = 0; i < list.size(); i++) {
+					StudentMidterm student = list.get(i);
+					row = sheet.createRow((short) rowXL++);
+					fillRowMac(row, student, styles);
+				}
+			}
+			else { // file already contains entries 
+				int index = 0; // for the list
+				StudentMidterm student = list.get(index);
+			
+				Date dateToAdd = student.getExamDate(); // date of the entry to be added
+				Date dateInFile = null; // existing in the file dates.
+						
+				int rowEnd = sheet.getLastRowNum();
+		
+				/* start reading the file form the 1st row (exclude the header) */
+				for (int rowNum = 1; index < list.size(); rowNum++) { // || rowNum < endRow
+					Row r = sheet.getRow(rowNum);
+					if (r == null) { // the last row
+						r = sheet.createRow(rowNum);
+						fillRow(r, student, styles);
+						
+						if (++index < list.size()) {
+							student = list.get(index);
+							dateToAdd = student.getExamDate();
+						} 
+					}
+					else {
+						Cell cell = r.getCell(1, Row.RETURN_BLANK_AS_NULL); 
+						if (cell == null) {
+							// in which cases?
+						}
+						else {
+							if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+								dateInFile = cell.getDateCellValue();
+														
+								if (dateToAdd.compareTo(dateInFile) <= 0) {// if the same or less, then add above
+									/* check if id is the same, then the entry already exists */
+									if (dateToAdd.compareTo(dateInFile) == 0) {
+										Cell cellPrev = r.getCell(0);
+										int idInFile = (int)cellPrev.getNumericCellValue();
+										int idToAdd = student.getId();
+										/* the same entries, do not enter twice, takes more time, but
+										 double control if id has been lost, id.txt corrupted, etc...*/
+										if (idInFile == idToAdd) {
+											if (++index < list.size()) {
+												student = list.get(index);
+												dateToAdd = student.getExamDate();
+											} 
+										}
+									}	
+									else {
+										sheet.shiftRows(rowNum, rowEnd, 1);
+										rowEnd++;
+								
+										Row rowNew = sheet.createRow(rowNum);
+										fillRow(rowNew, student, styles);
+									
+										if (dateToAdd.compareTo(dateInFile) <= 0)
+											rowNum--;
+										/* get the next student */
+										if (++index < list.size()) {
+											student = list.get(index);
+											dateToAdd = student.getExamDate();
+										} 
+									} 
+								}
+								else {
+								// continue searching 
+								}
+							}
+							else {
+							// wrong format type of the dateExam cell
+							}
+						}
+					}
+				} // end of the spreadsheet table
+			} // end of else
+			
+			fis.close();
+			FileOutputStream fos = new FileOutputStream(file);
+			wb.write(fos);
+			fos.flush();
+			fos.close();
+			labelMidterm.append("-- File " + file.getName() + " has been updated\n");
+			labelMidterm.paintImmediately(labelMidterm.getVisibleRect());
+		}
+		catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	/**
@@ -286,7 +420,7 @@ public class Excel {
 	}
 	/* Populates a row */
 	private void fillRow(Row row, StudentMidterm student, CellStyle[] styles) {
-		for (int colXL = 0; colXL < NB_COL-1; colXL++) {
+		for (int colXL = 0; colXL < nbCol-1; colXL++) {
 			Cell cell = row.createCell(colXL);
 			switch (colXL) {
 			case 0:
@@ -354,6 +488,57 @@ public class Excel {
 		}
 	}
 
+	private void fillRowMac(Row row, StudentMidterm student, CellStyle[] styles) {
+		for (int colXL = 0; colXL < nbCol; colXL++) {
+			Cell cell = row.createCell(colXL);
+			switch (colXL) {
+			case 0:
+				cell.setCellValue(student.getId()); 
+				cell.setCellStyle(styles[1]); break;
+			case 1: 
+				cell.setCellValue(student.getExamDate());
+				cell.setCellStyle(styles[3]); break;
+			case 2:
+				cell.setCellValue(student.getNameLast());
+				cell.setCellStyle(styles[1]); break;
+			case 3: 
+				cell.setCellValue(student.getNameFirst());
+				cell.setCellStyle(styles[1]); break;
+			case 4: 
+				cell.setCellValue(student.getCourse());
+				cell.setCellStyle(styles[2]); break;
+			case 5:
+				cell.setCellValue(student.getSection());
+				cell.setCellStyle(styles[1]); break;
+			case 6:
+				cell.setCellValue(student.getExamStartTime());
+				cell.setCellStyle(styles[4]); break;
+			case 7:
+				cell.setCellValue(student.getNameProf());
+				cell.setCellStyle(styles[1]); break;
+			case 8:
+				cell.setCellValue(student.getEmailProf());
+				cell.setCellStyle(styles[1]); break;
+			case 9:
+				cell.setCellValue(student.getExtraTime());
+				cell.setCellStyle(styles[1]); break;
+			case 10:
+				cell.setCellValue(student.getStopwatch());
+				cell.setCellStyle(styles[1]); break;
+			case 11:
+				cell.setCellValue(student.getComputer());
+				cell.setCellStyle(styles[1]); break;
+			case 12:
+				cell.setCellValue(student.getComments());
+				cell.setCellStyle(styles[1]); break;
+			case 13:
+				cell.setCellValue(student.getCommentsFromForm());
+				cell.setCellStyle(styles[1]); break;
+			}
+		}
+	}
+
+	
 	/* Modifies the width of columns */
 	private void modifyWidth(Sheet sheet) {
 		sheet.setColumnWidth(2, 15*255); // last name
@@ -962,7 +1147,7 @@ public class Excel {
 		}
 	}*/
 	public void writeLocation(ArrayList<StudentFinal> list, File file) {
-		Collections.sort(list, new Student.DateExamLocationComparator());
+		//Collections.sort(list, new Student.DateExamLocationComparator());
 		
 		try {
 			FileInputStream inp = new FileInputStream(file);
@@ -991,7 +1176,7 @@ public class Excel {
 				StudentFinal student = list.get(i);
 				row = sheet.createRow((short) rowXL++);
 				
-				for (int col = 0; col < NB_COL-1; col++) { //minus invigilator
+				for (int col = 0; col < NB_COL; col++) { //minus invigilator
 					Cell cell = row.createCell(col);
 					switch (col) {
 					case 0:
@@ -1043,6 +1228,21 @@ public class Excel {
 					case 12:
 						cell.setCellValue(student.getComments());
 						cell.setCellStyle(styles[1]); break;
+					case 13: 
+						Invigilator[] inv = student.getInvigilator();
+						if (inv == null)
+							cell.setCellValue("Null");
+						else {
+							if (inv.length == 1)
+								cell.setCellValue(student.getInvigilator()[0].getName());
+							else if (inv.length > 1){
+								cell.setCellValue(inv[0].getName() + " " + inv[1].getName());
+							}
+							else
+								cell.setCellValue("Error"); // should never occur 
+						}
+						cell.setCellStyle(styles[1]); break;
+						
 					}
 				} // end of columns
 			} // end of rows
@@ -1063,6 +1263,9 @@ public class Excel {
 			fos.close();
 			labelFinal.append("-- File " + file.getName() + " has been updated\n");
 			labelFinal.paintImmediately(labelFinal.getVisibleRect());
+			
+			labelFinal.append("-- Choose an option and click the button\n");
+	    	labelFinal.paintImmediately(labelFinal.getVisibleRect());
 
 		}
 		catch (FileNotFoundException e) {

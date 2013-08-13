@@ -53,6 +53,7 @@ public class PanelFinals extends PanelTabs {
 			new StudentsFinalInit(term);
 		}
 		else if (command.equalsIgnoreCase("Assign places")) {
+			
 			String term = getOptionPane("Choose a month of the exam", false);
 			String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
 			final String fileFinals = newterm + " final exam master list.xlsx";
@@ -68,12 +69,17 @@ public class PanelFinals extends PanelTabs {
 			
 			label.append("-- Allocating rooms\n");
 			label.paintImmediately(label.getVisibleRect());
-			
 			sfs.addLocation();
-			new Excel().writeLocation(StudentsFinalSec.getList(), file);
+			
+			label.append("-- Adding invigilators\n");
+			label.paintImmediately(label.getVisibleRect());
+			sfs.getInvigilators();
+			
+			/*new Excel().writeLocation(StudentsFinalSec.getList(), file);
 	    	
 	    	label.append("-- Choose an option and click the button\n");
 	    	label.paintImmediately(label.getVisibleRect());
+	    	*/
 		}
 		else if (command.equalsIgnoreCase("List for professors")){
 			ArrayList<StudentFinal> list = StudentsFinalSec.getList();

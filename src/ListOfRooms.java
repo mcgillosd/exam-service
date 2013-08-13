@@ -19,7 +19,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  * @author Olga Tsibulevskaya
  */
 public abstract class ListOfRooms implements Iterable<Room>, Cloneable {
-	protected ArrayList<Room> list = new ArrayList<Room>();
+	
+	static ArrayList<Room> list = new ArrayList<Room>();
+		
+	protected ArrayList<Room> listMain = new ArrayList<Room>();
 	protected ArrayList<Room> listTemp = new ArrayList<Room>();	
 	
 	protected ListOfRooms(File file) {
@@ -44,6 +47,10 @@ public abstract class ListOfRooms implements Iterable<Room>, Cloneable {
 		catch (InvalidFormatException e) {
 			e.printStackTrace();
 		} 
+		list = listMain;
+	}
+	protected ListOfRooms() {
+		
 	}
 	public abstract void initRooms(Row r);
 	

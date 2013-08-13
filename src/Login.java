@@ -37,15 +37,18 @@ public class Login extends JPanel {
 	private JTextField textUser;
 	private JPasswordField textPass;
 	
-	private JTextArea label = PanelMidterms.label;
-
+	private JTextArea labelMidterm = PanelMidterms.label;
+	private JTextArea labelFinal = PanelFinals.label;
+	
+	/* to use for invigilators */
+	private StudentsFinalSec sfs; 
 	/** 
 	 * Creates a dialog for Login option
 	 * 
 	 * @param update if <code>true</code> than update, 
 	 * else download everything
 	 */
-	public Login(boolean update) {
+	public Login(boolean update, boolean midterm) {
 		dialog = new JDialog(AppFrame.frame, "Authentication");
 		Font font = new Font("Georgia", Font.PLAIN, 20);
 		
@@ -74,7 +77,7 @@ public class Login extends JPanel {
 			panel_buttons.add(buttons[i]);
 			if (i == 0)
 				panel_buttons.add(Box.createRigidArea(new Dimension(40, 0)));
-			buttons[i].addActionListener(new LoginActionListener(update)); 
+			buttons[i].addActionListener(new LoginActionListener(update, midterm)); 
 		}
 	
 		dialog.getRootPane().setDefaultButton(buttons[0]);
@@ -105,10 +108,16 @@ public class Login extends JPanel {
 		dialog.setVisible(true);
 
 	}
+	public Login(StudentsFinalSec sfs) {
+		this(false, false);
+		this.sfs = sfs;
+	}
 	class LoginActionListener implements ActionListener {
 		private boolean update;
-		public LoginActionListener(boolean update) {
+		private boolean midterm;
+		public LoginActionListener(boolean update, boolean midterm) {
 			this.update = update;
+			this.midterm = midterm;
 		}
 		public void actionPerformed(ActionEvent e) {
 			if (e.getActionCommand().equalsIgnoreCase("Login")) {
@@ -116,18 +125,31 @@ public class Login extends JPanel {
 				char[] password = textPass.getPassword();
 				dialog.setVisible(false);
 				dialog.dispose();
-				WebConnect wc = new WebConnect();
+				WebConnect wc = new WebConnect(midterm);
 				int result = wc.connect(user, password);
 				if (result == 302) { 
-					label.append("-- Authentication successful\n");
-					label.paintImmediately(label.getVisibleRect());
-					String html = wc.getContent();
-					new StudentsMidtermInit(update).start(html);
+					if (midterm) {
+						labelMidterm.append("-- Authentication successful\n");
+						labelMidterm.paintImmediately(labelMidterm.getVisibleRect());
+						String html = wc.getContent();
+						new StudentsMidtermInit(update).start(html);
+					}
+					else {
+						labelFinal.append("-- Authentication successful\n");
+						labelFinal.paintImmediately(labelFinal.getVisibleRect());
+						String html = wc.getInvigilatorsPage();
+						sfs.addInvigilators(html);
+					}
 			    }
 				else {
+					JTextArea label;
+					if (midterm)
+						label = labelMidterm;
+					else
+						label = labelFinal;
 					label.append("-- Authentication failed\n");
 					label.paintImmediately(label.getVisibleRect());
-					new Login(update);
+					new Login(update, midterm);
 			    }
 			}
 			else {

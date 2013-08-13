@@ -52,7 +52,7 @@ public class PanelMidterms extends PanelTabs {
 		String command = e.getActionCommand();
 		if (command.equalsIgnoreCase("Update")) {
 			till = Integer.parseInt(getOptionPane("Enter a number", true)); // to be deleted, for simulator
-			new Login(true);			
+			new Login(true, true);			
 		}
 		else if (command.equalsIgnoreCase("Show the last ID")) {
 			int lastid = StudentsMidtermInit.id;
@@ -61,7 +61,7 @@ public class PanelMidterms extends PanelTabs {
 			label.append("-- The last ID is " + lastid + "\n");
 		}
 		else if (command.equalsIgnoreCase("Download")) {
-			new Login(false);
+			new Login(false, true);
 		}
 		else {
 			// nothing
