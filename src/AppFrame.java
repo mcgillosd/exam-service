@@ -21,7 +21,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.ImageIcon;
 import javax.swing.SwingConstants;
 
-import java.io.File;
 import java.io.IOException;
 
 /**

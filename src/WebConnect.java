@@ -5,6 +5,7 @@
  */
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Scanner;
 
 import javax.swing.JTextArea;
 
@@ -113,8 +114,10 @@ public class WebConnect {
         String html = "";
         try {
         	InputStream in = httpget.getResponseBodyAsStream();
-        	 java.util.Scanner s = new java.util.Scanner(in).useDelimiter("\\A");
-             html = s.hasNext() ? s.next() : "";
+        	Scanner s = new Scanner(in);
+        	s.useDelimiter("\\A");
+            html = s.hasNext() ? s.next() : "";
+            s.close();
         } catch (IOException e) {
         	e.printStackTrace();
 		}
@@ -147,8 +150,10 @@ public class WebConnect {
         
         try {
         	InputStream in = httpget.getResponseBodyAsStream();
-        	java.util.Scanner s = new java.util.Scanner(in).useDelimiter("\\A");
+        	Scanner s = new Scanner(in);
+        	s.useDelimiter("\\A");
         	html = s.hasNext() ? s.next() : "";
+        	s.close();
         } catch (IOException e) {
         	e.printStackTrace();
 		}

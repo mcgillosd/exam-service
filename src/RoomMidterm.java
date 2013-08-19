@@ -1,7 +1,9 @@
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -40,8 +42,10 @@ public class RoomMidterm extends Room {
 	
 	public boolean hasPlace(Date date, Date start, Date finish) {
 		try {
-			FileInputStream fis = new FileInputStream(filename);
+			InputStream fis = new FileInputStream(filename);
+			
 			XSSFWorkbook wb = new XSSFWorkbook(fis);
+			
 			
 			CellStyle styleDate = wb.createCellStyle();
 			DataFormat df = wb.createDataFormat();
@@ -53,7 +57,7 @@ public class RoomMidterm extends Room {
 			XSSFSheet sheet = wb.getSheet(id);
 			// if a sheet for that room doesn't exist, it is free, create it
 			if (sheet == null) {
-				fis.close();
+			// fis.close();
 				
 				sheet = wb.createSheet(id);
 				Row row = sheet.createRow((short) 0);
@@ -80,7 +84,7 @@ public class RoomMidterm extends Room {
 				FileOutputStream out = new FileOutputStream(filename);
 				wb.write(out);
 				out.close();
-				
+			//	pkg.close();
 				return true;
 			} 
 			// the sheet already exists, read and get the availability info for the given day
@@ -91,7 +95,7 @@ public class RoomMidterm extends Room {
 								
 				Cell cell = row.getCell(0); // cell with the date
 				if (cell == null) {// can be? don't have to initialise and the first column is empty?
-					fis.close();
+			//		fis.close();
 					cell = row.createCell(0);
 					cell.setCellValue(date);
 					cell.setCellStyle(styleDate);
@@ -103,7 +107,7 @@ public class RoomMidterm extends Room {
 					FileOutputStream out = new FileOutputStream(filename);
 					wb.write(out);
 					out.close();
-					
+				//	pkg.close();
 					return true;
 				}
 				else { // should be here
@@ -118,26 +122,26 @@ public class RoomMidterm extends Room {
 								cell = row.getCell(colNum);
 								// looking for empty cells
 								if (cell == null) { // good! available
-									fis.close();
+									//fis.close();
 									cell = row.createCell(colNum);
 									bookPlace(date, start, finish, cell);
 									cell.setCellStyle(styleWrap);
 									sheet.setColumnWidth(colNum, 12*255);
 									
+									File file = new File(filename);
+									if (! file.canRead() || ! file.exists())
+										System.out.println("Can't: " + date + " " + start);
 									FileOutputStream out = new FileOutputStream(filename);
 									wb.write(out);
 									out.close();
-																		
+												
 									return true;
 								}
 							}
 							// no free places, look for free spots in time
-							
-							// bad with random. Take the row, create a list and sort by size. 
 							HashMap<Integer, LinkedList<Date>> map = new HashMap<Integer, LinkedList<Date>>();
 							int col = 0;
 							while (++col <= capacity) {
-								//colNum = (short)((int)(Math.random()*capacity) + 1);
 								cell = row.getCell(col);
 								// looking for spots
 								String times = cell.getStringCellValue();
@@ -151,17 +155,21 @@ public class RoomMidterm extends Room {
 																
 								LinkedList<Date> schedule = entry.getValue();
 								if (addPlace(schedule, start, finish)) {
-									fis.close();
+					//				fis.close();
 									bookPlace(schedule, row.getCell(entry.getKey())); 
 									cell.setCellStyle(styleWrap);
 									
 									int len = schedule.size()/2;
 									row.setHeightInPoints((len*sheet.getDefaultRowHeightInPoints()));
 									
+								//	System.gc();
+									File file = new File(filename);
+									if (! file.canRead() || ! file.exists())
+										System.out.println("Can't: " + date + " " + start);
 									FileOutputStream out = new FileOutputStream(filename);
 									wb.write(out);
 									out.close();
-																		
+						//			pkg.close();									
 									return true;
 								}
 							}
@@ -171,7 +179,7 @@ public class RoomMidterm extends Room {
 						}
 						// no given date
 						else if (date.compareTo(dateInFile) < 0) { // add new date
-							fis.close();
+						//	fis.close();
 							
 							sheet.shiftRows(rowNum, rowLast-1, 1);
 							row = sheet.createRow(rowNum);
@@ -183,11 +191,14 @@ public class RoomMidterm extends Room {
 							bookPlace(date, start, finish, cell);
 							cell.setCellStyle(styleWrap);
 							sheet.setColumnWidth(1, 12*255);
-							
+							//System.gc();
+							File file = new File(filename);
+							if (! file.canRead() || !file.exists())
+								System.out.println("Can't: " + date + " " + start);
 							FileOutputStream out = new FileOutputStream(filename);
 							wb.write(out);
 							out.close();
-																
+							//pkg.close();				
 							return true;
 						}
 						else {
@@ -197,7 +208,7 @@ public class RoomMidterm extends Room {
 					} // end of while for rows
 					// didn't find the date, come to the end, then add new date
 				
-					fis.close();
+	//				fis.close();
 					row = sheet.createRow(rowNum);
 					cell = row.createCell(0); // date
 					cell.setCellValue(date);
@@ -207,20 +218,24 @@ public class RoomMidterm extends Room {
 					bookPlace(date, start, finish, cell);
 					cell.setCellStyle(styleWrap);
 					sheet.setColumnWidth(1, 12*255);
-					
+					File file = new File(filename);
+					if (! file.canRead() || ! file.exists())
+						System.out.println("Can't: " + date + " " + start);
 					FileOutputStream out = new FileOutputStream(filename);
 					wb.write(out);
 					out.close();
-														
+					
+				//	pkg.close();								
 					return true;
 				}
 			}
-		}
-		catch (FileNotFoundException e) {
+		} catch (FileNotFoundException e) {
+			System.out.println(date + " " + start + " " + finish + " " + id);
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		} 
+		
 		return false;
 	}
 	private LinkedList<Date> getSchedule(String[] array) {

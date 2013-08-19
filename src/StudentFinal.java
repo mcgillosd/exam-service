@@ -35,6 +35,10 @@ public class StudentFinal extends Student {
 		examDate = date;
 	}
 	
+	public void setCourse(String course) {
+		this.course = course;
+	}
+	
 	public void setExamStartTime(Date examTime) {
 		examStartTime = examTime;
 	}

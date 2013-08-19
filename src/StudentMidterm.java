@@ -31,6 +31,13 @@ public class StudentMidterm extends Student {
 		this.id = Integer.parseInt(id);
 	}
 	
+	public void setCourse(String course) {
+		String str = course.toUpperCase();
+		String letter = str.replaceAll("[^A-Z]+", "");
+		String number = str.replaceAll("\\D+", "");
+		this.course = letter + " " + number;
+	}
+	
 	public void setExamDate(String examDateS) {
 		try {	
 			SimpleDateFormat sdf = new SimpleDateFormat("yyy-MM-dd");

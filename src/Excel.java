@@ -15,14 +15,15 @@ import java.util.Date;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -93,6 +94,7 @@ public class Excel {
 					workbook.write(out);
 					out.close();
 					labelMidterm.append("-- File " + filename + " has been created\n");
+					labelMidterm.paintImmediately(labelMidterm.getVisibleRect());
 				} 
 				else {
 					// nothing
@@ -407,8 +409,8 @@ public class Excel {
 		df = wb.createDataFormat();
 		timeChanged.setFont(fontBold);
 		timeChanged.setDataFormat(df.getFormat("h:mm"));
-		timeChanged.setFillBackgroundColor(IndexedColors.SKY_BLUE.getIndex());
-		timeChanged.setFillPattern(CellStyle.BIG_SPOTS);
+		timeChanged.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);  
+		timeChanged.setFillPattern(XSSFCellStyle.SOLID_FOREGROUND);  
 		styles[5] = timeChanged;
 		
 		CellStyle styleVertical = wb.createCellStyle();
@@ -1062,7 +1064,7 @@ public class Excel {
 					cell.setCellValue(student.getCourse());
 					cell.setCellStyle(styles[1]); break;
 				case 5:
-					cell.setCellValue(student.getNameProfLast() + "\n" + student.getNameProfFirst());
+					cell.setCellValue(student.getNameProfLast());
 					cell.setCellStyle(styles[6]); break; 
 				case 6:
 					if (student.hasConflict()) {
@@ -1199,7 +1201,7 @@ public class Excel {
 						cell.setCellValue(student.getCourse());
 						cell.setCellStyle(styles[1]); break;
 					case 5:
-						cell.setCellValue(student.getNameProfLast() + "\n" + student.getNameProfFirst());
+						cell.setCellValue(student.getNameProfLast());
 						cell.setCellStyle(styles[6]); break; 
 					case 6:
 						cell.setCellValue(student.getLocation());
@@ -1324,7 +1326,7 @@ public class Excel {
 			row = sheet.createRow((short) rowXL++);
 			Cell cell = row.createCell(0);
 			if (student.getNameProfLast() != "")
-				cell.setCellValue(student.getNameProfFirst() + " " + student.getNameProfLast());
+				cell.setCellValue(student.getNameProfLast());
 			else {
 				cell.setCellValue("No prof info");
 				noProf = true;
@@ -1347,8 +1349,8 @@ public class Excel {
 				}
 			}
 			else {
-				labelFinal.setText(student.getNameProfLast() + ": email not found"); // do not need it since profs should be defined 
-				labelFinal.paintImmediately(labelFinal.getVisibleRect());                 // if no info about profs - "", for sorting purposes
+				labelFinal.setText(student.getNameProfLast() + ": no prof info"); // do not need it since profs should be defined 
+				labelFinal.paintImmediately(labelFinal.getVisibleRect());    // if no info about profs - "", for sorting purposes
 				cell.setCellValue("email not found");
 			}
 				

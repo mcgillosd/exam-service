@@ -20,8 +20,7 @@ public abstract class Room implements Cloneable {
 	/** small rooms - capacity less than 3 */
 	protected boolean small = false;
 	protected int capacity;
-
-	
+	protected boolean alone = false;
 	/**
 	 * Creates a room by reading a row in the Excel file. 
 	 * @param r row in the file
@@ -69,6 +68,7 @@ public abstract class Room implements Cloneable {
 		capacity = another.capacity;
 		lab = another.lab;
 		small = another.small;
+		alone = false;
 	}
 	@Override
 	public boolean equals(Object obj) {
@@ -103,6 +103,16 @@ public abstract class Room implements Cloneable {
 	}
 	public int getCapacity() {
 		return capacity;
+	}
+	public void setCapacity(int qty) {
+		capacity = qty;
+	}
+	
+	public boolean getAlone() {
+		return alone;
+	}
+	public void setAlone() {
+		alone = true;
 	}
 	public void takePlace() {
 		if (capacity > 0)

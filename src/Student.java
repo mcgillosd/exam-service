@@ -95,9 +95,8 @@ public abstract class Student implements Comparable<Student> {
 	public String getCourse() {
 		return course;
 	}
-	public void setCourse(String course) {
-		this.course = course.toUpperCase();
-	}
+	public abstract void setCourse(String course);
+	
 	public String getSection() {
 		return section;
 	}
@@ -208,19 +207,6 @@ public abstract class Student implements Comparable<Student> {
 	private void setRooms() {
 		rooms = StudentsFinalSec.rooms;		
 	}
-	public int compareLocation(Student s) {
-		if (rooms.size() == 0)
-			setRooms();
-				
-		if (rooms.indexOf(location) >= 0 && rooms.indexOf(s.location) >= 0) {
-			if (rooms.indexOf(location) < rooms.indexOf(s.location))
-				return -1;
-			if (rooms.indexOf(location) > rooms.indexOf(s.location))
-				return 1;
-			return 0;
-		}
-		return 0;
-	}
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) 
@@ -234,12 +220,42 @@ public abstract class Student implements Comparable<Student> {
 		comp = nameFirst.compareTo(s.getNameFirst());
 		if (comp != 0)
 			return false;
-		comp = examDate.compareTo(s.getExamDate()); // check time for midterms, not so important for finals
-		if (comp != 0)
-			return false;
-		return (examStartTime.compareTo(s.getExamStartTime()) == 0);
+		return examDate.compareTo(s.getExamDate()) == 0; 
 	}
 	
+	public int compareLocation(Student s) {
+		if (rooms.size() == 0)
+			setRooms();
+				
+		if (rooms.indexOf(location) >= 0 && rooms.indexOf(s.location) >= 0) {
+			if (rooms.indexOf(location) < rooms.indexOf(s.location))
+				return -1;
+			if (rooms.indexOf(location) > rooms.indexOf(s.location))
+				return 1;
+			return 0;
+		}
+		return 0;
+	}
+	
+	public int compareComments(Student another) {
+		if (comments != null && another.comments != null) {
+			if ((comments.contains("scribe") || comments.contains("rm alone")) 
+					&& (! another.comments.contains("scribe") && ! another.comments.contains("rm alone"))) 
+				return -1;
+			if ((! comments.contains("scribe") && ! comments.contains("rm alone")) 
+					&& (another.comments.contains("scribe") || another.comments.contains("rm alone")))
+				return 1;
+			return 0;
+		}
+		if (comments == null && another.comments == null)
+			return 0;
+		else {
+			if (comments == null)
+				return 1;
+			else
+				return -1;
+		}
+	}
 	/**
 	 * Compares Students by their date of the exam
 	 *  
@@ -252,6 +268,20 @@ public abstract class Student implements Comparable<Student> {
 				return comp;
 			else
 				return s1.getExamStartTime().compareTo(s2.getExamStartTime());	
+		}
+	}
+	public static class DateExamCommentsComparator implements Comparator<Student> {
+		public int compare(Student s1, Student s2) {
+			int comp = s1.getExamDate().compareTo(s2.getExamDate());  
+			if (comp != 0)
+				return comp;
+			else {
+				comp = s1.getExamStartTime().compareTo(s2.getExamStartTime());
+				if (comp != 0)
+					return comp;
+				else
+					return s1.compareComments(s2);
+			}
 		}
 	}
 	/**

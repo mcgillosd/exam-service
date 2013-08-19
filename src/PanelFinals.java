@@ -75,11 +75,6 @@ public class PanelFinals extends PanelTabs {
 			label.paintImmediately(label.getVisibleRect());
 			sfs.getInvigilators();
 			
-			/*new Excel().writeLocation(StudentsFinalSec.getList(), file);
-	    	
-	    	label.append("-- Choose an option and click the button\n");
-	    	label.paintImmediately(label.getVisibleRect());
-	    	*/
 		}
 		else if (command.equalsIgnoreCase("List for professors")){
 			ArrayList<StudentFinal> list = StudentsFinalSec.getList();
@@ -97,17 +92,15 @@ public class PanelFinals extends PanelTabs {
 					// exit?
 				}
 				label.append("-- Getting info from " + fileFinals + " file\n");
-		    	
+				label.paintImmediately(label.getVisibleRect());
+				
 				new StudentsFinalSec(file);
 				list = StudentsFinalSec.getList();
 			}
 			
-			if (list.size() > 0)
-				new Excel().writeListProf(list);
-			else 
-				System.out.println("oops");
-		    	
+			new Excel().writeListProf(list);
 			label.append("-- Choose an option and click the button\n");
+			label.paintImmediately(label.getVisibleRect());
 		}	
 		else {
 			// nothing

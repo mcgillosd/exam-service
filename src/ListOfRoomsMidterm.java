@@ -17,14 +17,14 @@ public class ListOfRoomsMidterm extends ListOfRooms {
 	}
 	public void initRooms(Row r) {
 		Room room = new RoomMidterm(r);
-		list.add(room);
+		listMain.add(room);
 	}
 	/**
 	 * Finds a room which is not a lab and which has at least one place
 	 * @return a room
 	 */
 	public RoomMidterm getRoom(Date date, Date timeStart, Date timeFinish) {
-		for (Room r : list) {
+		for (Room r : listMain) {
 			if (! r.isLab() && ! r.isSmall()) {
 				if (((RoomMidterm)r).hasPlace(date, timeStart, timeFinish))
 					return (RoomMidterm)r;
@@ -39,7 +39,7 @@ public class ListOfRoomsMidterm extends ListOfRooms {
 	 * 		it doesn't exist
 	 */
 	public RoomMidterm getRoomByName(String name, Date date, Date timeStart, Date timeFinish) {
-		for (Room r : list) {
+		for (Room r : listMain) {
 			if (r.getName().equals(name) && ! r.full())
 				return (RoomMidterm)r;
 		}
@@ -49,11 +49,12 @@ public class ListOfRoomsMidterm extends ListOfRooms {
 	/**
 	 * Finds a small room (capacity <= 2)
 	 * 
-	 * @return a small room with at least one place available
+	 * @return a small room with if it's available
 	 */
 	public RoomMidterm getSmallRoom(Date date, Date timeStart, Date timeFinish) {
-		for (Room r : list) {
+		for (Room r : listMain) {
 			if (r.isSmall()) {
+				r.setCapacity(1);
 				if (((RoomMidterm)r).hasPlace(date, timeStart, timeFinish))
 					return (RoomMidterm)r;
 			}
@@ -65,7 +66,7 @@ public class ListOfRoomsMidterm extends ListOfRooms {
 	 * @return
 	 */
 	public RoomMidterm getLab(Date date, Date timeStart, Date timeFinish) {
-		for (Room r : list) {
+		for (Room r : listMain) {
 			if (r.isLab()) {
 				if (((RoomMidterm)r).hasPlace(date, timeStart, timeFinish))
 					return (RoomMidterm)r;

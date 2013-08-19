@@ -15,7 +15,7 @@ public class RoomFinal extends Room {
 
 	private Date date = null;
 	private String time = null;
-	
+		
 	/**
 	 * @param r
 	 */
@@ -43,6 +43,7 @@ public class RoomFinal extends Room {
 	public String getTime() {
 		return time;
 	}
+	
 	@Override
 	public String toString() {
 		return name + " " + date + " " + time;

@@ -49,7 +49,6 @@ public class Combo extends JPanel {
 		
 		
 		Term now = new Term();
-	//	System.out.println(now.getSeason() + " " + now.termNext().);
 		String[] files = {now.getTerm(), now.termNext().getTerm(), now.termNext().termNext().getTerm()};
 		
 		name = new JComboBox(files);

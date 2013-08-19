@@ -70,16 +70,10 @@ public class PanelMidterms extends PanelTabs {
 	
 	// for tests only, to be deleted
 	private String getOptionPane(String s, boolean termname) {
-		String termNow = null;	
-		if (termname) 
-			termNow = new Term().getTerm();
-		else 	
-			termNow = new Term().getMonth();
-		
 		String term = (String)JOptionPane.showInputDialog(
 				null, "Choose the term:",
 				s, JOptionPane.PLAIN_MESSAGE,
-				null, null, termNow);
+				null, null, null);
 		return term;
 	}
 }

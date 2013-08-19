@@ -40,8 +40,9 @@ public class ListOfRoomsFinal extends ListOfRooms {
 	public void allocateRoom(Student s) {
 		if (s.getComments() != null && (s.getComments().contains("rm alone") || s.getComments().contains("scribe"))) {
 			Room r = getSmallRoom();
-			if (r != null) {
+			if (r != null && ! r.getAlone()) {
 				r.takePlace();
+				r.setAlone();
 				s.setLocation(r.getId());
 			}
 			else {
@@ -105,8 +106,12 @@ public class ListOfRoomsFinal extends ListOfRooms {
 	 */
 	public Room getRoom() {
 		for (Room r : listMain) {
-			if (! r.isLab() && ! r.isSmall() && ! r.full())
-				return r;
+			if (! r.isLab() && ! r.full()) {
+				if (! r.isSmall())
+					return r;
+				if (r.isSmall() && ! r.getAlone())
+					return r;
+			}
 		}
 		return null;
 	}

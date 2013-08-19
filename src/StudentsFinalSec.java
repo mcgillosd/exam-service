@@ -102,16 +102,13 @@ public class StudentsFinalSec {
 						student.setCourse(course); break;
 					case 5:
 						cell = r.getCell(i);
-						if (cell != null && (int)((cell.getStringCellValue()).charAt(0)) != 10) {
-							String prof = cell.getStringCellValue();
-							String[] name = prof.split("\\r?\\n");
-							student.setNameProfLast(name[0]); 
-							student.setNameProfFirst(name[1]);
+						if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+							student.setNameProfLast(cell.getStringCellValue()); 
 						}
 						else { 
 							student.setNameProfLast(""); // maybe better null?
-							student.setNameProfFirst("");
 						}
+						student.setNameProfFirst("");
 						break;
 					case 6:
 						// must be empty, location
@@ -166,7 +163,7 @@ public class StudentsFinalSec {
 	 * Adds rooms according to the students accommodations and PC demands.
 	 */
 	public void addLocation() {
-		Collections.sort(list, new Student.DateExamComparator());
+		Collections.sort(list, new Student.DateExamCommentsComparator());
 		
 		File file = new File("rooms.xlsx");
 		if (! file.exists()) {
@@ -334,8 +331,6 @@ public class StudentsFinalSec {
 			}
 		}
 		new Excel().writeLocation(StudentsFinalSec.getList(), fileFinals);
-    	for (Invigilator i : listInv)
-    		System.out.println(i.getName() + " " + i.getAssignments());
     	
 	}
 	
@@ -455,16 +450,8 @@ public class StudentsFinalSec {
 				}
 			}
 			
-			//listInvM.add(inv.getMorning());
-			//listInvA.add(inv.getAfternoon());
 			listInv.add(inv);
 			
-		}
-		for (Invigilator in : listInv) {
-			System.out.println(in.getName());
-			for (Boolean i : in.getBoth())
-				System.out.print(i + " ");
-			System.out.println();
 		}
 	}
 }

@@ -18,7 +18,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  * 
  * @author Olga Tsibulevskaya
  */
-public abstract class ListOfRooms implements Iterable<Room>, Cloneable {
+public abstract class ListOfRooms implements Iterable<Room> {
 	
 	static ArrayList<Room> list = new ArrayList<Room>();
 		
@@ -68,20 +68,5 @@ public abstract class ListOfRooms implements Iterable<Room>, Cloneable {
 				return true;
 		}
 		return false;
-	}
-	
-	@Override
-	public Object clone() {
-		ListOfRooms lRooms = null;
-		try {
-			lRooms = (ListOfRooms)super.clone();
-		} catch (CloneNotSupportedException e) {
-			throw new InternalError(e.toString());
-		}
-		ArrayList<Room> clone = new ArrayList<Room>(list.size());
-		for (Room r : list)
-			clone.add((Room)r.clone());
-		lRooms.list = clone;
-		return lRooms;
 	}
 }

@@ -2,14 +2,22 @@
  * Created on 2013-06-26 1:37:35 PM
  */
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
+import java.util.Scanner;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -27,10 +35,11 @@ public class ProfMail {
 	 * @param s a student whom prof to find
 	 */
 	public ProfMail(StudentFinal s) {
-		String surname = s.getNameProfLast();
-		String name = s.getNameProfFirst();
-		String html = web(surname, name);
-		search(html);
+		email = getMailFromMidterms(s);
+		//String surname = s.getNameProfLast();
+		//String name = s.getNameProfFirst();
+		//String html = web(surname, name);
+		//search(html);
 	}
 	/**
 	 * Looks for email for the professor whose name is specified
@@ -40,6 +49,62 @@ public class ProfMail {
 	public ProfMail(String surname, String name) {
 		String html = web(surname, name);
 		search(html);
+	}
+	private String getMailFromMidterms(Student student) {
+		String mail = null;
+		String term = new Term().getTerm();
+		
+		String filename = "Winter 2013 exam schedule.xlsx"; // to test
+		//String filename = term + " exam schedule.xlsx";
+		File file = new File(filename);	
+		
+		if (! file.exists()) {
+			return null;
+		}
+		try {
+			FileInputStream fis = new FileInputStream(file);	
+			XSSFWorkbook wb = new XSSFWorkbook(fis);
+			XSSFSheet sheet = wb.getSheetAt(0);
+			
+			Row r = sheet.getRow(0);
+			int last = sheet.getLastRowNum();
+						
+			// start reading the file from the 1st row (exclude the header)
+			for (int rowNum = 1; rowNum <= last; rowNum++) {
+				r = sheet.getRow(rowNum);
+				if (r == null) {
+					new Excel().removeEmptyRows("Midterm", filename, false);
+				}
+				r = sheet.getRow(rowNum);
+				Cell cell = r.getCell(4);
+				if (cell != null) {
+					String course = cell.getStringCellValue();
+					if (course.equalsIgnoreCase(student.getCourse())) {
+						cell = r.getCell(5);
+						if (cell != null) {
+							String section = cell.getStringCellValue();
+							if (section.matches("[0-9]+") && student.getSection().matches("[0-9]+")) {
+								int sec = Integer.parseInt(section);
+								int secStud = Integer.parseInt(student.getSection());
+								if (sec == secStud) {
+									cell = r.getCell(11);
+									if (cell != null) {
+										mail = cell.getStringCellValue();
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+				System.out.println("Not: " + student.getNameLast() + " " + student.getCourse());
+			}
+			fis.close();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		return mail;
 	}
 	public String getEmail() {
 		return email;
@@ -88,8 +153,10 @@ public class ProfMail {
         String html = "";
         try {
         	InputStream in = httpget.getResponseBodyAsStream();
-        	java.util.Scanner s = new java.util.Scanner(in).useDelimiter("\\A");
-        	html = s.hasNext() ? s.next() : "";
+        	Scanner scanner = new Scanner(in);
+        	scanner.useDelimiter("\\A");
+        	html = scanner.hasNext() ? scanner.next() : "";
+        	scanner.close();
         } catch (IOException e) {
 			e.printStackTrace();
 		}

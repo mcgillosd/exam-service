@@ -67,7 +67,7 @@ public class StudentsMidtermInit {
 	 * @param lastId the last id after the last update
 	 */
 	public void setId(LastID lastId) {
-		this.id = lastId.getID();
+		id = lastId.getID();
 	}
 	/**
 	 * Invokes setters to create lists of students
@@ -163,9 +163,9 @@ public class StudentsMidtermInit {
 			int item = PanelMidterms.till;  // to be deleted
 			 
 			// int item = Integer.parseInt(td.get(0).text()); // will be $lastid, new id for the next update
-			int idMax = id;  // id from the previous update
+		//	int idMax = id;  // id from the previous update
 			 
-			if (item > idMax) { // new entries have been added since last visit
+			if (item > id) { // new entries have been added since last visit
 				existNew = true;
 				 
 				if (Integer.parseInt(td.get(index).text()) <= item 
@@ -236,7 +236,7 @@ public class StudentsMidtermInit {
 				listAcc.findAccommodations(stud);
 				/* add location only for the current term */
 			//	 if (term.contains(season) && ! stud.getCampus().equalsIgnoreCase("Macdonald")) // correct
-				if (term.contains("Winter") && ! stud.getCampus().equalsIgnoreCase("Macdonald")) // just to test
+				if (term.contains("Winter") && stud.getCampus().equalsIgnoreCase("Downtown")) // just to test
 					addLocation(stud); 
 			}
 			}
