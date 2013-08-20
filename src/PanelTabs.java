@@ -31,6 +31,7 @@ import javax.swing.border.EtchedBorder;
 public abstract class PanelTabs extends JPanel implements ActionListener {
 	
 	private static final long serialVersionUID = 1L;
+	static boolean set;
 	
 	public PanelTabs() {
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -145,6 +146,7 @@ public abstract class PanelTabs extends JPanel implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			if (e.getActionCommand().equalsIgnoreCase("Clear")) {
 				label.setText("-- Choose an option and click the button\n");
+				
 			}
 			else {
 				System.exit(0);

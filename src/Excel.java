@@ -8,6 +8,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -362,7 +364,7 @@ public class Excel {
 
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			throw new IOException();
 		}
 	}
 	/* Sets fonts based on the preferences given in arguments */
@@ -1023,10 +1025,10 @@ public class Excel {
 						
 		Sheet sheet = wb.createSheet("by day");
 		String[] headers = {"Date", "Name", "Surname", "Section", "Course ID", 
-				"Prof last", "Location" , "Start", "Finish", 
+				"Prof First", "Prof Last", "Location" , "Start", "Finish", 
 				"Extra", "SW", "PC", "Other", "Invigilator"};
 					
-		final int NB_COL = 14;
+		final int NB_COL = 15;
 					
 		/* creating the first header row */
 		Row row = sheet.createRow((short) 0);
@@ -1064,14 +1066,17 @@ public class Excel {
 					cell.setCellValue(student.getCourse());
 					cell.setCellStyle(styles[1]); break;
 				case 5:
+					cell.setCellValue(student.getNameProfFirst());
+					cell.setCellStyle(styles[6]); break;
+				case 6: 
 					cell.setCellValue(student.getNameProfLast());
-					cell.setCellStyle(styles[6]); break; 
-				case 6:
+					cell.setCellStyle(styles[6]); break;
+				case 7:
 					if (student.hasConflict()) {
 						cell.setCellValue("Conflict");
 					}
 					cell.setCellStyle(styles[1]); break;
-				case 7:
+				case 8:
 					if (student.timeChanged()) {
 						cell.setCellValue(student.getExamStartTime());
 						cell.setCellStyle(styles[5]); break;
@@ -1080,19 +1085,19 @@ public class Excel {
 						cell.setCellValue(student.getExamStartTime());
 						cell.setCellStyle(styles[4]); break;
 					}
-				case 8:
+				case 9:
 					cell.setCellValue(student.getExamFinishTime());
 					cell.setCellStyle(styles[4]); break;
-				case 9:
+				case 10:
 					cell.setCellValue(student.getExtraTime());
 					cell.setCellStyle(styles[1]); break;
-				case 10:
+				case 11:
 					cell.setCellValue(student.getStopwatch());
 					cell.setCellStyle(styles[1]); break;
-				case 11:
+				case 12:
 					cell.setCellValue(student.getComputer());
 					cell.setCellStyle(styles[1]); break;
-				case 12:
+				case 13:
 					cell.setCellValue(student.getComments());
 					cell.setCellStyle(styles[1]); break;
 				}
@@ -1160,10 +1165,10 @@ public class Excel {
 			
 			Sheet sheet = wb.getSheetAt(1);
 			String[] headers = {"Date", "Name", "Surname", "Section", "Course ID", 
-					"Prof last", "Location" , "Start", "Finish", 
+					"Prof First", "Prof Last", "Location" , "Start", "Finish", 
 					"Extra", "SW", "PC", "Other", "Invigilator"};
 						
-			final int NB_COL = 14;
+			final int NB_COL = 15;
 						
 			/* creating the first header row */
 			Row row = sheet.createRow((short) 0);
@@ -1201,12 +1206,15 @@ public class Excel {
 						cell.setCellValue(student.getCourse());
 						cell.setCellStyle(styles[1]); break;
 					case 5:
-						cell.setCellValue(student.getNameProfLast());
-						cell.setCellStyle(styles[6]); break; 
+						cell.setCellValue(student.getNameProfFirst());
+						cell.setCellStyle(styles[6]); break;
 					case 6:
+						cell.setCellValue(student.getNameProfLast());
+						cell.setCellStyle(styles[6]); break;
+					case 7:
 						cell.setCellValue(student.getLocation());
 						cell.setCellStyle(styles[1]); break;
-					case 7:
+					case 8:
 						if (student.timeChanged()) {
 							cell.setCellValue(student.getExamStartTime());
 							cell.setCellStyle(styles[5]); break;
@@ -1215,22 +1223,22 @@ public class Excel {
 							cell.setCellValue(student.getExamStartTime());
 							cell.setCellStyle(styles[4]); break;
 						}
-					case 8:
+					case 9:
 						cell.setCellValue(student.getExamFinishTime());
 						cell.setCellStyle(styles[4]); break;
-					case 9:
+					case 10:
 						cell.setCellValue(student.getExtraTime());
 						cell.setCellStyle(styles[1]); break;
-					case 10:
+					case 11:
 						cell.setCellValue(student.getStopwatch());
 						cell.setCellStyle(styles[1]); break;
-					case 11:
+					case 12:
 						cell.setCellValue(student.getComputer());
 						cell.setCellStyle(styles[1]); break;
-					case 12:
+					case 13:
 						cell.setCellValue(student.getComments());
 						cell.setCellStyle(styles[1]); break;
-					case 13: 
+					case 14: 
 						Invigilator[] inv = student.getInvigilator();
 						if (inv == null)
 							cell.setCellValue("Null");
@@ -1296,7 +1304,7 @@ public class Excel {
 			}
 			else return;
 		}
-		
+				
 		Collections.sort(list, new StudentFinal.ProfComparator());
 		
 		XSSFWorkbook wb = new XSSFWorkbook();
@@ -1338,43 +1346,49 @@ public class Excel {
 			if (! noProf) {
 				String email = new ProfMail(student).getEmail();
 				if (email != null) {
-					labelFinal.setText("-- " + student.getNameProfLast() + ": " + email + " --\n");
+					labelFinal.setText("-- " + student.getNameProfLast() + ": " + email + "\n");
 					labelFinal.paintImmediately(labelFinal.getVisibleRect());
 					cell.setCellValue(email);
 				}
 				else {
-					labelFinal.setText(student.getNameProfLast() + ": not found");
+					labelFinal.setText("-- " + student.getNameProfLast() + ": not found\n");
 					labelFinal.paintImmediately(labelFinal.getVisibleRect());
-					cell.setCellValue("not found");
+					cell.setCellValue("");
 				}
 			}
-			else {
-				labelFinal.setText(student.getNameProfLast() + ": no prof info"); // do not need it since profs should be defined 
-				labelFinal.paintImmediately(labelFinal.getVisibleRect());    // if no info about profs - "", for sorting purposes
+			else { // do not need it since profs should be defined, if no info about profs - "", for sorting purposes 
+				labelFinal.setText(student.getNameProfLast() + ": no prof info"); 
+				labelFinal.paintImmediately(labelFinal.getVisibleRect());    
 				cell.setCellValue("email not found");
 			}
-				
+			
 			cell.setCellStyle(styleVertical);
+			
+			DateFormat df = new SimpleDateFormat("dd-MMM");	
+			String date = df.format(student.getExamDate());
 			
 			cell = row.createCell(2);
 			cell.setCellValue(student.getNameLast() + " " + student.getNameFirst() + " (" + student.getCourse() + ")");
 			int count = 1;
+			
 			if (noProf) {
 				while (++i < list.size() && student.getCourse().equals(list.get(i).getCourse())) {
 					count++;
+					date = df.format(list.get(i).getExamDate());
 					cell.setCellValue(cell.getStringCellValue() + "\n" + list.get(i).getNameLast() + " " + 
-							list.get(i).getNameFirst() + " (" + list.get(i).getCourse() + ")");
+							list.get(i).getNameFirst() + " (" + list.get(i).getCourse() + ", " + date + ")");
 				}
 			}
 			else {
 				while (++i < list.size() && student.equalProf(list.get(i))) {
 					count++;
+					date = df.format(list.get(i).getExamDate());
 					cell.setCellValue(cell.getStringCellValue() + "\n" + list.get(i).getNameLast() + " " + 
-							list.get(i).getNameFirst() + " (" + list.get(i).getCourse() + ")");
+							list.get(i).getNameFirst() + " (" + list.get(i).getCourse() + ", " + date + ")");
 				}
 			}
 			cell.setCellStyle(styleWrap);
-			row.setHeight((short)(count*230));
+			row.setHeight((short)(count*300));
 		}
 		sheet.autoSizeColumn(0);
 		sheet.autoSizeColumn(1);

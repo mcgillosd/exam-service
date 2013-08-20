@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 import java.util.Scanner;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -36,20 +35,14 @@ public class ProfMail {
 	 */
 	public ProfMail(StudentFinal s) {
 		email = getMailFromMidterms(s);
-		//String surname = s.getNameProfLast();
-		//String name = s.getNameProfFirst();
-		//String html = web(surname, name);
-		//search(html);
+		/*if (email == null) {
+			String surname = s.getNameProfLast();
+			String name = s.getNameProfFirst();
+			String html = web(surname, name);
+			search(html);
+		}*/
 	}
-	/**
-	 * Looks for email for the professor whose name is specified
-	 * @param surname last name of the professor
-	 * @param name	first name of the professor
-	 */
-	public ProfMail(String surname, String name) {
-		String html = web(surname, name);
-		search(html);
-	}
+		
 	private String getMailFromMidterms(Student student) {
 		String mail = null;
 		String term = new Term().getTerm();
@@ -68,7 +61,8 @@ public class ProfMail {
 			
 			Row r = sheet.getRow(0);
 			int last = sheet.getLastRowNum();
-						
+					
+			
 			// start reading the file from the 1st row (exclude the header)
 			for (int rowNum = 1; rowNum <= last; rowNum++) {
 				r = sheet.getRow(rowNum);
@@ -78,6 +72,7 @@ public class ProfMail {
 				r = sheet.getRow(rowNum);
 				Cell cell = r.getCell(4);
 				if (cell != null) {
+					
 					String course = cell.getStringCellValue();
 					if (course.equalsIgnoreCase(student.getCourse())) {
 						cell = r.getCell(5);
@@ -97,15 +92,29 @@ public class ProfMail {
 						}
 					}
 				}
-				System.out.println("Not: " + student.getNameLast() + " " + student.getCourse());
+				
 			}
 			fis.close();
 		}
 		catch (IOException e) {
 			e.printStackTrace();
 		}
-		return mail;
+		boolean correct = verifyEmail(student, mail);
+		if (correct)
+			return mail;
+		else
+			return null;
 	}
+	private boolean verifyEmail(Student student, String mail) {
+		if (mail == null)
+			return false;
+		String prof = ((StudentFinal)student).getNameProfLast().toLowerCase();
+		String emailLower = mail.toLowerCase();
+		if (emailLower.contains(prof))
+			return true;
+		return false;
+	}
+	
 	public String getEmail() {
 		return email;
 	}

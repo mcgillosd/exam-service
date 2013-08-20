@@ -40,6 +40,7 @@ public class StudentsMidtermInit {
 	static int id;
 	/** The last id after a new update has been done */
 	private int lastid;
+	private int lastidCopy;
 	
 	private boolean update = false;
 	private boolean existNew = false;
@@ -49,6 +50,8 @@ public class StudentsMidtermInit {
 	private ListOfRoomsMidterm listOfRooms;
 	private String season = new Term().getSeason();
 	private ListOfAccommodations listAcc;
+	
+	boolean set = PanelTabs.set;
 	/**
 	 * Triggers access to the web-page in order to get the data,
 	 * which will be used to create lists of students.
@@ -80,8 +83,10 @@ public class StudentsMidtermInit {
 	public void start(String html){
 		if (update) { 
 			setId(new LastID());
-						
+			
+			System.out.println(id);
 			setTermLists(html, id);
+			
 			ArrayList<ArrayList<StudentMidterm>> lists = new ArrayList<ArrayList<StudentMidterm>>(3);
 			lists.add(listWinter);
 			lists.add(listSummer);
@@ -95,9 +100,9 @@ public class StudentsMidtermInit {
 					xl = new Excel();
 					try {
 						xl.update(lists.get(i), term);
-					}
-					catch (IOException e) {
-						e.printStackTrace();
+					} catch (IOException e) {
+						new Message("closed");
+						return;
 					}
 				}
 			}
@@ -235,7 +240,7 @@ public class StudentsMidtermInit {
 				}
 				listAcc.findAccommodations(stud);
 				/* add location only for the current term */
-			//	 if (term.contains(season) && ! stud.getCampus().equalsIgnoreCase("Macdonald")) // correct
+			//	 if (term.contains(season) && stud.getCampus().equalsIgnoreCase("Downtown")) // correct
 				if (term.contains("Winter") && stud.getCampus().equalsIgnoreCase("Downtown")) // just to test
 					addLocation(stud); 
 			}

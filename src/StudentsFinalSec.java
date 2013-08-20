@@ -103,30 +103,38 @@ public class StudentsFinalSec {
 					case 5:
 						cell = r.getCell(i);
 						if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+							student.setNameProfFirst(cell.getStringCellValue()); 
+						}
+						else { 
+							student.setNameProfFirst(""); // maybe better null?
+						}
+						break;
+					case 6:
+						cell = r.getCell(i);
+						if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
 							student.setNameProfLast(cell.getStringCellValue()); 
 						}
 						else { 
 							student.setNameProfLast(""); // maybe better null?
 						}
-						student.setNameProfFirst("");
-						break;
-					case 6:
-						// must be empty, location
 						break;
 					case 7:
+						// must be empty, location
+						break;
+					case 8:
 						Date timeStart = r.getCell(i).getDateCellValue();
 						student.setExamStartTime(timeStart); break;
-					case 8:
+					case 9:
 						Date timeFinish = r.getCell(i).getDateCellValue();
 						student.setExamFinishTime(timeFinish); break;
-					case 9: 
+					case 10: 
 						cell = r.getCell(i);
 						if (cell != null) {
 						//if (c.getCellType() == Cell.CELL_TYPE_STRING) {
 							String extra = cell.getStringCellValue();
 							student.setExtraTime(extra); break;
 						}
-					case 10:
+					case 11:
 						cell = r.getCell(i);
 						if (cell != null) {
 							String stopwatch = r.getCell(i).getStringCellValue();
@@ -134,7 +142,7 @@ public class StudentsFinalSec {
 								student.setStopwatch("Yes"); 
 						}
 						break;
-					case 11: 
+					case 12: 
 						cell = r.getCell(i);
 						if (cell != null) {
 							String pc = r.getCell(i).getStringCellValue();
@@ -142,7 +150,7 @@ public class StudentsFinalSec {
 								student.setComputer("Yes"); 
 						}
 						break;
-					case 12:
+					case 13:
 						cell = r.getCell(i);
 						if (cell != null) {
 							String comments = r.getCell(i).getStringCellValue();

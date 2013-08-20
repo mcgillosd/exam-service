@@ -122,7 +122,8 @@ public class StudentsFinalInit {
 			fis.close();
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			new Message("File " + osdReport + " is not available.\nPlease check if it's opened");
+			return;
 		}
 	}
 	private void addProfInfo(String term) {

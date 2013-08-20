@@ -35,6 +35,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class RoomMidterm extends Room {
 	
 	final String filename = "rooms_midterm.xlsx";
+	boolean set = PanelTabs.set;
 	
 	public RoomMidterm(Row r) {
 		super(r);
