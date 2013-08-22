@@ -1,9 +1,12 @@
-import java.io.File;
-import java.io.FileInputStream;
+/* 
+ * RoomMidterm.java
+ * 
+ * Created on Jul 10, 2013 11:13:04 AM
+ */
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -19,14 +22,10 @@ import java.util.Map.Entry;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-/*
- * Created on Jul 10, 2013 11:13:04 AM
- */
 
 /**
  * @author Olga Tsibulevskaya
@@ -34,210 +33,166 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  */
 public class RoomMidterm extends Room {
 	
-	final String filename = "rooms_midterm.xlsx";
-	boolean set = PanelTabs.set;
-	
 	public RoomMidterm(Row r) {
 		super(r);
 	}
 	
-	public boolean hasPlace(Date date, Date start, Date finish) {
-		try {
-			InputStream fis = new FileInputStream(filename);
-			
-			XSSFWorkbook wb = new XSSFWorkbook(fis);
-			
-			
-			CellStyle styleDate = wb.createCellStyle();
-			DataFormat df = wb.createDataFormat();
-			styleDate.setDataFormat(df.getFormat("d-mmm"));
-			
-			CellStyle styleWrap = wb.createCellStyle();
-			styleWrap.setWrapText(true);
-			
-			XSSFSheet sheet = wb.getSheet(id);
-			// if a sheet for that room doesn't exist, it is free, create it
-			if (sheet == null) {
-			// fis.close();
+	public boolean hasPlace(StudentMidterm student, XSSFWorkbook wb, CellStyle styleDate, CellStyle styleWrap) {
+		Date date = student.getExamDate();
+		Date start = student.getExamStartTime();
+		Date finish = student.getExamFinishTime();
+		
+		XSSFSheet sheet = wb.getSheet(id);
+		/* if a sheet for that room doesn't exist, it is available, create it and book a place */
+		if (sheet == null) {
 				
-				sheet = wb.createSheet(id);
-				Row row = sheet.createRow((short) 0);
-				Cell cell = row.createCell(0);
-				cell.setCellValue("Dates");
-				
-				int cellNum = 1; // write places on the first row
-				while(cellNum <= capacity) {
-					cell = row.createCell(cellNum);
-					cell.setCellValue(cellNum++);
-				}
+			sheet = wb.createSheet(id);
+			Row row = sheet.createRow((short) 0);
+			Cell cell = row.createCell(0);
+			cell.setCellValue("Dates");
+			
+			int cellNum = 1; // write places on the first row
+			while(cellNum <= capacity) {
+				cell = row.createCell(cellNum);
+				cell.setCellValue(cellNum++);
+			}
 							
-				row = sheet.createRow(1);
-				cell = row.createCell(0); // date
+			row = sheet.createRow(1);
+			cell = row.createCell(0); // date
+			cell.setCellValue(date);
+			cell.setCellStyle(styleDate);
+			
+			cell = row.createCell(1); // row 1 for the 1st place 
+			cell.setCellStyle(styleWrap);
+			sheet.setColumnWidth(1, 12*255);
+			
+			bookPlace(date, start, finish, cell);
+			student.setCell(cell);
+						
+			return true;
+		} 
+		/* the sheet already exists, read and get the availability info for the given day */
+		else {
+			int rowNum = 1;
+			Row row = sheet.getRow(rowNum);
+			int rowLast = sheet.getLastRowNum() + 1; // column of dates
+								
+			Cell cell = row.getCell(0); // cell with the date
+			if (cell == null) {// just in case 
+				cell = row.createCell(0);
 				cell.setCellValue(date);
 				cell.setCellStyle(styleDate);
 				
-				cell = row.createCell(1); // row 1 for the 1st place 
+				cell = row.createCell(1);
+				cell.setCellStyle(styleWrap);
+				bookPlace(date, start, finish, cell);
+				student.setCell(cell);
+							
+				return true;
+			}
+			else { // should be here
+				while (rowNum < rowLast) { // rowNum == 1
+					row = sheet.getRow(rowNum);
+					cell = row.getCell(0);
+					// given date exist
+					Date dateInFile = cell.getDateCellValue();
+					if (date.compareTo(dateInFile) == 0) {
+						short colNum = 0;
+						while (++colNum <= capacity) {
+							cell = row.getCell(colNum);
+							// looking for empty cells
+							if (cell == null) { // good! available
+								cell = row.createCell(colNum);
+								cell.setCellStyle(styleWrap);
+								sheet.setColumnWidth(colNum, 12*255);
+								
+								bookPlace(date, start, finish, cell);
+								student.setCell(cell);
+											
+								return true;
+							}
+						}
+						/* no available places, look for free spots in time */
+						HashMap<Integer, LinkedList<Date>> map = new HashMap<Integer, LinkedList<Date>>();
+						int col = 0;
+						while (++col <= capacity) {
+							cell = row.getCell(col);
+							// looking for spots
+							String times = cell.getStringCellValue();
+							String[] tarray = times.split(" ");
+							LinkedList<Date> schedule = getSchedule(tarray);
+							map.put(col, schedule);
+						}
+						Map<Integer, LinkedList<Date>> sorted = sort(map);
+						
+						for (Map.Entry<Integer, LinkedList<Date>> entry : sorted.entrySet()) {
+																
+							LinkedList<Date> schedule = entry.getValue();
+							if (addPlace(schedule, start, finish)) {
+								bookPlace(schedule, row.getCell(entry.getKey())); 
+								cell.setCellStyle(styleWrap);
+									
+								int len = schedule.size()/2;
+								row.setHeightInPoints((len*sheet.getDefaultRowHeightInPoints()));
+								student.setCell(cell);	
+							
+								return true;
+							}
+						}
+						// no places
+						return false;
+					}
+					// no given date
+					else if (date.compareTo(dateInFile) < 0) { // add new date
+													
+						sheet.shiftRows(rowNum, rowLast-1, 1);
+						row = sheet.createRow(rowNum);
+						cell = row.createCell(0); // date
+						cell.setCellValue(date);
+						cell.setCellStyle(styleDate);
+							
+						cell = row.createCell(1); // book the 1st place
+						bookPlace(date, start, finish, cell);
+							
+						cell.setCellStyle(styleWrap);
+						sheet.setColumnWidth(1, 12*255);
+						student.setCell(cell);
+						
+						return true;
+					}
+					else {
+						// go till the end of the rows
+					}
+					rowNum++;
+				} // end of while for rows
+				/* didn't find the date, come to the end, then add new date */
+				row = sheet.createRow(rowNum);
+				cell = row.createCell(0); // date
+				cell.setCellValue(date);
+				cell.setCellStyle(styleDate);
+					
+				cell = row.createCell(1); // book the 1st place
 				bookPlace(date, start, finish, cell);
 				cell.setCellStyle(styleWrap);
-				
 				sheet.setColumnWidth(1, 12*255);
 				
-				FileOutputStream out = new FileOutputStream(filename);
-				wb.write(out);
-				out.close();
-			//	pkg.close();
+				student.setCell(cell);
 				return true;
-			} 
-			// the sheet already exists, read and get the availability info for the given day
-			else {
-				int rowNum = 1;
-				Row row = sheet.getRow(rowNum);
-				int rowLast = sheet.getLastRowNum() + 1; // column of dates
-								
-				Cell cell = row.getCell(0); // cell with the date
-				if (cell == null) {// can be? don't have to initialise and the first column is empty?
-			//		fis.close();
-					cell = row.createCell(0);
-					cell.setCellValue(date);
-					cell.setCellStyle(styleDate);
-					
-					cell = row.createCell(1);
-					bookPlace(date, start, finish, cell);
-					cell.setCellStyle(styleWrap);
-					
-					FileOutputStream out = new FileOutputStream(filename);
-					wb.write(out);
-					out.close();
-				//	pkg.close();
-					return true;
-				}
-				else { // should be here
-					while (rowNum < rowLast) { // rowNum == 1
-						row = sheet.getRow(rowNum);
-						cell = row.getCell(0);
-						// given date exist
-						Date dateInFile = cell.getDateCellValue();
-						if (date.compareTo(dateInFile) == 0) {
-							short colNum = 0;
-							while (++colNum <= capacity) {
-								cell = row.getCell(colNum);
-								// looking for empty cells
-								if (cell == null) { // good! available
-									//fis.close();
-									cell = row.createCell(colNum);
-									bookPlace(date, start, finish, cell);
-									cell.setCellStyle(styleWrap);
-									sheet.setColumnWidth(colNum, 12*255);
-									
-									File file = new File(filename);
-									if (! file.canRead() || ! file.exists())
-										System.out.println("Can't: " + date + " " + start);
-									FileOutputStream out = new FileOutputStream(filename);
-									wb.write(out);
-									out.close();
-												
-									return true;
-								}
-							}
-							// no free places, look for free spots in time
-							HashMap<Integer, LinkedList<Date>> map = new HashMap<Integer, LinkedList<Date>>();
-							int col = 0;
-							while (++col <= capacity) {
-								cell = row.getCell(col);
-								// looking for spots
-								String times = cell.getStringCellValue();
-								String[] tarray = times.split(" ");
-								LinkedList<Date> schedule = getSchedule(tarray);
-								map.put(col, schedule);
-							}
-							Map<Integer, LinkedList<Date>> sorted = sort(map);
-						    						    
-						    for (Map.Entry<Integer, LinkedList<Date>> entry : sorted.entrySet()) {
-																
-								LinkedList<Date> schedule = entry.getValue();
-								if (addPlace(schedule, start, finish)) {
-					//				fis.close();
-									bookPlace(schedule, row.getCell(entry.getKey())); 
-									cell.setCellStyle(styleWrap);
-									
-									int len = schedule.size()/2;
-									row.setHeightInPoints((len*sheet.getDefaultRowHeightInPoints()));
-									
-								//	System.gc();
-									File file = new File(filename);
-									if (! file.canRead() || ! file.exists())
-										System.out.println("Can't: " + date + " " + start);
-									FileOutputStream out = new FileOutputStream(filename);
-									wb.write(out);
-									out.close();
-						//			pkg.close();									
-									return true;
-								}
-							}
-							// didn't find a place
-							fis.close();
-							return false;
-						}
-						// no given date
-						else if (date.compareTo(dateInFile) < 0) { // add new date
-						//	fis.close();
-							
-							sheet.shiftRows(rowNum, rowLast-1, 1);
-							row = sheet.createRow(rowNum);
-							cell = row.createCell(0); // date
-							cell.setCellValue(date);
-							cell.setCellStyle(styleDate);
-							
-							cell = row.createCell(1); // book the 1st place
-							bookPlace(date, start, finish, cell);
-							cell.setCellStyle(styleWrap);
-							sheet.setColumnWidth(1, 12*255);
-							//System.gc();
-							File file = new File(filename);
-							if (! file.canRead() || !file.exists())
-								System.out.println("Can't: " + date + " " + start);
-							FileOutputStream out = new FileOutputStream(filename);
-							wb.write(out);
-							out.close();
-							//pkg.close();				
-							return true;
-						}
-						else {
-							// go till the end of the rows
-						}
-						rowNum++;
-					} // end of while for rows
-					// didn't find the date, come to the end, then add new date
-				
-	//				fis.close();
-					row = sheet.createRow(rowNum);
-					cell = row.createCell(0); // date
-					cell.setCellValue(date);
-					cell.setCellStyle(styleDate);
-					
-					cell = row.createCell(1); // book the 1st place
-					bookPlace(date, start, finish, cell);
-					cell.setCellStyle(styleWrap);
-					sheet.setColumnWidth(1, 12*255);
-					File file = new File(filename);
-					if (! file.canRead() || ! file.exists())
-						System.out.println("Can't: " + date + " " + start);
-					FileOutputStream out = new FileOutputStream(filename);
-					wb.write(out);
-					out.close();
-					
-				//	pkg.close();								
-					return true;
-				}
 			}
+		}
+	}
+	public void write(String filename, XSSFWorkbook wb) throws FileNotFoundException {
+		try {
+			FileOutputStream out = new FileOutputStream(filename);
+			wb.write(out);
+			out.close();
 		} catch (FileNotFoundException e) {
-			System.out.println(date + " " + start + " " + finish + " " + id);
-			e.printStackTrace();
+			new Message("File " + filename + " is in use.\nPlease restart when the file is available");
+			throw e;
 		} catch (IOException e) {
+			System.err.println("Error writing from the workbook in rooms midterm allocation");
 			e.printStackTrace();
-		} 
-		
-		return false;
+		}
 	}
 	private LinkedList<Date> getSchedule(String[] array) {
 		LinkedList<Date> listSchedule = new LinkedList<Date>();
@@ -304,9 +259,9 @@ public class RoomMidterm extends Room {
 		cell.setCellValue(time);
 	}
 	// don't need the date
-	private void bookPlace(Date date, Date start, Date finish, Cell cell) {
-		if (cell.getCellType() == 1) {// not blank, string
-			
+	private boolean bookPlace(Date date, Date start, Date finish, Cell cell) {
+		if (cell.getCellType() == 1) {// not blank, but string
+			return false;
 		}
 		else { // blank
 			SimpleDateFormat df = new SimpleDateFormat("HH:mm");
@@ -314,6 +269,7 @@ public class RoomMidterm extends Room {
 			String finishS = df.format(finish);
 			String total = startS + "-" + finishS;
 			cell.setCellValue(total);
+			return true;
 		}
 	}
 	private Map<Integer, LinkedList<Date>> sort(Map<Integer, LinkedList<Date>> map) {

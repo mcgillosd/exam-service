@@ -140,13 +140,13 @@ public abstract class PanelTabs extends JPanel implements ActionListener {
 	
 	class TextActionListener implements ActionListener {
 		private JTextArea label;
+		Thread t;
 		public TextActionListener(JTextArea label) {
 			this.label = label;
 		}
 		public void actionPerformed(ActionEvent e) {
 			if (e.getActionCommand().equalsIgnoreCase("Clear")) {
 				label.setText("-- Choose an option and click the button\n");
-				
 			}
 			else {
 				System.exit(0);

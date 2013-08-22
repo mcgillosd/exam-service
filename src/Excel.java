@@ -125,7 +125,8 @@ public class Excel {
 		setFile(filename);
 		
 		if (! file.exists()) {
-			new Message("File " + filename + " does not exist");
+			create(term);
+			//new Message("File " + filename + " does not exist");
 		}
 		
 		setNbCol(14);

@@ -3,6 +3,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.poi.ss.usermodel.Cell;
+
 /*
  * Created on Jul 17, 2013 1:32:55 PM
  */
@@ -19,6 +21,7 @@ public class StudentMidterm extends Student {
 	private String commentsFromForm;
 	private String term;
 	private int length;
+	private Cell cell;
 	
 	public StudentMidterm() {
 		super();
@@ -133,5 +136,11 @@ public class StudentMidterm extends Student {
 	public String toString() {
 		return id + "\t" + nameLast + "\t" + examDate + "\t" + examStartTime + "\t" + 
 				examFinishTime + "\t" + computer + "\t" + comments;  
+	}
+	public Cell getCell() {
+		return cell;
+	}
+	public void setCell(Cell cell) {
+		this.cell = cell;
 	}
 }

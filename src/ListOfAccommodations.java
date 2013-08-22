@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,14 +22,15 @@ public class ListOfAccommodations {
 
 	private ArrayList<Accommodations> listAcc = new ArrayList<Accommodations>();
 	
-	public ListOfAccommodations() {
+	public ListOfAccommodations() throws FileNotFoundException {
 				
 		final String accommodations = "accommodations.xlsx";
 		File fileAccommodations = new File("finals/" + accommodations);
 		
-		if (! fileAccommodations.exists())
-			new Message("File " + accommodations + " doesn't exist");
-			
+		if (! fileAccommodations.exists()) {
+			new Message("File " + accommodations + " not found");
+			throw new FileNotFoundException();
+		}
 		try {
 			FileInputStream fis = new FileInputStream(fileAccommodations);	
 			XSSFWorkbook wb = new XSSFWorkbook(fis);
@@ -71,6 +73,14 @@ public class ListOfAccommodations {
 			}
 			else { //id < idAcc
 				setAccommodations(s, null);
+			}
+		}
+	}
+	public void findAccommodations(ArrayList<StudentMidterm> list) {
+		for (Student stud : list) {
+			for (Accommodations acc : listAcc) {
+				if (acc.getId().equals(stud.getSid()))
+					setAccommodations(stud, acc);
 			}
 		}
 	}

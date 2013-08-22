@@ -103,7 +103,7 @@ public class WebConnect {
         }
          
         if (result == 200) {
-        	label.append("-- Downloading data from the database\n");
+        	label.append("-- Downloading data\n");
         	label.paintImmediately(label.getVisibleRect());
         }
         else {

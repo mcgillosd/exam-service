@@ -6,6 +6,7 @@
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -31,8 +32,9 @@ public class StudentsFinalInit {
 	private JTextArea label = PanelFinals.label;
 	/**
 	 * Creates a list of students registered for finals and writes data into the file
+	 * @throws FileNotFoundException 
 	 */
-	public StudentsFinalInit(String term) {
+	public StudentsFinalInit(String term) throws FileNotFoundException {
 		setList(term);
 		addProfInfo(term);
 		

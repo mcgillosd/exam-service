@@ -5,7 +5,9 @@
  */
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
 import javax.swing.JTextArea;
@@ -40,15 +42,12 @@ public class StudentsMidtermInit {
 	static int id;
 	/** The last id after a new update has been done */
 	private int lastid;
-	private int lastidCopy;
-	
+		
 	private boolean update = false;
 	private boolean existNew = false;
-	private boolean roomsInit = false;
-	
+		
 	private Excel xl;
 	private ListOfRoomsMidterm listOfRooms;
-	private String season = new Term().getSeason();
 	private ListOfAccommodations listAcc;
 	
 	boolean set = PanelTabs.set;
@@ -79,18 +78,89 @@ public class StudentsMidtermInit {
 	 * 
 	 * @param html a <code>String</code> which contains 
 	 * all data from the web-page
+	 * @throws FileNotFoundException 
 	 */
-	public void start(String html){
+	public void start(String html) throws FileNotFoundException{
+	
 		if (update) { 
+			boolean accommodationsSet = false;
 			setId(new LastID());
 			
-			System.out.println(id);
 			setTermLists(html, id);
 			
 			ArrayList<ArrayList<StudentMidterm>> lists = new ArrayList<ArrayList<StudentMidterm>>(3);
 			lists.add(listWinter);
 			lists.add(listSummer);
 			lists.add(listFall);
+			
+			label.append("-- Getting accommodations info\n");
+			label.paintImmediately(label.getVisibleRect());
+			
+			for (int i = 0; i < lists.size(); i++) {
+				if (lists.get(i).size() > 0 ) {
+					if (! accommodationsSet) {
+						listAcc = new ListOfAccommodations();
+						accommodationsSet = true;
+					}
+					listAcc.findAccommodations(lists.get(i));
+				}
+			}
+			
+			/* Checking if files are available */
+			for (int i = 0; i < 3; i++) {
+				if (lists.get(i).size() > 0) {
+					int index = (i+1)*3;
+					String term = new Term(index).getTerm();
+					String filename = term + " exam schedule.xlsx";
+					File file = new File(filename);
+					if (! file.exists())
+						new Excel().create(term);
+					try {
+						RandomAccessFile raf = new RandomAccessFile(file, "rw");
+						raf.close();
+					} catch (IOException e) {
+						new Message("File " + filename + " is in use.\nPlease restart when the file is available");
+						return;
+					}
+				}
+			}
+			
+			/* Allocating rooms */
+			String now = new Term().getTerm();
+			if (now.contains("Fall")) {
+				if (listFall.size() > 0) {
+					label.append("-- Allocating rooms\n");
+					label.paintImmediately(label.getVisibleRect());
+					listOfRooms = initRooms();
+					if (listOfRooms == null)
+						return;
+					listOfRooms.addLocation(listFall);
+				}
+			}
+			else if (now.contains("Winter")) {
+				if (listWinter.size() > 0) {
+					label.append("-- Allocating rooms\n");
+					label.paintImmediately(label.getVisibleRect());
+					listOfRooms = initRooms();
+					if (listOfRooms == null)
+						return;
+					listOfRooms.addLocation(listWinter);
+				}
+			}
+			else if (now.contains("Summer")) {
+				if (listWinter.size() > 0) {
+					label.append("-- Allocating rooms\n");
+					label.paintImmediately(label.getVisibleRect());
+					listOfRooms = initRooms();
+					if (listOfRooms == null)
+						return;
+					listOfRooms.addLocation(listWinter); // TODO : change to Summer, it is to test
+				}
+			}
+			else {
+				// error
+			}
+			
 			for (int i = 0; i < 3; i++) {
 				if (lists.get(i).size() > 0) {
 					int index = (i+1)*3; // should be any month of the term, so 3 (W), 6 (S) and 9 (F)
@@ -101,7 +171,7 @@ public class StudentsMidtermInit {
 					try {
 						xl.update(lists.get(i), term);
 					} catch (IOException e) {
-						new Message("closed");
+						new Message("Error occured while writing files into Excel");
 						return;
 					}
 				}
@@ -230,19 +300,6 @@ public class StudentsMidtermInit {
 				else 
 					macdonald.add(stud);
 				
-				if (existNew && ! roomsInit) {
-					listOfRooms = initRooms();
-					listAcc = new ListOfAccommodations();
-					if (listOfRooms != null)
-						roomsInit = true;
-					else
-						return;
-				}
-				listAcc.findAccommodations(stud);
-				/* add location only for the current term */
-			//	 if (term.contains(season) && stud.getCampus().equalsIgnoreCase("Downtown")) // correct
-				if (term.contains("Winter") && stud.getCampus().equalsIgnoreCase("Downtown")) // just to test
-					addLocation(stud); 
 			}
 			}
 			else
@@ -268,7 +325,7 @@ public class StudentsMidtermInit {
 		ListOfRoomsMidterm rList = new ListOfRoomsMidterm(file);
 		return rList;
 	}
-	private void addLocation(Student s) {
+/*	private void addLocation(Student s) {
 		if (s.getComments() != null && (s.getComments().contains("rm alone") || s.getComments().contains("scribe"))) {
 			RoomMidterm r = listOfRooms.getSmallRoom(s.getExamDate(), s.getExamStartTime(), s.getExamFinishTime());
 			if (r != null) {
@@ -311,7 +368,8 @@ public class StudentsMidtermInit {
 				s.setLocation("no more places");
 			}
 		}
-	}
+	}*/
+	
 	/**
 	 * Populates one list, which will contain all information from the web page
 	 * 

@@ -6,6 +6,7 @@
 
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -50,7 +51,11 @@ public class PanelFinals extends PanelTabs {
 		String command = e.getActionCommand();
 		if (command.equalsIgnoreCase("Finals file")) {
 			String term = getOptionPane("Choose a month of the exam", false);
-			new StudentsFinalInit(term);
+			try {
+				new StudentsFinalInit(term);
+			} catch (FileNotFoundException e1) {
+				return;
+			}
 		}
 		else if (command.equalsIgnoreCase("Assign places")) {
 			
