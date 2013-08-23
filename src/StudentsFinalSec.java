@@ -4,6 +4,7 @@
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -169,14 +170,15 @@ public class StudentsFinalSec {
 	}
 	/**
 	 * Adds rooms according to the students accommodations and PC demands.
+	 * @throws FileNotFoundException 
 	 */
-	public void addLocation() {
+	public void addLocation() throws FileNotFoundException {
 		Collections.sort(list, new Student.DateExamCommentsComparator());
 		
 		File file = new File("rooms.xlsx");
 		if (! file.exists()) {
 			new Message("File " + file.getName() + " doesn't exist");
-			return;
+			throw new FileNotFoundException();
 		}
 		ListOfRoomsFinal rList = new ListOfRoomsFinal(file);
 		
@@ -303,10 +305,10 @@ public class StudentsFinalSec {
 			}
 			if (! set) {
 				inv[i] = new Invigilator();
-				inv[i].setName("no");
+				inv[i].setName("not found");
 			}
 		}
-		s.setInvigilator(inv);
+		s.setInvigilator(inv[0]);
 		return inv;
 	}
 	public void addInvigilators(String html) {
@@ -315,6 +317,7 @@ public class StudentsFinalSec {
 		
 		String roomNext = "";
 		boolean set = false;
+		boolean second = false;
 		Invigilator[] inv = new Invigilator[0];
 						
 		for (int i = 0; i < list.size()-1; i++) {
@@ -332,13 +335,21 @@ public class StudentsFinalSec {
 			}
 			roomNext = list.get(i+1).getLocation();
 			if (room.equals(roomNext)) {
-				list.get(i+1).setInvigilator(inv);
+				if (! second && inv.length == 2) {
+					list.get(i+1).setInvigilator(inv[1]);
+					second = true;
+				}
 			}
 			else {
 				set = false;
+				second = false;
 			}
 		}
-		new Excel().writeLocation(StudentsFinalSec.getList(), fileFinals);
+		try {
+			new Excel().writeLocation(StudentsFinalSec.getList(), fileFinals);
+		} catch (FileNotFoundException e) {
+			return;
+		}
     	
 	}
 	

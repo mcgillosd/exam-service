@@ -67,8 +67,7 @@ public class RoomMidterm extends Room {
 			sheet.setColumnWidth(1, 12*255);
 			
 			bookPlace(date, start, finish, cell);
-			student.setCell(cell);
-						
+									
 			return true;
 		} 
 		/* the sheet already exists, read and get the availability info for the given day */
@@ -86,7 +85,7 @@ public class RoomMidterm extends Room {
 				cell = row.createCell(1);
 				cell.setCellStyle(styleWrap);
 				bookPlace(date, start, finish, cell);
-				student.setCell(cell);
+			//	student.setCell(cell);
 							
 				return true;
 			}
@@ -107,7 +106,7 @@ public class RoomMidterm extends Room {
 								sheet.setColumnWidth(colNum, 12*255);
 								
 								bookPlace(date, start, finish, cell);
-								student.setCell(cell);
+			//					student.setCell(cell);
 											
 								return true;
 							}
@@ -134,7 +133,7 @@ public class RoomMidterm extends Room {
 									
 								int len = schedule.size()/2;
 								row.setHeightInPoints((len*sheet.getDefaultRowHeightInPoints()));
-								student.setCell(cell);	
+				//				student.setCell(cell);	
 							
 								return true;
 							}
@@ -156,7 +155,7 @@ public class RoomMidterm extends Room {
 							
 						cell.setCellStyle(styleWrap);
 						sheet.setColumnWidth(1, 12*255);
-						student.setCell(cell);
+					//	student.setCell(cell);
 						
 						return true;
 					}
@@ -176,7 +175,7 @@ public class RoomMidterm extends Room {
 				cell.setCellStyle(styleWrap);
 				sheet.setColumnWidth(1, 12*255);
 				
-				student.setCell(cell);
+				//student.setCell(cell);
 				return true;
 			}
 		}

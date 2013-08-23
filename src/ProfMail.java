@@ -29,6 +29,7 @@ import org.jsoup.select.Elements;
  */
 public class ProfMail {
 	private String email;
+	
 	/**
 	 * Gets a student and looks for email for his prof
 	 * @param s a student whom prof to find
@@ -42,7 +43,6 @@ public class ProfMail {
 			search(html);
 		}*/
 	}
-		
 	private String getMailFromMidterms(Student student) {
 		String mail = null;
 		String term = new Term().getTerm();

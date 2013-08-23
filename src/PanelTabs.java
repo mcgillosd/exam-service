@@ -11,6 +11,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -31,7 +32,8 @@ import javax.swing.border.EtchedBorder;
 public abstract class PanelTabs extends JPanel implements ActionListener {
 	
 	private static final long serialVersionUID = 1L;
-	static boolean set;
+	AtomicBoolean stopWork = WorkThread.stopWork;
+	WorkThread wt;
 	
 	public PanelTabs() {
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -114,7 +116,6 @@ public abstract class PanelTabs extends JPanel implements ActionListener {
 				panel_buttons.add(Box.createRigidArea(new Dimension(40, 0)));
 			buttons[i].addActionListener(new TextActionListener(label)); 
 		}
-			
 		panel.add(Box.createRigidArea(new Dimension(0,20)));
 		panel.add(panel_buttons);
 	
@@ -124,7 +125,7 @@ public abstract class PanelTabs extends JPanel implements ActionListener {
 	
 	private void setLabelProperties(JTextArea label) {
 		label.setText("-- Choose an option and click the button\n");
-		Font font_text = new Font("Georgia", Font.PLAIN, 20);
+		Font font_text = new Font("Georgia", Font.PLAIN, 18);
 		label.setFont(font_text);
 		label.setBackground(new Color(213, 209, 206));
 		label.setOpaque(true);
@@ -139,8 +140,9 @@ public abstract class PanelTabs extends JPanel implements ActionListener {
 	}
 	
 	class TextActionListener implements ActionListener {
+			
 		private JTextArea label;
-		Thread t;
+		
 		public TextActionListener(JTextArea label) {
 			this.label = label;
 		}

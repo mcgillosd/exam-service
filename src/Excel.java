@@ -492,7 +492,73 @@ public class Excel {
 			}
 		}
 	}
-
+	private void fillRowDownload(Row row, StudentMidterm student, CellStyle[] styles, int nbCol) {
+		for (int colXL = 0; colXL < nbCol; colXL++) {
+			Cell cell = row.createCell(colXL);
+			switch (colXL) {
+			case 0:
+				cell.setCellValue(student.getId()); 
+				cell.setCellStyle(styles[1]); break;
+			case 1:
+				cell.setCellValue(student.getTimeSubmission()); 
+				cell.setCellStyle(styles[1]); break;
+			case 2:
+				cell.setCellValue(student.getUser()); 
+				cell.setCellStyle(styles[1]); break;
+			case 3: 
+				cell.setCellValue(student.getExamDate());
+				cell.setCellStyle(styles[3]); break;
+			case 4:
+				cell.setCellValue(student.getNameLast());
+				cell.setCellStyle(styles[1]); break;
+			case 5: 
+				cell.setCellValue(student.getNameFirst());
+				cell.setCellStyle(styles[1]); break;
+			case 6:
+				cell.setCellValue(student.getSid()); 
+				cell.setCellStyle(styles[1]); break;
+			case 7:
+				cell.setCellValue(student.getPhone()); 
+				cell.setCellStyle(styles[1]); break;
+			case 8:
+				cell.setCellValue(student.getEmail()); 
+				cell.setCellStyle(styles[1]); break;
+			case 9: 
+				cell.setCellValue(student.getCourse());
+				cell.setCellStyle(styles[2]); break;
+			case 10:
+				cell.setCellValue(student.getSection());
+				cell.setCellStyle(styles[1]); break;
+			case 11:
+				cell.setCellValue(student.getExamStartTime());
+				cell.setCellStyle(styles[4]); break;
+			case 12:
+				cell.setCellValue(student.getExamFinishTime());
+				cell.setCellStyle(styles[4]); break;
+			case 13:
+				cell.setCellValue(student.getNameProf());
+				cell.setCellStyle(styles[1]); break;
+			case 14:
+				cell.setCellValue(student.getEmailProf());
+				cell.setCellStyle(styles[1]); break;
+			case 15:
+				cell.setCellValue(student.getExtraTime());
+				cell.setCellStyle(styles[1]); break;
+			case 16:
+				cell.setCellValue(student.getStopwatch());
+				cell.setCellStyle(styles[1]); break;
+			case 17:
+				cell.setCellValue(student.getComputer());
+				cell.setCellStyle(styles[1]); break;
+			case 18:
+				cell.setCellValue(student.getCommentsFromForm());
+				cell.setCellStyle(styles[1]); break;
+			case 19:
+				cell.setCellValue(student.getCampus());
+				cell.setCellStyle(styles[1]); break;
+			}
+		}
+	}
 	private void fillRowMac(Row row, StudentMidterm student, CellStyle[] styles) {
 		for (int colXL = 0; colXL < nbCol; colXL++) {
 			Cell cell = row.createCell(colXL);
@@ -561,26 +627,36 @@ public class Excel {
 	 * @param 	listOfStudents list of all students registered for the midterms,
 	 * @throws IOException
 	 */
-	public void export(ArrayList<StudentMidterm> listOfStudents) throws IOException {
+	public void export(ArrayList<StudentMidterm> listOfStudents) throws FileNotFoundException {
 		Collections.sort(listOfStudents, new Student.DateExamComparator());
 		
 		String excelFileName = "Midterms.xlsx";
-		
-		FileOutputStream fos = new FileOutputStream(excelFileName);	
+		File file = new File(excelFileName);
+		if (file.exists()) {
+			int result = JOptionPane.showConfirmDialog(
+					null,"The file already exists, overwrite it?", 
+					"Warning",JOptionPane.YES_NO_OPTION);
+			if (result == JOptionPane.YES_OPTION) {
+				// go on
+			}
+			else return;
+		}
+		FileOutputStream fos = new FileOutputStream(excelFileName);
 		XSSFWorkbook wb = new XSSFWorkbook();
-	
+		
 		CellStyle[] styles = getAllStyles(wb);
+			
+		Sheet sheet = wb.createSheet("Midterms");
 		
-		Sheet sheet = wb.createSheet("MY_SHEET");
-		String[] headers = {"#", "Date", "Family name", "First name", "Course number", "Section",
-					"Exam location", "Start", "Finish", "Length", "Professor name", "Professor email",
-					"Extra time", "Stopwatch", "PC", "Other", "Invigilator"};
-		
-		final int NB_COL = 17;
+		String[] headers = {"#", "Submission Time", "User", "Exam Date", "Family Name", "First Name", 
+				"Student ID", "Phone", "Email", "Course", "Section", "Exam Start", "Exam Finish", 
+				"Professor Name", "Professor Email", "Extra time", "Stopwatch", "PC", "Comments", "Campus"};
+			
+		int nbCol = 20;
 		/* creating the first header row */
 		Row row = sheet.createRow((short) 0);
 		int colXL = 0;
-		while (colXL < NB_COL) {
+		while (colXL < nbCol) {
 			Cell cell = row.createCell(colXL);
 			cell.setCellValue(headers[colXL++]);
 			cell.setCellStyle(styles[0]);
@@ -589,18 +665,31 @@ public class Excel {
 		for (int rowXL = 1, i = 0; i < listOfStudents.size(); i++) {
 			StudentMidterm student = listOfStudents.get(i);
 			row = sheet.createRow((short) rowXL++);
-			fillRow(row, student, styles);
+			fillRowDownload(row, student, styles, nbCol);
 		}
-		modifyWidth(sheet);
-		
+		sheet.setColumnWidth(1, 15*255);
+		sheet.setColumnWidth(2, 20*255); 
+		sheet.setColumnWidth(4, 15*255); 
+		sheet.setColumnWidth(5, 15*255); 
+		sheet.setColumnWidth(6, 15*255);
+		sheet.setColumnWidth(7, 20*255);
+		sheet.setColumnWidth(8, 20*255);
+		sheet.setColumnWidth(13, 15*255);
+		sheet.setColumnWidth(14, 20*255);
+		sheet.setColumnWidth(18, 25*255);
+				
 		sheet.createFreezePane(0, 1);
 		
-		wb.write(fos);
-		fos.flush();
-		fos.close();
-		labelMidterm.append("-- File " + excelFileName + " has been created\n");
-		labelMidterm.paintImmediately(labelMidterm.getVisibleRect());
-
+		try {
+			wb.write(fos);
+			fos.flush();
+			fos.close();
+			labelMidterm.append("-- File " + excelFileName + " has been created\n");
+			labelMidterm.paintImmediately(labelMidterm.getVisibleRect());
+		} catch (IOException e) {
+			new Log(e.getStackTrace().toString());
+		}
+		
 	}
 	/**
 	 * Adds two empty rows between two different dates of the exam.
@@ -1120,43 +1209,11 @@ public class Excel {
 	 *
 	 * @param list list of students 
 	 * @param file the file where locations should be added (the main file for finals)
+	 * @throws FileNotFoundException 
 	 */
-	/*public void writeLocation(ArrayList<StudentFinal> list, File file) {
-		try {
-			FileInputStream inp = new FileInputStream(file);
-			XSSFWorkbook wb = new XSSFWorkbook(inp);
-			
-			Sheet sheet = wb.getSheetAt(1);		
-		
-			CellStyle style = wb.createCellStyle();
-			Font fontNormal = setCustomFont(wb, "Calibri", 11, false);
-			style.setFont(fontNormal);
-			
-			int rowEnd = sheet.getLastRowNum();
-					
-			for (int rowNum = 1; rowNum <= rowEnd; rowNum++) { 
-				Row row = sheet.getRow(rowNum);
-				Student s = list.get(rowNum-1);
-				Cell cell = row.getCell(6);
-				cell.setCellValue(s.getLocation());
-				cell.setCellStyle(style);
-			}
-			inp.close();
-			// write into the file 
-			FileOutputStream fos = new FileOutputStream(file);
-		    wb.write(fos);
-		    fos.close();
-		} 
-		catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-	}*/
-	public void writeLocation(ArrayList<StudentFinal> list, File file) {
-		//Collections.sort(list, new Student.DateExamLocationComparator());
-		
+	
+	public void writeLocation(ArrayList<StudentFinal> list, File file) throws FileNotFoundException {
+				
 		try {
 			FileInputStream inp = new FileInputStream(file);
 			XSSFWorkbook wb = new XSSFWorkbook(inp);
@@ -1240,19 +1297,11 @@ public class Excel {
 						cell.setCellValue(student.getComments());
 						cell.setCellStyle(styles[1]); break;
 					case 14: 
-						Invigilator[] inv = student.getInvigilator();
-						if (inv == null)
-							cell.setCellValue("Null");
-						else {
-							if (inv.length == 1)
-								cell.setCellValue(student.getInvigilator()[0].getName());
-							else if (inv.length > 1){
-								cell.setCellValue(inv[0].getName() + " " + inv[1].getName());
-							}
-							else
-								cell.setCellValue("Error"); // should never occur 
+						Invigilator inv = student.getInvigilator();
+						if (inv != null) {
+							cell.setCellValue(student.getInvigilator().getName());
+							cell.setCellStyle(styles[1]); break;
 						}
-						cell.setCellStyle(styles[1]); break;
 						
 					}
 				} // end of columns
@@ -1280,7 +1329,8 @@ public class Excel {
 
 		}
 		catch (FileNotFoundException e) {
-			e.printStackTrace();
+			new Message("File " + file.getName() + " is currently in use.\nPlease restart when it's available.");
+			throw e;
 		}
 		catch (IOException e) {
 			e.printStackTrace();

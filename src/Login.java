@@ -51,18 +51,18 @@ public class Login extends JPanel {
 	 */
 	public Login(boolean update, boolean midterm) {
 		dialog = new JDialog(AppFrame.frame, "Authentication");
-		Font font = new Font("Georgia", Font.PLAIN, 20);
+		Font font = new Font("Georgia", Font.PLAIN, 18);
 		
 		JLabel labelLogin = new JLabel("Please login");
 		labelLogin.setAlignmentX(Component.CENTER_ALIGNMENT);
-		labelLogin.setFont(new Font("Georgia", Font.BOLD, 22));
+		labelLogin.setFont(new Font("Georgia", Font.BOLD, 20));
 			
 		textUser = new JTextField();
 		textPass = new JPasswordField();
 		textUser.setFont(font);
-		textUser.setMaximumSize(new Dimension(360, 30));
+		textUser.setMaximumSize(new Dimension(320, 26));
 		textPass.setFont(font);
-		textPass.setMaximumSize(new Dimension(360, 30));
+		textPass.setMaximumSize(new Dimension(320, 26));
 		textUser.requestFocusInWindow();	
 		
 		JPanel panel_buttons = new JPanel();
@@ -73,11 +73,11 @@ public class Login extends JPanel {
 		buttons[0] = new JButton("Login");
 		buttons[1] = new JButton("Cancel");
 		for (int i = 0; i < buttons.length; i++) {
-			buttons[i].setMaximumSize(new Dimension(120, 36));
+			buttons[i].setMaximumSize(new Dimension(100, 30));
 			buttons[i].setFont(font);
 			panel_buttons.add(buttons[i]);
 			if (i == 0)
-				panel_buttons.add(Box.createRigidArea(new Dimension(40, 0)));
+				panel_buttons.add(Box.createRigidArea(new Dimension(30, 0)));
 			buttons[i].addActionListener(new LoginActionListener(update, midterm)); 
 		}
 	
@@ -88,13 +88,13 @@ public class Login extends JPanel {
 		innerPanel.setLayout(new BoxLayout(innerPanel,
 				BoxLayout.Y_AXIS));
 		
-		innerPanel.add(Box.createRigidArea(new Dimension(0, 34)));
+		innerPanel.add(Box.createRigidArea(new Dimension(0, 28)));
 		innerPanel.add(labelLogin);
-		innerPanel.add(Box.createRigidArea(new Dimension(0, 24)));
+		innerPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 		innerPanel.add(textUser);
-		innerPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+		innerPanel.add(Box.createRigidArea(new Dimension(0, 8)));
 		innerPanel.add(textPass);
-		innerPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+		innerPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 		innerPanel.add(panel_buttons);
 		
 		/* main panel */
@@ -103,7 +103,7 @@ public class Login extends JPanel {
 		loginPanel.add(innerPanel, BorderLayout.CENTER);
 		loginPanel.setOpaque(true);
 		
-		dialog.setSize(new Dimension(460, 270));
+		dialog.setSize(new Dimension(440, 250));
 		dialog.setLocationRelativeTo(AppFrame.frame);
 		dialog.setContentPane(loginPanel);
 		dialog.setVisible(true);

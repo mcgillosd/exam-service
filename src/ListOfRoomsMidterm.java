@@ -20,7 +20,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class ListOfRoomsMidterm extends ListOfRooms {
 
 	final String filename = "rooms_midterm.xlsx";
-	boolean set = PanelTabs.set;
 	InputStream fis;
 	XSSFWorkbook wb;
 	CellStyle styleDate;

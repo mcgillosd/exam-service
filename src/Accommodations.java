@@ -29,9 +29,9 @@ public class Accommodations {
 		else
 			emailAcc = "";
 		listAcc = new ArrayList<String>();
-		int count = 0; 
+		
 		int i = 5;
-		while (count < 6 && r.getCell(i) != null) { // there are max 6 accommodations columns
+		while (r.getCell(i) != null) { 
 			listAcc.add(r.getCell(i).getStringCellValue());
 			i+=3;
 		}

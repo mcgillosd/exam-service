@@ -17,7 +17,8 @@ import java.io.IOException;
  * @author Olga Tsibulevskaya
  */
 public class LastID {
-	private final File idfile = new File("id.txt");
+	
+	private final File idfile = new File("c:\\Users\\OSD Admin\\Documents\\Development\\examsApp\\id.txt");
 	private int id;
 	
 	/**
@@ -25,7 +26,7 @@ public class LastID {
 	 */
 	public LastID() {
 		if (! idfile.exists()) {
-			// read all existing exam files?
+			new Message("File id.txt doesn't exists");
 		}
 		else {
 			BufferedReader br = null;
@@ -60,6 +61,13 @@ public class LastID {
 	}
 	/* Writes the new id to the file after update is done */
 	private void writeID() {
+		try {
+			Process p = Runtime.getRuntime().exec("attrib -h \"" + idfile.getPath() + "\"");
+			p.waitFor();
+		} catch (IOException | InterruptedException e1) {
+			e1.printStackTrace();
+		}
+		
 		BufferedWriter br = null;
 		try {
 			br = new BufferedWriter(new FileWriter(idfile));
@@ -67,13 +75,22 @@ public class LastID {
 			
 		} catch (IOException e) {
 			e.printStackTrace();
+			
 		} finally {
-			try {
-				br.flush();
-				br.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+			if (br != null) {
+				try {
+					br.flush();
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
+		}
+		try {
+			Process p = Runtime.getRuntime().exec("attrib +h \"" + idfile.getPath() + "\"");
+			p.waitFor();
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 }

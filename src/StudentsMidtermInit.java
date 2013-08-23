@@ -50,7 +50,6 @@ public class StudentsMidtermInit {
 	private ListOfRoomsMidterm listOfRooms;
 	private ListOfAccommodations listAcc;
 	
-	boolean set = PanelTabs.set;
 	/**
 	 * Triggers access to the web-page in order to get the data,
 	 * which will be used to create lists of students.
@@ -196,16 +195,17 @@ public class StudentsMidtermInit {
 		else { // download all
 			listOfStudents = new ArrayList<StudentMidterm>();
 			setListOfStudents(html);
+			Excel xl = new Excel();
+			label.append("-- Writing data to the file...\n");
+			label.paintImmediately(label.getVisibleRect());
 			try {
-				Excel xl = new Excel();
-				label.append("-- Writing data to the file...\n");
-				label.paintImmediately(label.getVisibleRect());
 				xl.export(listOfStudents);
 				label.append("-- Choose an option and click the button\n");
 				label.paintImmediately(label.getVisibleRect());
-			} 
-			catch (IOException e) {
-				e.printStackTrace();
+			}
+			catch (FileNotFoundException e) {
+				new Message("File Midterm.xlsx is currently in use.\nPlease restart when it's available");
+				return;
 			}
 		}
 	}
@@ -278,7 +278,7 @@ public class StudentsMidtermInit {
 				stud.setStopwatch(td.get(index++).text());
 				stud.setComputer(td.get(index++).text());
 				stud.setCommentsFromForm(td.get(index++).text());
-				stud.setCampus(td.get(index++).text()); // will need campus
+				stud.setCampus(td.get(index++).text()); 
 				 
 				stud.setExamLength();
 				
@@ -325,51 +325,7 @@ public class StudentsMidtermInit {
 		ListOfRoomsMidterm rList = new ListOfRoomsMidterm(file);
 		return rList;
 	}
-/*	private void addLocation(Student s) {
-		if (s.getComments() != null && (s.getComments().contains("rm alone") || s.getComments().contains("scribe"))) {
-			RoomMidterm r = listOfRooms.getSmallRoom(s.getExamDate(), s.getExamStartTime(), s.getExamFinishTime());
-			if (r != null) {
-				s.setLocation(r.getId());
-			}
-			else {
-				s.setLocation("small room not found");
-			}
-		}
-		else if (s.getComments() != null && (s.getComments().contains("wynn") || s.getComments().contains("kurzweil"))) {
-			RoomMidterm r = listOfRooms.getRoomByName("OSD Lab", s.getExamDate(), s.getExamStartTime(), s.getExamFinishTime());
-			if (r != null && ! r.full()) {
-				s.setLocation(r.getId());
-			}
-			else {
-				s.setLocation("no places in OSD lab");
-			}
-		}
-		else if (s.getComputer().equals("pc")) {
-			RoomMidterm r = listOfRooms.getLab(s.getExamDate(), s.getExamStartTime(), s.getExamFinishTime());
-			if (r != null) {
-				s.setLocation(r.getId());
-			}
-			else {
-				r = listOfRooms.getRoom(s.getExamDate(), s.getExamStartTime(), s.getExamFinishTime());
-				if (r != null) {
-					s.setLocation(r.getId());
-				}
-				else
-					s.setLocation("no more places");
-			}
-		}
-		// no special demands
-		else {
-			RoomMidterm r = listOfRooms.getRoom(s.getExamDate(), s.getExamStartTime(), s.getExamFinishTime());
-			if (r != null) {
-				s.setLocation(r.getId());
-			}
-			else {
-				s.setLocation("no more places");
-			}
-		}
-	}*/
-	
+
 	/**
 	 * Populates one list, which will contain all information from the web page
 	 * 
@@ -390,24 +346,35 @@ public class StudentsMidtermInit {
         	StudentMidterm stud = new StudentMidterm();
         	Elements td = element.select("td");    
         	
-        	stud.setId(td.get(index++).text()); 
-        	index += 3; // skip time submission, user, IP
+        	stud.setId(td.get(index++).text());
+        	stud.setTimeSubmission(td.get(index++).text());
+        	stud.setUser(td.get(index++).text());
+        	index++; // skip IP
         	stud.setExamDate(td.get(index++).text());
         	stud.setNameLast(td.get(index++).text());
         	stud.setNameFirst(td.get(index++).text());
-        	index += 3; // skip id, phone, email
+        	stud.setSid(td.get(index++).text());
+        	stud.setPhone(td.get(index++).text());
+        	stud.setEmail(td.get(index++).text());
         	stud.setCourse(td.get(index++).text());
         	stud.setSection(td.get(index++).text());
         	index++; // skip location
+        	
         	stud.setExamStartTime(td.get(index++).text());
-        //	stud.setLengthMidterm(td.get(index++).text());
+        	index++; //	stud.setLengthMidterm(td.get(index++).text());
+        	
+        	/*String hours = td.get(index++).text();  // for the new form
+			 String minutes = td.get(index++).text();
+			 stud.setLength(calculateLength(hours, minutes));
+			 */
+        
         	stud.setNameProf(td.get(index++).text());
         	stud.setEmailProf(td.get(index++).text());
         	stud.setExtraTime(td.get(index++).text());
         	stud.setStopwatch(td.get(index++).text());
         	stud.setComputer(td.get(index++).text());
-        	index++; // skip comments
-        	stud.setCampus(td.get(index++).text()); // will need campus 
+        	stud.setCommentsFromForm(td.get(index++).text());
+        	stud.setCampus(td.get(index++).text());
         	stud.setExamLength();
         	
         	listOfStudents.add(stud);    

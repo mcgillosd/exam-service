@@ -51,6 +51,15 @@ public class PanelFinals extends PanelTabs {
 		String command = e.getActionCommand();
 		if (command.equalsIgnoreCase("Finals file")) {
 			String term = getOptionPane("Choose a month of the exam", false);
+			
+			String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
+			String fileFinals = newterm + " final exam master list.xlsx";
+			File file = new File(fileFinals);			
+			if (file.exists()) {
+				new Message("File " + fileFinals + " already exists");
+				return;
+			}
+			
 			try {
 				new StudentsFinalInit(term);
 			} catch (FileNotFoundException e1) {
@@ -60,13 +69,16 @@ public class PanelFinals extends PanelTabs {
 		else if (command.equalsIgnoreCase("Assign places")) {
 			
 			String term = getOptionPane("Choose a month of the exam", false);
+			if (term == null)
+				return;
+			
 			String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
 			final String fileFinals = newterm + " final exam master list.xlsx";
 			
 			File file = new File(fileFinals);
 			if (! file.exists()) {
 				new Message("File " + fileFinals + " doesn't exist");
-				// exit?
+				return;
 			}
 			label.append("-- Getting info from " + fileFinals + " file\n");
 			label.paintImmediately(label.getVisibleRect());
@@ -74,7 +86,11 @@ public class PanelFinals extends PanelTabs {
 			
 			label.append("-- Allocating rooms\n");
 			label.paintImmediately(label.getVisibleRect());
-			sfs.addLocation();
+			try {
+				sfs.addLocation();
+			} catch (FileNotFoundException e1) {
+				return;
+			}
 			
 			label.append("-- Adding invigilators\n");
 			label.paintImmediately(label.getVisibleRect());
@@ -103,7 +119,9 @@ public class PanelFinals extends PanelTabs {
 				list = StudentsFinalSec.getList();
 			}
 			
-			new Excel().writeListProf(list);
+			wt = new WorkThread(list);
+			wt.start();
+			
 			label.append("-- Choose an option and click the button\n");
 			label.paintImmediately(label.getVisibleRect());
 		}	

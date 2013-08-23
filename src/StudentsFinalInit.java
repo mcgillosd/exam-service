@@ -55,12 +55,13 @@ public class StudentsFinalInit {
     	label.append("-- Choose an option by clicking the button\n");
     	label.paintImmediately(label.getVisibleRect());
 	}
-	private void setList(String term) {
+	private void setList(String term) throws FileNotFoundException {
 		final String osdReport = "OSD report " + term + ".xlsx";
 		File fileOSDReport = new File("finals/" + osdReport);
-		if (! fileOSDReport.exists())
+		if (! fileOSDReport.exists()) {
 			new Message("File " + osdReport + " doesn't exist");
-		
+			throw new FileNotFoundException();	
+		}
 		label.append("-- Getting info from " + osdReport + " file\n");
     	label.paintImmediately(label.getVisibleRect());
 		
@@ -124,19 +125,22 @@ public class StudentsFinalInit {
 			fis.close();
 		}
 		catch (IOException e) {
-			new Message("File " + osdReport + " is not available.\nPlease check if it's opened");
+			new Message("Error occured while reading file " + osdReport);
+			e.printStackTrace();
 			return;
 		}
 	}
-	private void addProfInfo(String term) {
+	private void addProfInfo(String term) throws FileNotFoundException {
 		// sort by course
 		Collections.sort(list, new Student.CourseComparator());
 		
 		final String finalSchedule = "final schedule " + term + " for OSD and storemore.xlsx";
 		File fileFinalSchedule = new File("finals/" + finalSchedule);
 		
-		if (! fileFinalSchedule.exists())
+		if (! fileFinalSchedule.exists()) {
 			new Message("File " + finalSchedule + " doesn't exist");
+			throw new FileNotFoundException();
+		}
 			
 		label.append("-- Getting info from " + finalSchedule + " file\n");
 	    label.paintImmediately(label.getVisibleRect());
@@ -201,7 +205,9 @@ public class StudentsFinalInit {
 			fis.close();
 		}
 		catch (IOException e) {
+			new Message("Error occured while reading file " + fileFinalSchedule);
 			e.printStackTrace();
+			return;
 		}
 	}
 
@@ -215,5 +221,4 @@ public class StudentsFinalInit {
 			}
 		}
 	}
-	
 }
