@@ -84,6 +84,7 @@ public class Excel {
 			cell.setCellValue(headers[colXL++]);
 			cell.setCellStyle(style);
 		}
+		//String filename = "F:\\Exams\\test\\" + name + " exam schedule.xlsx";
 		String filename = name + " exam schedule.xlsx";
 		try {
 			File file = new File(filename);
@@ -121,12 +122,12 @@ public class Excel {
 
 		String term = new Term().getTerm();
 		
+		//String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
 		String filename = term + " exam schedule.xlsx";
 		setFile(filename);
 		
 		if (! file.exists()) {
 			create(term);
-			//new Message("File " + filename + " does not exist");
 		}
 		
 		setNbCol(14);
@@ -258,6 +259,7 @@ public class Excel {
 		// sort the list by the date of the exam
 		Collections.sort(list, new Student.DateExamComparator());
 	
+		//String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
 		String filename = term + " exam schedule.xlsx";
 		setFile(filename);
 		

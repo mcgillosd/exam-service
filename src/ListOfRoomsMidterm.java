@@ -135,10 +135,10 @@ public class ListOfRoomsMidterm extends ListOfRooms {
 				}
 				else if (i == 0) {
 					initializeBook();
-					write = true;
-				}
-				else
 					write = false;
+				}
+				else if (i == list.size()-1)
+					write = true;
 		
 				if (s.getComments() != null && (s.getComments().contains("rm alone") || s.getComments().contains("scribe"))) {
 					RoomMidterm r = getSmallRoom(s, write);

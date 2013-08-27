@@ -83,7 +83,12 @@ public class StudentsMidtermInit {
 	
 		if (update) { 
 			boolean accommodationsSet = false;
-			setId(new LastID());
+			try {
+				setId(new LastID());
+			}
+			catch (FileNotFoundException e) {
+				return;
+			}
 			
 			setTermLists(html, id);
 			
@@ -110,6 +115,7 @@ public class StudentsMidtermInit {
 				if (lists.get(i).size() > 0) {
 					int index = (i+1)*3;
 					String term = new Term(index).getTerm();
+					//String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
 					String filename = term + " exam schedule.xlsx";
 					File file = new File(filename);
 					if (! file.exists())
@@ -124,8 +130,23 @@ public class StudentsMidtermInit {
 				}
 			}
 			
-			/* Allocating rooms */
+			
 			String now = new Term().getTerm();
+			if (macdonald.size() > 0) {
+				//String filename = "F:\\Exams\\test\\" + now + " exam schedule.xlsx";
+				String filename = now + " exam schedule.xlsx";
+				File file = new File(filename);
+				if (file.exists()) {
+					try {
+						RandomAccessFile raf = new RandomAccessFile(file, "rw");
+						raf.close();
+					} catch (IOException e) {
+						new Message("File " + filename + " is in use.\nPlease restart when the file is available");
+						return;
+					}
+				}
+			}
+			/* Allocating rooms */
 			if (now.contains("Fall")) {
 				if (listFall.size() > 0) {
 					label.append("-- Allocating rooms\n");

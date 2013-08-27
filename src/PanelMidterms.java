@@ -5,6 +5,7 @@
  */
 
 import java.awt.event.ActionEvent;
+import java.io.FileNotFoundException;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -58,7 +59,11 @@ public class PanelMidterms extends PanelTabs {
 		else if (command.equalsIgnoreCase("Show the last ID")) {
 			int lastid = StudentsMidtermInit.id;
 			if (lastid == 0)
-				lastid = new LastID().getID();
+				try {
+					lastid = new LastID().getID();
+				} catch (FileNotFoundException e1) {
+					return;
+				}
 			label.append("-- The last ID is " + lastid + "\n");
 		}
 		else if (command.equalsIgnoreCase("Download")) {

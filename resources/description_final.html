@@ -1,0 +1,32 @@
+<html><body style="font-family: Georgia"><center>
+<h1>Finals</h1></center>
+<font size=+1>
+<p align="justify">Creates a file with information about students registered
+in OSD and taking Final exams. Gathers data from 3 files:
+<ol>
+<li>OSD report (exams info)</li>
+<li>final schedule and storemore (professors info)</li>
+<li>accommodations</li>
+</ol>
+You can see more detailed information in the next section "Required files".
+</p>
+
+<p align="justify">The name of the file has the following structure: 
+"<i>Month year</i> final exam master list.xlsx", where <i>month</i> is the last month
+of the term in which exams are taken. Example: "April 2013 final exam master list.xlsx".
+The program creates two sheets.</p> 
+
+<p align="justify">The programm looks for conflicts (a student has two or more exams 
+on the same day) and indicates it in the "Location" column of the second sheet.</p>
+
+<p align="justify">When conflicts resolved, late times finalized and invigilators
+registered, the second option "Assign places" allocates places and invigilators.
+Info on invigilators taken from the webform results: "https://www.mcgill.ca/osd/node/884/webform-results".
+This is the final stage in working with the file.</p>
+
+<p align="justify">"List for professors" option creates a new file with a list of students for
+each professor. It looks for professors' emails first in the midterm files of the same term
+and then on the site "http://www.mcgill.ca/directory/staff".</p>
+</font>
+</body>
+</html>

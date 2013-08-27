@@ -6,6 +6,7 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -18,15 +19,17 @@ import java.io.IOException;
  */
 public class LastID {
 	
-	private final File idfile = new File("c:\\Users\\OSD Admin\\Documents\\Development\\examsApp\\id.txt");
+	private final File idfile = new File("id.txt");
 	private int id;
 	
 	/**
 	 * Creates the last id by reading the file 
+	 * @throws FileNotFoundException 
 	 */
-	public LastID() {
+	public LastID() throws FileNotFoundException {
 		if (! idfile.exists()) {
 			new Message("File id.txt doesn't exists");
+			throw new FileNotFoundException();
 		}
 		else {
 			BufferedReader br = null;

@@ -107,7 +107,7 @@ public class AppFrame extends JFrame {
 		tabbedPane.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 		panel_main.add(tabbedPane, BorderLayout.CENTER);
 		
-		JPanel panel_1 = new JPanel();
+		JPanel panel_1 = new PanelHelp();
 		tabbedPane.addTab("<html><body marginwidth=50 marginheight=5 style=\"font-family:Georgia\">"
 				+ "<font size=\"6\">Help</font></body></html>", null, panel_1, null);
 		
