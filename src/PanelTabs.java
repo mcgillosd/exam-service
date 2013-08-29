@@ -15,7 +15,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -36,8 +35,6 @@ import javax.swing.border.EtchedBorder;
 public abstract class PanelTabs extends JPanel implements ActionListener {
 	
 	private static final long serialVersionUID = 1L;
-	AtomicBoolean stopWork = WorkThread.stopWork;
-	WorkThread wt;
 	int width;
 	
 	public PanelTabs() {
@@ -137,15 +134,16 @@ public abstract class PanelTabs extends JPanel implements ActionListener {
 		
 		Font font_text = new Font("Georgia", Font.PLAIN, 20);
 		
-		JButton[] buttons = new JButton[2];
+		JButton[] buttons = new JButton[3];
 		buttons[0] = new JButton("Clear");
-		buttons[1] = new JButton("Exit");
+		buttons[1] = new JButton("Stop");
+		buttons[2] = new JButton("Exit");
 		for (int i = 0; i < buttons.length; i++) {
 			buttons[i].setMaximumSize(new Dimension(120, 40));
 			buttons[i].setFont(font_text);
 			panel_buttons.add(buttons[i]);
-			if (i == 0)
-				panel_buttons.add(Box.createRigidArea(new Dimension(40, 0)));
+			if (i < 2)
+				panel_buttons.add(Box.createRigidArea(new Dimension(30, 0)));
 			buttons[i].addActionListener(new TextActionListener(label)); 
 		}
 		panel.add(Box.createRigidArea(new Dimension(0,20)));
@@ -182,9 +180,13 @@ public abstract class PanelTabs extends JPanel implements ActionListener {
 			if (e.getActionCommand().equalsIgnoreCase("Clear")) {
 				label.setText("-- Choose an option and click the button\n");
 			}
+			else if (e.getActionCommand().equalsIgnoreCase("Stop")) {
+				Worker w = PanelFinals.w;
+				if (w != null)
+					w.stop();
+			}
 			else {
-				if (! stopWork.get())
-					System.exit(0);
+				System.exit(0);
 			}
 		}
 	}

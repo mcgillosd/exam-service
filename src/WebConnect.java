@@ -44,6 +44,7 @@ public class WebConnect {
 		httpclient = new HttpClient();
         httpclient.getHttpConnectionManager().
                 getParams().setConnectionTimeout(30000);
+        httpclient.getHttpConnectionManager().getParams().setSoTimeout(10000);
         if (midterm) {
         	setUrl(urlMidterm);
         	setLabel(PanelMidterms.label);
@@ -140,7 +141,7 @@ public class WebConnect {
         }
          
         if (result == 200) {
-        	label.append("-- Downloading data from the database\n");
+        	label.append("-- Downloading data\n");
         	label.paintImmediately(label.getVisibleRect());
         }
         else {

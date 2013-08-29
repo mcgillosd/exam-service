@@ -28,11 +28,12 @@ public class PanelFinals extends PanelTabs {
 	
 	/** Used by many classes to get the <code>TextArea</code> */
 	static JTextArea label;
+	static Worker w;
 	
 	public PanelFinals() {
 		super();
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see gui.builder.TabsPanel#createButtons()
 	 */
@@ -114,29 +115,33 @@ public class PanelFinals extends PanelTabs {
 			}
 			else { // read from file
 				String term = getOptionPane("Choose a month of the exam", false);
-				String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
-				final String fileFinals = "F:\\Exams\\test\\" + newterm + " final exam master list.xlsx";
+				if (term != null) {
+					String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
+					final String fileFinals = "F:\\Exams\\test\\" + newterm + " final exam master list.xlsx";
 				
-				File file = new File(fileFinals);
-				if (! file.exists()) {
-					new Message("File " + fileFinals + " doesn't exist");
-					// exit?
+					File file = new File(fileFinals);
+					if (! file.exists()) {
+						new Message("File " + fileFinals + " doesn't exist");
+						// exit?
+					}
+					label.append("-- Getting info from " + fileFinals + " file\n");
+					label.paintImmediately(label.getVisibleRect());
+				
+				
+					try {
+						new StudentsFinalSec(file);
+					} catch (InvalidFormatException e1) {
+						return;
+					}
+					list = StudentsFinalSec.getList();
 				}
-				label.append("-- Getting info from " + fileFinals + " file\n");
-				label.paintImmediately(label.getVisibleRect());
-				
-				
-				try {
-					new StudentsFinalSec(file);
-				} catch (InvalidFormatException e1) {
+				else
 					return;
-				}
-				list = StudentsFinalSec.getList();
 			}
-			label.append("-- Looking for emails. Please wait it will take about 5 minutes.\n");
+			label.append("-- Looking for emails. It will take about 5 minutes.\n");
 			label.paintImmediately(label.getVisibleRect());
 			
-			Worker w = new Worker(list, label);
+			w = new Worker(list, label);
 			w.execute();
 		}	
 		else {

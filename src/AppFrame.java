@@ -68,8 +68,6 @@ public class AppFrame extends JFrame {
 		Border paddingBorder = BorderFactory.createEmptyBorder(0,100,0,0);
 		BufferedImage myPicture;
 		try {
-			//myPicture = ImageIO.read(new File("img/mcgill_logo.gif"));
-			
 			myPicture = ImageIO.read(getClass().getResource("/img/mcgill_logo.gif"));
 			JLabel picLabel = new JLabel(new ImageIcon(myPicture));
 			picLabel.setBorder(paddingBorder);
@@ -117,19 +115,19 @@ public class AppFrame extends JFrame {
 		panel_main.add(tabbedPane, BorderLayout.CENTER);
 		
 		JPanel panel_1 = new PanelHelp();
-		tabbedPane.addTab("<html><body marginwidth=50 marginheight=5 style=\"font-family:Georgia\">"
+		tabbedPane.addTab("<html><body marginwidth=55 marginheight=5 style=\"font-family:Georgia\">"
 				+ "<font size=\"6\">Help</font></body></html>", null, panel_1, null);
 		
 		JPanel panel_2 = new PanelEditor();
-		tabbedPane.addTab("<html><body leftmargin=24 topmargin=8 marginwidth=50 marginheight=5 style=\"font-family:Georgia\">"
+		tabbedPane.addTab("<html><body marginwidth=50 marginheight=5 style=\"font-family:Georgia\">"
 				+ "<font size='6'><font family='Serif'>Editor</font></font></body></html>", null, panel_2, null);
 		
 		JPanel panel_3 = new PanelFinals();
-		tabbedPane.addTab("<html><body leftmargin=24 topmargin=8 marginwidth=50 marginheight=5 style=\"font-family:Georgia\">"
+		tabbedPane.addTab("<html><body marginwidth=50 marginheight=5 style=\"font-family:Georgia\">"
 				+ "<font size='6'><font family='Serif'>Finals</font></font></body></html>", null, panel_3, null);
 		
 		JPanel panel_4 = new PanelMidterms();
-		tabbedPane.addTab("<html><body leftmargin=15 topmargin=8 marginwidth=40 marginheight=5 style=\"font-family:Georgia\">"
+		tabbedPane.addTab("<html><body marginwidth=32 marginheight=5 style=\"font-family:Georgia\">"
 				+ "<font size='6'>Midterms</font></body></html>", null, panel_4, null);
 		
 		tabbedPane.setSelectedIndex(3); 

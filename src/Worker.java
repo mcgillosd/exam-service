@@ -1,3 +1,9 @@
+/*
+ * Worker.java
+ * 
+ * Created on 2013-08-28 1:23:47 PM
+ */
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -7,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
@@ -19,24 +26,25 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
+ * A thread which looks for profs' emails. Can be interrupted.
  * 
- */
-
-/**
- * @author OSD Admin
- *
+ * @author Olga Tsibulevskaya
+ * @see <code>StringWorker</code>
  */
 public class Worker extends SwingWorker<Void, String> {
 	
-	ArrayList<StudentFinal> list = new ArrayList<StudentFinal>();
-	JTextArea labelFinal;
+	private ArrayList<StudentFinal> list = new ArrayList<StudentFinal>();
+	private JTextArea labelFinal;
+	private AtomicBoolean stopWork = new AtomicBoolean();
+	
 	public Worker(ArrayList<StudentFinal> list, JTextArea label) {
 		this.list = list;
 		labelFinal = label;
+		stopWork.set(false);
 	}
 	@Override
 	protected Void doInBackground() throws Exception {
-		String filename = "List of students for profs.xlsx";
+		String filename = "F:\\Exams\\Lists for profs.xlsx";
 		File file = new File(filename);
 		if (file.exists()) {
 			int result = JOptionPane.showConfirmDialog(
@@ -45,7 +53,8 @@ public class Worker extends SwingWorker<Void, String> {
 			if (result == JOptionPane.YES_OPTION) {
 				// go on
 			}
-			
+			else
+				return null;
 		}
 				
 		Collections.sort(list, new StudentFinal.ProfComparator());
@@ -56,7 +65,7 @@ public class Worker extends SwingWorker<Void, String> {
 					
 		final int NB_COL = 3;
 					
-		// creating the first header row
+		/* creating the first header row */
 		Row row = sheet.createRow((short) 0);
 		int colXL = 0;
 		while (colXL < NB_COL) {
@@ -72,13 +81,13 @@ public class Worker extends SwingWorker<Void, String> {
 		int rowXL = 1;
 		int i = 0;
 		
-		while (i < list.size()) {
+		while (i < list.size() && ! stopWork.get()) {
 			boolean noProf = false;
 			StudentFinal student = list.get(i);
 			row = sheet.createRow((short) rowXL++);
 			Cell cell = row.createCell(0);
 			if (student.getNameProfLast() != "")
-				cell.setCellValue(student.getNameProfLast());
+				cell.setCellValue(student.getNameProfFirst() + " " + student.getNameProfLast());
 			else {
 				cell.setCellValue("No prof info");
 				noProf = true;
@@ -131,6 +140,10 @@ public class Worker extends SwingWorker<Void, String> {
 			cell.setCellStyle(styleWrap);
 			row.setHeight((short)(count*300));
 		}
+		if (stopWork.get()) {
+			publish("-- The process interrupted\n");
+			return null;
+		}
 		sheet.autoSizeColumn(0);
 		sheet.autoSizeColumn(1);
 		sheet.autoSizeColumn(2);
@@ -155,6 +168,10 @@ public class Worker extends SwingWorker<Void, String> {
 	    for (final String string : chunks) {
 	      labelFinal.setText(string);
 	    }
+	}
+	
+	public void stop() {
+		stopWork.set(true);
 	}
 }
 

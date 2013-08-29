@@ -48,7 +48,7 @@ public class ProfMail {
 		String term = new Term().getTerm();
 		
 		String filename = "F:\\Exams\\Files\\Winter 2013 exam schedule.xlsx"; // to test
-		//String filename = term + " exam schedule.xlsx";
+		//String filename = "F:\\Exams\\Files\\" + term + " exam schedule.xlsx";
 		File file = new File(filename);	
 		
 		if (! file.exists()) {

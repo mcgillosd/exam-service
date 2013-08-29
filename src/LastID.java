@@ -67,8 +67,10 @@ public class LastID {
 		try {
 			Process p = Runtime.getRuntime().exec("attrib -h \"" + idfile.getPath() + "\"");
 			p.waitFor();
-		} catch (IOException | InterruptedException e1) {
+		} catch (InterruptedException e1) {
 			e1.printStackTrace();
+		} catch (IOException e2) {
+			e2.printStackTrace();
 		}
 		
 		BufferedWriter br = null;
@@ -92,8 +94,10 @@ public class LastID {
 		try {
 			Process p = Runtime.getRuntime().exec("attrib +h \"" + idfile.getPath() + "\"");
 			p.waitFor();
-		} catch (IOException | InterruptedException e) {
-			e.printStackTrace();
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		} catch (IOException e2) {
+			e2.printStackTrace();
 		}
 	}
 }

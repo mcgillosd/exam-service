@@ -12,7 +12,6 @@ import java.util.ArrayList;
 
 import javax.swing.JTextArea;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -245,7 +244,7 @@ public class StudentsMidtermInit {
 		boolean firstSkipped = false;
 		boolean lastIdSet = false;
 		
-		//String text = label.getText();
+		String text = label.getText();
 		
 		for(Element element : doc.select("tr")) { 
 			if(! firstSkipped) { // the first $tr is the header
@@ -275,8 +274,8 @@ public class StudentsMidtermInit {
 			    	label.paintImmediately(label.getVisibleRect());
 				}
 				 
-				//label.setText(text + "-- Processing ID " + stud.getId() + "\n");
-				//label.paintImmediately(label.getVisibleRect());
+				label.setText(text + "-- Processing ID " + stud.getId() + "\n");
+				label.paintImmediately(label.getVisibleRect());
 				 
 				index += 3; // skip time submission, user, IP
 				stud.setExamDate(td.get(index++).text());

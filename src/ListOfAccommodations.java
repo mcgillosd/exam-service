@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -22,8 +21,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class ListOfAccommodations {
 
 	private ArrayList<Accommodations> listAcc = new ArrayList<Accommodations>();
-	AtomicBoolean stopWork = WorkThread.stopWork;
-	
+		
 	public ListOfAccommodations() throws FileNotFoundException {
 				
 		final String accommodations = "F:\\Exams\\Files\\accommodations.xlsx";
@@ -31,7 +29,6 @@ public class ListOfAccommodations {
 		
 		if (! fileAccommodations.exists()) {
 			new Message("File " + accommodations + " not found");
-			stopWork.set(false);
 			throw new FileNotFoundException();
 		}
 		try {

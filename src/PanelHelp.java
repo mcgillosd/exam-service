@@ -132,7 +132,7 @@ public class PanelHelp extends JPanel implements TreeSelectionListener {
 		
 		JPanel panel = new JPanel(new GridLayout(0,1));
 		DefaultMutableTreeNode top =
-		            new DefaultMutableTreeNode("OSD Exams Management User Guide");
+		            new DefaultMutableTreeNode("User Guide");
 		createNodes(top);
 		
 		tree = new JTree(top);
