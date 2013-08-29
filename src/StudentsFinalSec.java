@@ -11,8 +11,10 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jsoup.Jsoup;
@@ -37,10 +39,12 @@ public class StudentsFinalSec {
 	/**
 	 * Creates an instance of the class and sets the list	
 	 * @param file
+	 * @throws InvalidFormatException 
 	 */
-	public StudentsFinalSec(File file) {
+	public StudentsFinalSec(File file) throws InvalidFormatException {
 		fileFinals = file;
 		setList();
+		
 	}
 	
 	public static ArrayList<StudentFinal> getList() {
@@ -48,8 +52,10 @@ public class StudentsFinalSec {
 	}
 	/**
 	 * The list is populated by the info taken from the file, created earlier 
+	 * @throws InvalidFormatException 
 	 */
-	private void setList() {
+	private void setList() throws InvalidFormatException {
+		
 		try {
 			FileInputStream fis = new FileInputStream(fileFinals);	
 			XSSFWorkbook wb = new XSSFWorkbook(fis);
@@ -57,50 +63,55 @@ public class StudentsFinalSec {
 			
 			if (sheet == null) {
 				new Message("Sheet 'by day' doesn't exist");
-				// exit?
+				throw new FileNotFoundException();
 			}
 					
 			Row r = sheet.getRow(0);
 			int last = sheet.getLastRowNum();
 		
+			
 			// start reading the file from the 1st row (exclude the header)
 			for (int rowNum = 1; rowNum <= last; rowNum++) {
 				StudentFinal student = new StudentFinal();
 				r = sheet.getRow(rowNum);
 				if (r == null) {
-					String[] name = fileFinals.getName().split(" ");
-					String term = "";
-					if (name[0].equalsIgnoreCase("December"))
-						term = "Fall";
-					else if (name[0].equalsIgnoreCase("April"))
-						term = "Winter";
-					else if (name[0].equalsIgnoreCase("August"))
-						term = "Summer";
-					else {
-						// error
-					}
-					new Excel().removeEmptyRows("Final", term + " " + name[1], false);
+					new Message("Please remove empty rows first");
+					throw new InvalidFormatException(null);
 				}
 				r = sheet.getRow(rowNum);
+				Cell cell;
 				for (int i = 0; i < 13; i++) {
 					switch (i) {
 					case 0 :
-						Cell cell = r.getCell(i);
+						cell = r.getCell(i);
 						Date date = cell.getDateCellValue();
 						student.setExamDate(date);
+						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
 						break;
 					case 1: 
-						String nameF = r.getCell(i).getStringCellValue();
-						student.setNameFirst(nameF); break;
+						cell = r.getCell(i);
+						String nameF = cell.getStringCellValue();
+						student.setNameFirst(nameF); 
+						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+						break;
 					case 2:
-						String nameL = r.getCell(i).getStringCellValue();
-						student.setNameLast(nameL); break;
+						cell = r.getCell(i);
+						String nameL = cell.getStringCellValue();
+						student.setNameLast(nameL); 
+						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+						break;
 					case 3:
-						String section = r.getCell(i).getStringCellValue();
-						student.setSection(section); break;
+						cell = r.getCell(i);
+						String section = cell.getStringCellValue();
+						student.setSection(section); 
+						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+						break;
 					case 4:
-						String course = r.getCell(i).getStringCellValue();
-						student.setCourse(course); break;
+						cell = r.getCell(i);
+						String course = cell.getStringCellValue();
+						student.setCourse(course); 
+						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+						break;
 					case 5:
 						cell = r.getCell(i);
 						if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
@@ -109,6 +120,7 @@ public class StudentsFinalSec {
 						else { 
 							student.setNameProfFirst(""); // maybe better null?
 						}
+						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
 						break;
 					case 6:
 						cell = r.getCell(i);
@@ -118,22 +130,31 @@ public class StudentsFinalSec {
 						else { 
 							student.setNameProfLast(""); // maybe better null?
 						}
+						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
 						break;
 					case 7:
 						// must be empty, location
 						break;
 					case 8:
-						Date timeStart = r.getCell(i).getDateCellValue();
-						student.setExamStartTime(timeStart); break;
+						cell = r.getCell(i);
+						Date timeStart = cell.getDateCellValue();
+						student.setExamStartTime(timeStart); 
+						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+						break;
 					case 9:
-						Date timeFinish = r.getCell(i).getDateCellValue();
-						student.setExamFinishTime(timeFinish); break;
+						cell = r.getCell(i);
+						Date timeFinish = cell.getDateCellValue();
+						student.setExamFinishTime(timeFinish); 
+						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+						break;
 					case 10: 
 						cell = r.getCell(i);
 						if (cell != null) {
 						//if (c.getCellType() == Cell.CELL_TYPE_STRING) {
 							String extra = cell.getStringCellValue();
-							student.setExtraTime(extra); break;
+							student.setExtraTime(extra); 
+							student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+							break;
 						}
 					case 11:
 						cell = r.getCell(i);
@@ -142,6 +163,7 @@ public class StudentsFinalSec {
 							if (stopwatch.equalsIgnoreCase("sw"))
 								student.setStopwatch("Yes"); 
 						}
+						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
 						break;
 					case 12: 
 						cell = r.getCell(i);
@@ -150,13 +172,16 @@ public class StudentsFinalSec {
 							if (pc.equalsIgnoreCase("pc"))
 								student.setComputer("Yes"); 
 						}
+						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
 						break;
 					case 13:
 						cell = r.getCell(i);
 						if (cell != null) {
 							String comments = r.getCell(i).getStringCellValue();
 							student.setComments(comments); 
+							student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
 						}
+						//student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
 						break;
 					}
 				}

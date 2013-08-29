@@ -7,11 +7,14 @@
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
+
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 /**
  * Creates a panel for Finals
@@ -53,7 +56,7 @@ public class PanelFinals extends PanelTabs {
 			String term = getOptionPane("Choose a month of the exam", false);
 			
 			String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
-			String fileFinals = newterm + " final exam master list.xlsx";
+			String fileFinals = "F:\\Exams\\test\\" + newterm + " final exam master list.xlsx";
 			File file = new File(fileFinals);			
 			if (file.exists()) {
 				new Message("File " + fileFinals + " already exists");
@@ -62,7 +65,7 @@ public class PanelFinals extends PanelTabs {
 			
 			try {
 				new StudentsFinalInit(term);
-			} catch (FileNotFoundException e1) {
+			} catch (IOException e1) {
 				return;
 			}
 		}
@@ -73,7 +76,7 @@ public class PanelFinals extends PanelTabs {
 				return;
 			
 			String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
-			final String fileFinals = newterm + " final exam master list.xlsx";
+			final String fileFinals = "F:\\Exams\\test\\" + newterm + " final exam master list.xlsx";
 			
 			File file = new File(fileFinals);
 			if (! file.exists()) {
@@ -82,19 +85,26 @@ public class PanelFinals extends PanelTabs {
 			}
 			label.append("-- Getting info from " + fileFinals + " file\n");
 			label.paintImmediately(label.getVisibleRect());
-			StudentsFinalSec sfs = new StudentsFinalSec(file);
 			
-			label.append("-- Allocating rooms\n");
-			label.paintImmediately(label.getVisibleRect());
 			try {
-				sfs.addLocation();
-			} catch (FileNotFoundException e1) {
+				StudentsFinalSec sfs = new StudentsFinalSec(file);
+				label.append("-- Allocating rooms\n");
+				label.paintImmediately(label.getVisibleRect());
+				try {
+					sfs.addLocation();
+				} catch (FileNotFoundException e1) {
+					return;
+				}
+				
+				label.append("-- Adding invigilators\n");
+				label.paintImmediately(label.getVisibleRect());
+				sfs.getInvigilators();
+			}
+			catch (InvalidFormatException e1) {
 				return;
 			}
 			
-			label.append("-- Adding invigilators\n");
-			label.paintImmediately(label.getVisibleRect());
-			sfs.getInvigilators();
+			
 			
 		}
 		else if (command.equalsIgnoreCase("List for professors")){
@@ -105,7 +115,7 @@ public class PanelFinals extends PanelTabs {
 			else { // read from file
 				String term = getOptionPane("Choose a month of the exam", false);
 				String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
-				final String fileFinals = newterm + " final exam master list.xlsx";
+				final String fileFinals = "F:\\Exams\\test\\" + newterm + " final exam master list.xlsx";
 				
 				File file = new File(fileFinals);
 				if (! file.exists()) {
@@ -115,15 +125,19 @@ public class PanelFinals extends PanelTabs {
 				label.append("-- Getting info from " + fileFinals + " file\n");
 				label.paintImmediately(label.getVisibleRect());
 				
-				new StudentsFinalSec(file);
+				
+				try {
+					new StudentsFinalSec(file);
+				} catch (InvalidFormatException e1) {
+					return;
+				}
 				list = StudentsFinalSec.getList();
 			}
-			
-			wt = new WorkThread(list);
-			wt.start();
-			
-			label.append("-- Choose an option and click the button\n");
+			label.append("-- Looking for emails. Please wait it will take about 5 minutes.\n");
 			label.paintImmediately(label.getVisibleRect());
+			
+			Worker w = new Worker(list, label);
+			w.execute();
 		}	
 		else {
 			// nothing

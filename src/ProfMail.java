@@ -36,18 +36,18 @@ public class ProfMail {
 	 */
 	public ProfMail(StudentFinal s) {
 		email = getMailFromMidterms(s);
-		/*if (email == null) {
+		if (email == null) {
 			String surname = s.getNameProfLast();
 			String name = s.getNameProfFirst();
 			String html = web(surname, name);
 			search(html);
-		}*/
+		}
 	}
 	private String getMailFromMidterms(Student student) {
 		String mail = null;
 		String term = new Term().getTerm();
 		
-		String filename = "Winter 2013 exam schedule.xlsx"; // to test
+		String filename = "F:\\Exams\\Files\\Winter 2013 exam schedule.xlsx"; // to test
 		//String filename = term + " exam schedule.xlsx";
 		File file = new File(filename);	
 		

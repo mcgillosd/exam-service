@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 import javax.swing.JTextArea;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -115,17 +116,17 @@ public class StudentsMidtermInit {
 				if (lists.get(i).size() > 0) {
 					int index = (i+1)*3;
 					String term = new Term(index).getTerm();
-					//String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
-					String filename = term + " exam schedule.xlsx";
+					String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
+					//String filename = term + " exam schedule.xlsx";
 					File file = new File(filename);
-					if (! file.exists())
-						new Excel().create(term);
-					try {
-						RandomAccessFile raf = new RandomAccessFile(file, "rw");
-						raf.close();
-					} catch (IOException e) {
-						new Message("File " + filename + " is in use.\nPlease restart when the file is available");
-						return;
+					if (file.exists()) {
+						try {
+							RandomAccessFile raf = new RandomAccessFile(file, "rw");
+							raf.close();
+						} catch (IOException e) {
+							new Message("File " + filename + " is in use.\nPlease restart when the file is available");
+							return;
+						}
 					}
 				}
 			}
@@ -133,8 +134,8 @@ public class StudentsMidtermInit {
 			
 			String now = new Term().getTerm();
 			if (macdonald.size() > 0) {
-				//String filename = "F:\\Exams\\test\\" + now + " exam schedule.xlsx";
-				String filename = now + " exam schedule.xlsx";
+				String filename = "F:\\Exams\\test\\" + now + " exam schedule.xlsx";
+				//String filename = now + " exam schedule.xlsx";
 				File file = new File(filename);
 				if (file.exists()) {
 					try {
@@ -244,7 +245,7 @@ public class StudentsMidtermInit {
 		boolean firstSkipped = false;
 		boolean lastIdSet = false;
 		
-		String text = label.getText();
+		//String text = label.getText();
 		
 		for(Element element : doc.select("tr")) { 
 			if(! firstSkipped) { // the first $tr is the header
@@ -270,10 +271,12 @@ public class StudentsMidtermInit {
 				if (! lastIdSet) { // gets the first entry's id - it will be the last updated entry
 					lastid = stud.getId(); // write it only after update!
 					lastIdSet = true;
+					label.append("-- Processing new entries\n");
+			    	label.paintImmediately(label.getVisibleRect());
 				}
 				 
-				label.setText(text + "-- Processing ID " + stud.getId() + "\n");
-				label.paintImmediately(label.getVisibleRect());
+				//label.setText(text + "-- Processing ID " + stud.getId() + "\n");
+				//label.paintImmediately(label.getVisibleRect());
 				 
 				index += 3; // skip time submission, user, IP
 				stud.setExamDate(td.get(index++).text());
@@ -287,12 +290,12 @@ public class StudentsMidtermInit {
 				index++; // skip location
 				stud.setExamStartTime(td.get(index++).text());
 				 
-				index++; // to be deleted, to test with the old form
+			//	index++; // to be deleted, to test with the old form
 				 
-				/*String hours = td.get(index++).text();  // for the new form
-				 String minutes = td.get(index++).text();
-				 stud.setLength(calculateLength(hours, minutes));
-				 */
+				String hours = td.get(index++).text();  // for the new form
+				String minutes = td.get(index++).text();
+				stud.setLength(calculateLength(hours, minutes));
+				 
 				stud.setNameProf(td.get(index++).text());
 				stud.setEmailProf(td.get(index++).text());
 				stud.setExtraTime(td.get(index++).text());
@@ -338,7 +341,7 @@ public class StudentsMidtermInit {
 	}
 	
 	private ListOfRoomsMidterm initRooms() {
-		File file = new File("rooms_midterm.xlsx");
+		File file = new File("F:\\Exams\\Files\\rooms_midterm.xlsx");
 		if (! file.exists()) {
 			new Message("File " + file.getName() + " doesn't exist");
 			return null;

@@ -7,6 +7,7 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.ComponentOrientation;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
 
@@ -94,8 +95,16 @@ public class AppFrame extends JFrame {
 		Font font = new Font("Georgia", Font.PLAIN, 72);
 		label_name.setFont(font);
 		
+		Dimension d = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+		int height = (int)d.getHeight();
+		
+		double offset; 
+		if (height > 800)
+			offset = 0.04;
+		else
+			offset = 0.02;
 		label_name.setHorizontalAlignment(SwingConstants.CENTER);
-		Border paddingBorder = BorderFactory.createEmptyBorder(16,0,40,0);
+		Border paddingBorder = BorderFactory.createEmptyBorder((int)(height*offset),0,(int)(height*offset),0);
 		label_name.setBorder(paddingBorder);
 		panel_main.add(label_name, BorderLayout.NORTH);
 		

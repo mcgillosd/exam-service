@@ -112,8 +112,7 @@ public class Combo extends JPanel {
 				
 				else
 					new Excel().removeEmptyRows(exam, term, true);
-				PanelEditor.label.append("-- Choose an option and click the button\n");
-				PanelEditor.label.paintImmediately(PanelEditor.label.getVisibleRect());
+				
 			}
 			else {
 				dialog.setVisible(false);

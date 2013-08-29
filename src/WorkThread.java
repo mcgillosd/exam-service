@@ -1,5 +1,6 @@
-import java.util.ArrayList;
+import java.io.FileNotFoundException;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 
 /**
  * 
@@ -12,19 +13,27 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class WorkThread extends Thread {
 
 	static AtomicBoolean stopWork = new AtomicBoolean();
-	ArrayList<StudentFinal> list = new ArrayList<StudentFinal>();
-	 
-	 public WorkThread(ArrayList<StudentFinal> list) {
-		 this.list = list;
-		 stopWork.set(false);
-	 }
+	WebConnect wc;
+	boolean update;
+	
+		
+	public WorkThread(WebConnect wc, boolean update) {
+		 this.wc = wc;
+		 this.update = update;
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Runnable#run()
 	 */
 	@Override
 	public void run() {
-		while (! stopWork.get()) {
-			new Excel().writeListProf(list);
+		String html = wc.getContent();
+		try {
+			stopWork.set(true);
+			new StudentsMidtermInit(update).start(html);
+			stopWork.set(false);
+		} catch (FileNotFoundException e1) {
+			return;
 		}
-     }
+	}
 }

@@ -118,8 +118,8 @@ public class StudentMidterm extends Student {
 		this.length = length; 
 	}
 	public void setExamLength() { // TODO: time change
-		int time = 60; // to be deleted, old form 	
-		//int time = length; /* for the new form */
+		//int time = 60; // to be deleted, old form 	
+		int time = length; /* for the new form */
 		if (extraTime == null)
 			examLength = time;
 		else if (extraTime.equals("T1/2") || extraTime.equalsIgnoreCase("Time+1/2"))

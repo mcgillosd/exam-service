@@ -19,7 +19,7 @@ import java.io.IOException;
  */
 public class LastID {
 	
-	private final File idfile = new File("id.txt");
+	private final File idfile = new File("F:\\Exams\\Files\\id.txt");
 	private int id;
 	
 	/**

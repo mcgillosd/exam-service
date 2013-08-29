@@ -3,13 +3,12 @@
  * 
  * Created on 2013-06-11 12:13:25 PM
  */
+import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -26,6 +25,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -42,6 +42,7 @@ public class Excel {
 	private JTextArea labelMidterm = PanelMidterms.label;
 	private JTextArea labelFinal = PanelFinals.label;
 	private JTextArea labelEditor = PanelEditor.label;
+	private XSSFWorkbook wb;
 	/**
 	 * Creates an empty container
 	 */
@@ -61,13 +62,13 @@ public class Excel {
 	 * @see Term 
 	 */
 	public void create(String name) {
-		XSSFWorkbook workbook = new XSSFWorkbook();
+		wb = new XSSFWorkbook();
 		
-		Font font = setCustomFont(workbook, "Calibri", 10, true);
-		CellStyle style = workbook.createCellStyle();
+		Font font = setCustomFont(wb, "Calibri", 10, true);
+		CellStyle style = wb.createCellStyle();
 		style.setFont(font);
 		
-		XSSFSheet sheet = workbook.createSheet(name);
+		XSSFSheet sheet = wb.createSheet(name);
 		
 		setNbCol(18);
 		
@@ -84,11 +85,11 @@ public class Excel {
 			cell.setCellValue(headers[colXL++]);
 			cell.setCellStyle(style);
 		}
-		//String filename = "F:\\Exams\\test\\" + name + " exam schedule.xlsx";
-		String filename = name + " exam schedule.xlsx";
+		/*String filename = "F:\\Exams\\test\\" + name + " exam schedule.xlsx";
+		//String filename = name + " exam schedule.xlsx";
 		try {
 			File file = new File(filename);
-			if (file.exists()) {
+		/*	if (file.exists()) {
 				int result = JOptionPane.showConfirmDialog(
 						null,"The file already exists, overwrite it?", 
 						"Warning",JOptionPane.YES_NO_OPTION);
@@ -106,27 +107,35 @@ public class Excel {
 			else {
 				FileOutputStream out = new FileOutputStream(file);
 				workbook.write(out);
+				out.flush();
 				out.close();
 				labelMidterm.append("-- File " + filename + " has been created\n");
 				labelMidterm.paintImmediately(labelMidterm.getVisibleRect());
 
-			}
+//			}
 		} catch (FileNotFoundException e) {
 		    e.printStackTrace();
 		} catch (IOException e) {
 		    e.printStackTrace();
-		}
+		}*/
+	
 	}
 	public void writeMacdonald(ArrayList<StudentMidterm> list) {
 		Collections.sort(list, new Student.DateExamComparator());
 
 		String term = new Term().getTerm();
 		
-		//String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
-		String filename = term + " exam schedule.xlsx";
+		String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
+		//String filename = term + " exam schedule.xlsx";
 		setFile(filename);
 		
+		
 		if (! file.exists()) {
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			create(term);
 		}
 		
@@ -134,7 +143,8 @@ public class Excel {
 		
 		try {
 			FileInputStream fis = new FileInputStream(file);	
-			XSSFWorkbook wb = new XSSFWorkbook(fis);
+			if (wb == null)
+				wb = new XSSFWorkbook(fis);
 		
 			CellStyle[] styles = getAllStyles(wb);
 			
@@ -176,7 +186,7 @@ public class Excel {
 					Row r = sheet.getRow(rowNum);
 					if (r == null) { // the last row
 						r = sheet.createRow(rowNum);
-						fillRow(r, student, styles);
+						fillRowMac(r, student, styles);
 						
 						if (++index < list.size()) {
 							student = list.get(index);
@@ -212,7 +222,7 @@ public class Excel {
 										rowEnd++;
 								
 										Row rowNew = sheet.createRow(rowNum);
-										fillRow(rowNew, student, styles);
+										fillRowMac(rowNew, student, styles);
 									
 										if (dateToAdd.compareTo(dateInFile) <= 0)
 											rowNum--;
@@ -240,6 +250,7 @@ public class Excel {
 			wb.write(fos);
 			fos.flush();
 			fos.close();
+			wb = null;
 			labelMidterm.append("-- File " + file.getName() + " has been updated\n");
 			labelMidterm.paintImmediately(labelMidterm.getVisibleRect());
 		}
@@ -259,22 +270,26 @@ public class Excel {
 		// sort the list by the date of the exam
 		Collections.sort(list, new Student.DateExamComparator());
 	
-		//String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
-		String filename = term + " exam schedule.xlsx";
+		String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
+		//String filename = term + " exam schedule.xlsx";
 		setFile(filename);
+	
 		
-		if (! file.exists()) {
-			create(term);
-		}
+	if (! file.exists()) {
+		file.createNewFile();
+		create(term);
+	}
+	
 
 		try {
-			FileInputStream fis = new FileInputStream(file);	
-			XSSFWorkbook wb = new XSSFWorkbook(fis);
+			FileInputStream fis = new FileInputStream(new File(filename));	
+			if (wb == null)
+				wb = new XSSFWorkbook(fis);
 		
 			CellStyle[] styles = getAllStyles(wb);
 			
 			XSSFSheet sheet = wb.getSheetAt(0);
-			
+						
 			if (sheet.getLastRowNum() < 1) { // write to the empty file
 				for (int rowXL = 1, i = 0; i < list.size(); i++) {
 					StudentMidterm student = list.get(i);
@@ -296,6 +311,10 @@ public class Excel {
 				/* start reading the file form the 1st row (exclude the header) */
 				for (int rowNum = 1; index < list.size(); rowNum++) { // || rowNum < endRow
 					Row r = sheet.getRow(rowNum);
+					
+					if (r == null && rowNum < rowEnd) {
+						continue; 
+					}
 					if (r == null) { // the last row
 						r = sheet.createRow(rowNum);
 						fillRow(r, student, styles);
@@ -313,7 +332,6 @@ public class Excel {
 						else {
 							if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
 								dateInFile = cell.getDateCellValue();
-														
 								if (dateToAdd.compareTo(dateInFile) <= 0) {// if the same or less, then add above
 									/* check if id is the same, then the entry already exists */
 									if (dateToAdd.compareTo(dateInFile) == 0) {
@@ -369,6 +387,7 @@ public class Excel {
 		catch (IOException e) {
 			throw new IOException();
 		}
+	
 	}
 	/* Sets fonts based on the preferences given in arguments */
 	private Font setCustomFont(Workbook wb, String fontname, int fontsize, boolean bold) {
@@ -380,45 +399,45 @@ public class Excel {
 	    return font;
 	}
 	/* Creates an array of styles for Excel cells */
-	private CellStyle[] getAllStyles(Workbook wb) {
-		CellStyle[] styles = new CellStyle[7];
+	private XSSFCellStyle[] getAllStyles(Workbook wb) {
+		XSSFCellStyle[] styles = new XSSFCellStyle[7];
 		
-		CellStyle styleHeader = wb.createCellStyle();
+		XSSFCellStyle styleHeader = (XSSFCellStyle) wb.createCellStyle();
 		Font fontHeader = setCustomFont(wb, "Arial", 11, true);
 		styleHeader.setFont(fontHeader);
 		styles[0] = styleHeader;
 		
-		CellStyle styleNormal = wb.createCellStyle();
+		XSSFCellStyle styleNormal = (XSSFCellStyle) wb.createCellStyle();
 		Font fontNormal = setCustomFont(wb, "Calibri", 11, false);
 		styleNormal.setFont(fontNormal);
 		styles[1] = styleNormal;
 		
-		CellStyle styleBold = wb.createCellStyle();
+		XSSFCellStyle styleBold = (XSSFCellStyle) wb.createCellStyle();
 		Font fontBold = setCustomFont(wb, "Calibri", 11, true);
 		styleBold.setFont(fontBold);
 		styles[2] = styleBold;
 		
-		CellStyle styleDate = wb.createCellStyle();
+		XSSFCellStyle styleDate = (XSSFCellStyle) wb.createCellStyle();
 		DataFormat df = wb.createDataFormat();
 		styleDate.setFont(fontBold);
 		styleDate.setDataFormat(df.getFormat("d-mmm"));
 		styles[3] = styleDate;
 		
-		CellStyle styleTime = wb.createCellStyle();
+		XSSFCellStyle styleTime = (XSSFCellStyle) wb.createCellStyle();
 		df = wb.createDataFormat();
 		styleTime.setFont(fontBold);
 		styleTime.setDataFormat(df.getFormat("h:mm"));
 		styles[4] = styleTime;
 		
-		CellStyle timeChanged = wb.createCellStyle();
+		XSSFCellStyle timeChanged = (XSSFCellStyle) wb.createCellStyle();
 		df = wb.createDataFormat();
 		timeChanged.setFont(fontBold);
 		timeChanged.setDataFormat(df.getFormat("h:mm"));
-		timeChanged.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);  
+		timeChanged.setFillForegroundColor(new XSSFColor(Color.LIGHT_GRAY));  
 		timeChanged.setFillPattern(XSSFCellStyle.SOLID_FOREGROUND);  
 		styles[5] = timeChanged;
 		
-		CellStyle styleVertical = wb.createCellStyle();
+		XSSFCellStyle styleVertical = (XSSFCellStyle) wb.createCellStyle();
 		styleVertical.setFont(fontNormal);
 		styleVertical.setVerticalAlignment(CellStyle.VERTICAL_TOP);
 		styles[6] = styleVertical;
@@ -632,7 +651,7 @@ public class Excel {
 	public void export(ArrayList<StudentMidterm> listOfStudents) throws FileNotFoundException {
 		Collections.sort(listOfStudents, new Student.DateExamComparator());
 		
-		String excelFileName = "Midterms.xlsx";
+		String excelFileName = "F:\\Exams\\Midterms.xlsx";
 		File file = new File(excelFileName);
 		if (file.exists()) {
 			int result = JOptionPane.showConfirmDialog(
@@ -698,16 +717,21 @@ public class Excel {
 	 * 
 	 * @param term the term part of the file name
 	 * @param exam	Midterm or Final
+	 * @throws FileNotFoundException 
 	 */
 	public void addEmptyRows(String exam, String term) {
+		labelEditor.append("-- Adding empty rows\n");
+		labelEditor.paintImmediately(labelEditor.getVisibleRect());
 		if (exam.equalsIgnoreCase("Midterm")) {
-			String filename = term + " exam schedule.xlsx";
+			String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
 			setFile(filename);
 			if (! file.exists()) {
 				JOptionPane.showMessageDialog(
-						null, "File " + filename + "doesn't exist", 
+						null, "File " + filename + " doesn't exist", 
 						"Message", JOptionPane.INFORMATION_MESSAGE);
+				return;
 			}
+			
 			try {
 				FileInputStream inp = new FileInputStream(file);
 				XSSFWorkbook wb = new XSSFWorkbook(inp);
@@ -785,12 +809,13 @@ public class Excel {
 			else
 				month = "August";
 			
-			String filename = month + " " + split[1] + " final exam master list.xlsx";
+			String filename = "F:\\Exams\\test\\" + month + " " + split[1] + " final exam master list.xlsx";
 			setFile(filename);
 			if (! file.exists()) {
 				JOptionPane.showMessageDialog(
-						null, "File " + filename + "doesn't exist", 
+						null, "File " + filename + " doesn't exist", 
 						"Message", JOptionPane.INFORMATION_MESSAGE);
+				return;
 			}
 			try {
 				FileInputStream inp = new FileInputStream(file);
@@ -807,7 +832,7 @@ public class Excel {
 				Cell cell = null;
 				String locationPrevious = null;
 				String location = null;
-				final int COL_NUM = 6; /* # of the 'location' column */
+				final int COL_NUM = 7; /* # of the 'location' column */
 				
 				cell = row.getCell(COL_NUM);
 				if (cell == null) {
@@ -873,13 +898,17 @@ public class Excel {
 	 * @param message	if <code>true</code> then the message will pop up		
 	 */
 	public void removeEmptyRows(String exam, String term, boolean message) {
+		if (message) {
+			labelEditor.append("-- Removing empty rows\n");
+			labelEditor.paintImmediately(labelEditor.getVisibleRect());
+		}
 		if (exam.equalsIgnoreCase("Midterm")) {
-			String filename = term + " exam schedule.xlsx";
+			String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
 			setFile(filename);
 			
 			if (! file.exists()) {
 				JOptionPane.showMessageDialog(
-						null, "File " + filename + "doesn't exist", 
+						null, "File " + filename + " doesn't exist", 
 						"Message", JOptionPane.INFORMATION_MESSAGE);
 			}
 		
@@ -937,7 +966,7 @@ public class Excel {
 			else
 				month = "August";
 			
-			String filename = month + " " + split[1] + " final exam master list.xlsx";
+			String filename = "F:\\Exams\\test\\" + month + " " + split[1] + " final exam master list.xlsx";
 			setFile(filename);
 			
 			if (! file.exists()) {
@@ -995,7 +1024,7 @@ public class Excel {
 		Collections.sort(list, new Student.DateExamComparator());
 		
 		String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
-		String fileFinals = newterm + " final exam master list.xlsx";
+		String fileFinals = "F:\\Exams\\test\\" + newterm + " final exam master list.xlsx";
 		setFile(fileFinals);
 		
 		if (file.exists()) {
@@ -1004,7 +1033,7 @@ public class Excel {
 		else {
 			try {
 				XSSFWorkbook wb = new XSSFWorkbook();
-				CellStyle[] styles = getAllStyles(wb);
+				XSSFCellStyle [] styles = getAllStyles(wb);
 				writeSheet1(list, wb, styles);
 				writeSheet2(list, wb, styles);
 							
@@ -1113,7 +1142,7 @@ public class Excel {
 		sheet.createFreezePane(0, 1);		    
 	}
 	
-	private void writeSheet2(ArrayList<StudentFinal> list, XSSFWorkbook wb, CellStyle[] styles) {
+	private void writeSheet2(ArrayList<StudentFinal> list, XSSFWorkbook wb, XSSFCellStyle[] styles) {
 						
 		Sheet sheet = wb.createSheet("by day");
 		String[] headers = {"Date", "Name", "Surname", "Section", "Course ID", 
@@ -1238,66 +1267,124 @@ public class Excel {
 				cell.setCellValue(headers[colXL++]);
 				cell.setCellStyle(styles[2]);
 			}
-				
+		
+			
 			for (int rowXL = 1, i = 0; i < list.size(); i++) {
 				StudentFinal student = list.get(i);
 				row = sheet.createRow((short) rowXL++);
 				
-				for (int col = 0; col < NB_COL; col++) { //minus invigilator
+				for (int col = 0; col < NB_COL; col++) { 
 					Cell cell = row.createCell(col);
 					switch (col) {
 					case 0:
 						cell.setCellValue(student.getExamDate()); 
-						cell.setCellStyle(styles[3]); break;
+//						cell.setCellStyle(styles[3]); 
+						//CellStyle newStyle = wb.createCellStyle();
+						XSSFCellStyle newStyle0 = wb.createCellStyle();
+						newStyle0.cloneStyleFrom(student.getCell(col));
+						cell.setCellStyle(newStyle0);
+						break;
 					case 1: 
 						cell.setCellValue(student.getNameFirst());
-						cell.setCellStyle(styles[1]); break;
+						//cell.setCellStyle(styles[1]); 
+						XSSFCellStyle newStyle1 = wb.createCellStyle();
+						newStyle1.cloneStyleFrom(student.getCell(col));
+						cell.setCellStyle(newStyle1);
+						break;
 					case 2:
 						cell.setCellValue(student.getNameLast());
-						cell.setCellStyle(styles[1]); break;
+						//cell.setCellStyle(styles[1]);
+						XSSFCellStyle newStyle2 = wb.createCellStyle();
+						newStyle2.cloneStyleFrom(student.getCell(col));
+						cell.setCellStyle(newStyle2);
+						break;
 					case 3: 
 						String section = student.getSection();
 						if (section.length() == 1) {
 							section = "00" + section;
 						}
 						cell.setCellValue(section);
-						cell.setCellStyle(styles[1]); break;
+						XSSFCellStyle newStyle3 = wb.createCellStyle();
+					//	cell.setCellStyle(styles[1]);
+						newStyle3.cloneStyleFrom(student.getCell(col));
+						cell.setCellStyle(newStyle3);
+						break;
 					case 4: 
 						cell.setCellValue(student.getCourse());
-						cell.setCellStyle(styles[1]); break;
+						//cell.setCellStyle(styles[1]); 
+						XSSFCellStyle newStyle4 = wb.createCellStyle();
+						newStyle4.cloneStyleFrom(student.getCell(col));
+						cell.setCellStyle(newStyle4);
+						break;
 					case 5:
 						cell.setCellValue(student.getNameProfFirst());
-						cell.setCellStyle(styles[6]); break;
+						//cell.setCellStyle(styles[6]); 
+						XSSFCellStyle newStyle5 = wb.createCellStyle();
+						newStyle5.cloneStyleFrom(student.getCell(col));
+						cell.setCellStyle(newStyle5);
+						break;
 					case 6:
 						cell.setCellValue(student.getNameProfLast());
-						cell.setCellStyle(styles[6]); break;
+						//cell.setCellStyle(styles[6]); 
+						XSSFCellStyle newStyle6 = wb.createCellStyle();
+						newStyle6.cloneStyleFrom(student.getCell(col));
+						cell.setCellStyle(newStyle6);
+						break;
 					case 7:
 						cell.setCellValue(student.getLocation());
-						cell.setCellStyle(styles[1]); break;
+						cell.setCellStyle(styles[1]); 
+						//cell.setCellStyle(student.getCell(col));
+						break;
 					case 8:
 						if (student.timeChanged()) {
 							cell.setCellValue(student.getExamStartTime());
-							cell.setCellStyle(styles[5]); break;
+							cell.setCellStyle(styles[5]); 
+							//newStyle.cloneStyleFrom(student.getCell(col));
+							//cell.setCellStyle(newStyle);
+							break;
 						}
 						else {
 							cell.setCellValue(student.getExamStartTime());
-							cell.setCellStyle(styles[4]); break;
+							cell.setCellStyle(styles[4]); 
+							//newStyle.cloneStyleFrom(student.getCell(col));
+							//cell.setCellStyle(newStyle);
+							break;
 						}
 					case 9:
 						cell.setCellValue(student.getExamFinishTime());
-						cell.setCellStyle(styles[4]); break;
+						cell.setCellStyle(styles[4]); 
+						//newStyle.cloneStyleFrom(student.getCell(col));
+						//cell.setCellStyle(newStyle);
+						break;
 					case 10:
 						cell.setCellValue(student.getExtraTime());
-						cell.setCellStyle(styles[1]); break;
+						cell.setCellStyle(styles[1]); 
+						//newStyle.cloneStyleFrom(student.getCell(col));
+						//cell.setCellStyle(newStyle);
+						break;
 					case 11:
 						cell.setCellValue(student.getStopwatch());
-						cell.setCellStyle(styles[1]); break;
+						//cell.setCellStyle(styles[1]); 
+						XSSFCellStyle newStyle11 = wb.createCellStyle();
+						newStyle11.cloneStyleFrom(student.getCell(col));
+						cell.setCellStyle(newStyle11);
+						break;
 					case 12:
 						cell.setCellValue(student.getComputer());
-						cell.setCellStyle(styles[1]); break;
+						//cell.setCellStyle(styles[1]); 
+						XSSFCellStyle newStyle12 = wb.createCellStyle();
+						newStyle12.cloneStyleFrom(student.getCell(col));
+						cell.setCellStyle(newStyle12);
+						break;
 					case 13:
 						cell.setCellValue(student.getComments());
-						cell.setCellStyle(styles[1]); break;
+						//cell.setCellStyle(styles[1]); 
+						if (student.getCell(col) != null) {
+							XSSFCellStyle newStyle13 = wb.createCellStyle();
+							newStyle13.cloneStyleFrom(student.getCell(col));
+							cell.setCellStyle(newStyle13);
+						}
+						break;
 					case 14: 
 						Invigilator inv = student.getInvigilator();
 						if (inv != null) {
@@ -1345,7 +1432,7 @@ public class Excel {
 	 * @param list list of students
 	 * @param label Label is necessary to give info about the searching process (takes time)
 	 */
-	public void writeListProf(ArrayList<StudentFinal> list) {
+	/*public void writeListProf(ArrayList<StudentFinal> list) {
 		String filename = "List of students for profs.xlsx";
 		File file = new File(filename);
 		if (file.exists()) {
@@ -1381,6 +1468,7 @@ public class Excel {
 		
 		int rowXL = 1;
 		int i = 0;
+		
 		while (i < list.size()) {
 			boolean noProf = false;
 			StudentFinal student = list.get(i);
@@ -1399,13 +1487,13 @@ public class Excel {
 			if (! noProf) {
 				String email = new ProfMail(student).getEmail();
 				if (email != null) {
-					labelFinal.setText("-- " + student.getNameProfLast() + ": " + email + "\n");
-					labelFinal.paintImmediately(labelFinal.getVisibleRect());
+					//labelFinal.setText("-- " + student.getNameProfLast() + ": " + email + "\n");
+					//labelFinal.paintImmediately(labelFinal.getVisibleRect());
 					cell.setCellValue(email);
 				}
 				else {
-					labelFinal.setText("-- " + student.getNameProfLast() + ": not found\n");
-					labelFinal.paintImmediately(labelFinal.getVisibleRect());
+					//labelFinal.setText("-- " + student.getNameProfLast() + ": not found\n");
+					//labelFinal.paintImmediately(labelFinal.getVisibleRect());
 					cell.setCellValue("");
 				}
 			}
@@ -1454,10 +1542,13 @@ public class Excel {
 			labelFinal.append("-- File " + filename + " has been created\n");
 			labelFinal.paintImmediately(labelFinal.getVisibleRect());
 
+			labelFinal.append("-- Choose an option and click the button\n");
+			labelFinal.paintImmediately(labelFinal.getVisibleRect());
+			
 		} catch (FileNotFoundException e) {
 		    e.printStackTrace();
 		} catch (IOException e) {
 		    e.printStackTrace();
 		}
-	}
+	}*/
 }

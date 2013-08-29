@@ -19,7 +19,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  */
 public class ListOfRoomsMidterm extends ListOfRooms {
 
-	final String filename = "rooms_midterm.xlsx";
+	final String filename = "F:\\Exams\\Files\\rooms_midterm.xlsx";
 	InputStream fis;
 	XSSFWorkbook wb;
 	CellStyle styleDate;

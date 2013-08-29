@@ -32,14 +32,15 @@ public class StudentsFinalInit {
 	private JTextArea label = PanelFinals.label;
 	/**
 	 * Creates a list of students registered for finals and writes data into the file
-	 * @throws FileNotFoundException 
+	 * @throws IOException 
 	 */
-	public StudentsFinalInit(String term) throws FileNotFoundException {
+	public StudentsFinalInit(String term) throws IOException {
 		setList(term);
 		addProfInfo(term);
 		
 		label.append("-- Getting accommodations info\n");
 	    label.paintImmediately(label.getVisibleRect());
+	    
 	    ListOfAccommodations listAcc = new ListOfAccommodations();
 	    listAcc.addAccommodations(list);
 		
@@ -55,14 +56,14 @@ public class StudentsFinalInit {
     	label.append("-- Choose an option by clicking the button\n");
     	label.paintImmediately(label.getVisibleRect());
 	}
-	private void setList(String term) throws FileNotFoundException {
-		final String osdReport = "OSD report " + term + ".xlsx";
-		File fileOSDReport = new File("finals/" + osdReport);
+	private void setList(String term) throws IOException {
+		final String osdReport = "F:\\Exams\\Files\\OSD report " + term + ".xlsx";
+		File fileOSDReport = new File(osdReport);
 		if (! fileOSDReport.exists()) {
 			new Message("File " + osdReport + " doesn't exist");
 			throw new FileNotFoundException();	
 		}
-		label.append("-- Getting info from " + osdReport + " file\n");
+		label.append("-- Getting info from " + osdReport + "\n");
     	label.paintImmediately(label.getVisibleRect());
 		
 		try {
@@ -124,25 +125,29 @@ public class StudentsFinalInit {
 			}
 			fis.close();
 		}
+		catch (FileNotFoundException e1) {
+			new Message("File " + osdReport + " is not available.");
+			throw e1;
+		}
 		catch (IOException e) {
 			new Message("Error occured while reading file " + osdReport);
 			e.printStackTrace();
-			return;
+			throw e;
 		}
 	}
 	private void addProfInfo(String term) throws FileNotFoundException {
 		// sort by course
 		Collections.sort(list, new Student.CourseComparator());
 		
-		final String finalSchedule = "final schedule " + term + " for OSD and storemore.xlsx";
-		File fileFinalSchedule = new File("finals/" + finalSchedule);
+		final String finalSchedule = "F:\\Exams\\Files\\final schedule " + term + " for OSD and storemore.xlsx";
+		File fileFinalSchedule = new File(finalSchedule);
 		
 		if (! fileFinalSchedule.exists()) {
 			new Message("File " + finalSchedule + " doesn't exist");
 			throw new FileNotFoundException();
 		}
 			
-		label.append("-- Getting info from " + finalSchedule + " file\n");
+		label.append("-- Getting info from " + finalSchedule + "\n");
 	    label.paintImmediately(label.getVisibleRect());
 			
 		try {

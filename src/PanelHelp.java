@@ -2,7 +2,7 @@
 /*
  * Created on Aug 26, 2013 2:52:25 PM
  * 
- * Taken from the Java Tutorials Code Sample – TreeDemo.java
+ * Taken from the Java Tutorials Code Sample ï¿½ TreeDemo.java
  * with some modifications. 
  * 
  * Copyright (c) 1995, 2008, Oracle and/or its affiliates. All rights reserved.
@@ -39,7 +39,11 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -78,22 +82,47 @@ public class PanelHelp extends JPanel implements TreeSelectionListener {
     private JTree tree;
     private URL helpURL;
     private static boolean DEBUG = false;
- 
+    int width;
+    int height;
          
 	public PanelHelp() {
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		Dimension d = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-		int width = (int)d.getWidth();
+		width = (int)d.getWidth();
+		height = (int)d.getHeight();
+		
+		int width2 = width;
+		Rectangle virtualBounds = new Rectangle();
+		GraphicsEnvironment ge =
+	   		GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] gs = ge.getScreenDevices();
+		for (int j = 0; j < gs.length; j++) {
+	   		GraphicsDevice gd = gs[j];
+	   		GraphicsConfiguration[] gc = gd.getConfigurations();
+	   		for (int i = 0; i < gc.length; i++) {
+	   			virtualBounds = virtualBounds.union(gc[i].getBounds());
+	   			if (j == 0) {
+	      		  width2 = virtualBounds.width;
+	      		  break;
+	   			}
+	   			
+	   		}
+	   		
+		}
+		if (gs.length > 1) {
+			width -= width2;
+		}
+		
+		
 		Box.createVerticalGlue();
-		add(Box.createRigidArea(new Dimension(width/5,0)));
+		add(Box.createRigidArea(new Dimension((int)(width/6.0), 0)));
 		add(createPanel());
-		add(Box.createRigidArea(new Dimension(width/5,0)));
+		add(Box.createRigidArea(new Dimension((int)(width/6.0), 0)));
 	}
 	
 	private JPanel createPanel() {
 		
-		Dimension d = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-		int width = (int)d.getWidth();
+			
 		
 		JPanel pane_main = new JPanel();
 		pane_main.setLayout(new BorderLayout());
@@ -128,9 +157,9 @@ public class PanelHelp extends JPanel implements TreeSelectionListener {
         splitPane.setLeftComponent(treeView);
         splitPane.setRightComponent(htmlView);
         
-        splitPane.setDividerLocation(width/5); 
+        splitPane.setDividerLocation(width/6); 
     
-        splitPane.setMinimumSize(new Dimension(500, 280));
+        splitPane.setMinimumSize(new Dimension((int)(width*3/5), (int)(height*0.36)));
        
       
         Font font_text = new Font("Georgia", Font.PLAIN, 20);

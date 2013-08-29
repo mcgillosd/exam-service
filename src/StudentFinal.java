@@ -2,6 +2,9 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+
 /*
  * Created on Jul 17, 2013 2:39:08 PM
  */
@@ -19,6 +22,7 @@ public class StudentFinal extends Student {
 	
 	private boolean timeChanged = false;
 	private boolean conflict = false;
+	private XSSFCellStyle [] cells = new XSSFCellStyle[14];
 	
 	public StudentFinal() {
 		super();
@@ -105,6 +109,12 @@ public class StudentFinal extends Student {
 	}
 	public void setNameProfLast(String nameLast) {
 		nameProfLast = nameLast;
+	}
+	public XSSFCellStyle getCell(int index) {
+		return cells[index];
+	}
+	public void setCell(XSSFCellStyle cs, int index) {
+		cells[index] = cs;
 	}
 	
 	public boolean equalProf(StudentFinal s) {

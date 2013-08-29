@@ -10,7 +10,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileNotFoundException;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -132,12 +131,10 @@ public class Login extends JPanel {
 					if (midterm) {
 						labelMidterm.append("-- Authentication successful\n");
 						labelMidterm.paintImmediately(labelMidterm.getVisibleRect());
-						String html = wc.getContent();
-						try {
-							new StudentsMidtermInit(update).start(html);
-						} catch (FileNotFoundException e1) {
-							return;
-						}
+						WorkThread t = new WorkThread(wc, update);
+						t.start();
+						
+					
 					}
 					else {
 						labelFinal.append("-- Authentication successful\n");
