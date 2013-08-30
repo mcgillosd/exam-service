@@ -8,6 +8,10 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -84,6 +88,15 @@ public class PanelFinals extends PanelTabs {
 				new Message("File " + fileFinals + " doesn't exist");
 				return;
 			}
+			Path from = Paths.get(fileFinals);
+		    Path to = Paths.get("F:\\Exams\\temp.xlsx");
+			
+			try {
+				java.nio.file.Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e2) {
+				e2.printStackTrace();
+			}
+			
 			label.append("-- Getting info from " + fileFinals + " file\n");
 			label.paintImmediately(label.getVisibleRect());
 			
@@ -104,7 +117,16 @@ public class PanelFinals extends PanelTabs {
 			catch (InvalidFormatException e1) {
 				return;
 			}
-			
+			try {
+			    java.nio.file.Files.delete(to);
+			} catch (java.nio.file.NoSuchFileException x) {
+			    System.err.format("%s: no such" + " file or directory%n", to);
+			} catch (DirectoryNotEmptyException x) {
+			    System.err.format("%s not empty%n", to);
+			} catch (IOException x) {
+			    // File permission problems are caught here.
+			    System.err.println(x);
+			}
 			
 			
 		}

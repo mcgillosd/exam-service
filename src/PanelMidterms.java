@@ -19,8 +19,6 @@ import javax.swing.JTextArea;
  */
 public class PanelMidterms extends PanelTabs {
 	
-	public static int till; // to be removed, for testing purposes
-	
 	private static final long serialVersionUID = 1L;
 	
 	/** Used by many classes to get the <code>TextArea</code> */
@@ -52,7 +50,6 @@ public class PanelMidterms extends PanelTabs {
 	public void actionPerformed(ActionEvent e) {
 		String command = e.getActionCommand();
 		if (command.equalsIgnoreCase("Update")) {
-			till = Integer.parseInt(getOptionPane("Enter a number", true)); // to be deleted, for simulator
 			new Login(true, true);
 		}
 		else if (command.equalsIgnoreCase("Show the last ID")) {
@@ -71,14 +68,5 @@ public class PanelMidterms extends PanelTabs {
 		else {
 			// nothing
 		}
-	}
-	
-	// for tests only, to be deleted
-	private String getOptionPane(String s, boolean termname) {
-		String term = (String)JOptionPane.showInputDialog(
-				null, "Choose the term:",
-				s, JOptionPane.PLAIN_MESSAGE,
-				null, null, null);
-		return term;
 	}
 }

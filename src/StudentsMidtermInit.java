@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 import javax.swing.JTextArea;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -116,7 +117,6 @@ public class StudentsMidtermInit {
 					int index = (i+1)*3;
 					String term = new Term(index).getTerm();
 					String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
-					//String filename = term + " exam schedule.xlsx";
 					File file = new File(filename);
 					if (file.exists()) {
 						try {
@@ -134,7 +134,6 @@ public class StudentsMidtermInit {
 			String now = new Term().getTerm();
 			if (macdonald.size() > 0) {
 				String filename = "F:\\Exams\\test\\" + now + " exam schedule.xlsx";
-				//String filename = now + " exam schedule.xlsx";
 				File file = new File(filename);
 				if (file.exists()) {
 					try {
@@ -190,7 +189,10 @@ public class StudentsMidtermInit {
 					xl = new Excel();
 					try {
 						xl.update(lists.get(i), term);
-					} catch (IOException e) {
+					} catch (InvalidFormatException e1) {
+						return;
+					}
+					catch (IOException e) {
 						new Message("Error occured while writing files into Excel");
 						return;
 					}
@@ -256,16 +258,14 @@ public class StudentsMidtermInit {
 			StudentMidterm stud = new StudentMidterm();
 	        	
 			Elements td = element.select("td"); 
-			int item = PanelMidterms.till;  // to be deleted
-			 
-			// int item = Integer.parseInt(td.get(0).text()); // will be $lastid, new id for the next update
-		//	int idMax = id;  // id from the previous update
-			 
+						 
+			int item = Integer.parseInt(td.get(0).text()); // will be $lastid, new id for the next update
+					 
 			if (item > id) { // new entries have been added since last visit
 				existNew = true;
 				 
-				if (Integer.parseInt(td.get(index).text()) <= item 
-						&& Integer.parseInt(td.get(index).text()) > id) { // only to test, to be removed
+			//	if (Integer.parseInt(td.get(index).text()) <= item 
+				//		&& Integer.parseInt(td.get(index).text()) > id) { // only to test, to be removed
 				stud.setId(td.get(index++).text()); 
 				if (! lastIdSet) { // gets the first entry's id - it will be the last updated entry
 					lastid = stud.getId(); // write it only after update!
@@ -289,22 +289,17 @@ public class StudentsMidtermInit {
 				index++; // skip location
 				stud.setExamStartTime(td.get(index++).text());
 				 
-			//	index++; // to be deleted, to test with the old form
-				 
 				String hours = td.get(index++).text();  // for the new form
 				String minutes = td.get(index++).text();
 				stud.setLength(calculateLength(hours, minutes));
 				 
 				stud.setNameProf(td.get(index++).text());
 				stud.setEmailProf(td.get(index++).text());
-				stud.setExtraTime(td.get(index++).text());
-				stud.setStopwatch(td.get(index++).text());
-				stud.setComputer(td.get(index++).text());
 				stud.setCommentsFromForm(td.get(index++).text());
 				stud.setCampus(td.get(index++).text()); 
 				 
 				stud.setExamLength();
-				
+			
 				String term = stud.getTerm();
 				if (stud.getCampus().equalsIgnoreCase("Downtown")) {
 					if (term.contains("Fall")) {
@@ -322,8 +317,6 @@ public class StudentsMidtermInit {
 				}
 				else 
 					macdonald.add(stud);
-				
-			}
 			}
 			else
 				break;
@@ -384,19 +377,15 @@ public class StudentsMidtermInit {
         	index++; // skip location
         	
         	stud.setExamStartTime(td.get(index++).text());
-        	index++; //	stud.setLengthMidterm(td.get(index++).text());
-        	
-        	/*String hours = td.get(index++).text();  // for the new form
-			 String minutes = td.get(index++).text();
-			 stud.setLength(calculateLength(hours, minutes));
-			 */
+        	        	
+        	String hours = td.get(index++).text();  // for the new form
+			String minutes = td.get(index++).text();
+			stud.setLength(calculateLength(hours, minutes));
+			 
         
         	stud.setNameProf(td.get(index++).text());
         	stud.setEmailProf(td.get(index++).text());
         	stud.setExtraTime(td.get(index++).text());
-        	stud.setStopwatch(td.get(index++).text());
-        	stud.setComputer(td.get(index++).text());
-        	stud.setCommentsFromForm(td.get(index++).text());
         	stud.setCampus(td.get(index++).text());
         	stud.setExamLength();
         	

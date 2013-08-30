@@ -132,8 +132,6 @@ public class Login extends JPanel {
 					if (midterm) {
 						labelMidterm.append("-- Authentication successful\n");
 						labelMidterm.paintImmediately(labelMidterm.getVisibleRect());
-						//WorkThread t = new WorkThread(wc, update);
-						//t.start();
 						String html = wc.getContent();
 						try {
 							new StudentsMidtermInit(update).start(html);

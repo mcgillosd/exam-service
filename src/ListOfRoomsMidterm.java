@@ -158,7 +158,7 @@ public class ListOfRoomsMidterm extends ListOfRooms {
 						s.setLocation("no places in OSD lab");
 					}
 				}
-				else if (s.getComputer().equals("pc")) {
+				else if (s.getComputer() != null && s.getComputer().equals("pc")) {
 					RoomMidterm r = getLab(s, write);
 					if (r != null) {
 						s.setLocation(r.getId());

@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -16,6 +17,7 @@ import java.util.Date;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormat;
@@ -264,13 +266,13 @@ public class Excel {
 	 * @param list 	list of students to be added
 	 * @param term	name of the term (ex. 'Summer 2013')
 	 * @throws IOException
+	 * @throws InvalidFormatException 
 	 */
-	public void update(ArrayList<StudentMidterm> list, String term) throws IOException {
+	public void update(ArrayList<StudentMidterm> list, String term) throws IOException, InvalidFormatException {
 		// sort the list by the date of the exam
 		Collections.sort(list, new Student.DateExamComparator());
 	
 		String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
-		//String filename = term + " exam schedule.xlsx";
 		setFile(filename);
 	
 		
@@ -367,7 +369,8 @@ public class Excel {
 								}
 							}
 							else {
-							// wrong format type of the dateExam cell
+								new Message("Wrong Date format, row " + rowNum+1);
+								throw new InvalidFormatException(null);
 							}
 						}
 					}
@@ -1163,7 +1166,7 @@ public class Excel {
 			StudentFinal student = list.get(i);
 			row = sheet.createRow((short) rowXL++);
 			
-			for (int col = 0; col < NB_COL-1; col++) { //minus invigilator
+			for (int col = 0; col < NB_COL-1; col++) { 
 				Cell cell = row.createCell(col);
 				switch (col) {
 				case 0:
@@ -1177,10 +1180,7 @@ public class Excel {
 					cell.setCellStyle(styles[1]); break;
 				case 3: 
 					String section = student.getSection();
-					if (section.length() == 1) {
-						section = "00" + section;
-					}
-					cell.setCellValue(section);
+					cell.setCellValue(Integer.parseInt(section));
 					cell.setCellStyle(styles[1]); break;
 				case 4: 
 					cell.setCellValue(student.getCourse());
@@ -1277,57 +1277,53 @@ public class Excel {
 					switch (col) {
 					case 0:
 						cell.setCellValue(student.getExamDate()); 
-//						cell.setCellStyle(styles[3]); 
-						//CellStyle newStyle = wb.createCellStyle();
-						XSSFCellStyle newStyle0 = wb.createCellStyle();
-						newStyle0.cloneStyleFrom(student.getCell(col));
-						cell.setCellStyle(newStyle0);
+						cell.setCellStyle(styles[3]); 
+						//XSSFCellStyle newStyle0 = wb.createCellStyle();
+						//newStyle0.cloneStyleFrom(student.getCell(col));
+						//cell.setCellStyle(newStyle0);
 						break;
 					case 1: 
 						cell.setCellValue(student.getNameFirst());
-						//cell.setCellStyle(styles[1]); 
-						XSSFCellStyle newStyle1 = wb.createCellStyle();
-						newStyle1.cloneStyleFrom(student.getCell(col));
-						cell.setCellStyle(newStyle1);
+						cell.setCellStyle(styles[1]); 
+						//XSSFCellStyle newStyle1 = wb.createCellStyle();
+						//newStyle1.cloneStyleFrom(student.getCell(col));
+						//cell.setCellStyle(newStyle1);
 						break;
 					case 2:
 						cell.setCellValue(student.getNameLast());
-						//cell.setCellStyle(styles[1]);
-						XSSFCellStyle newStyle2 = wb.createCellStyle();
-						newStyle2.cloneStyleFrom(student.getCell(col));
-						cell.setCellStyle(newStyle2);
+						cell.setCellStyle(styles[1]);
+						//XSSFCellStyle newStyle2 = wb.createCellStyle();
+						//newStyle2.cloneStyleFrom(student.getCell(col));
+						//cell.setCellStyle(newStyle2);
 						break;
 					case 3: 
 						String section = student.getSection();
-						if (section.length() == 1) {
-							section = "00" + section;
-						}
 						cell.setCellValue(section);
-						XSSFCellStyle newStyle3 = wb.createCellStyle();
-					//	cell.setCellStyle(styles[1]);
-						newStyle3.cloneStyleFrom(student.getCell(col));
-						cell.setCellStyle(newStyle3);
+						//XSSFCellStyle newStyle3 = wb.createCellStyle();
+						cell.setCellStyle(styles[1]);
+						//newStyle3.cloneStyleFrom(student.getCell(col));
+						//cell.setCellStyle(newStyle3);
 						break;
 					case 4: 
 						cell.setCellValue(student.getCourse());
-						//cell.setCellStyle(styles[1]); 
-						XSSFCellStyle newStyle4 = wb.createCellStyle();
-						newStyle4.cloneStyleFrom(student.getCell(col));
-						cell.setCellStyle(newStyle4);
+						cell.setCellStyle(styles[1]); 
+						//XSSFCellStyle newStyle4 = wb.createCellStyle();
+						//newStyle4.cloneStyleFrom(student.getCell(col));
+						//cell.setCellStyle(newStyle4);
 						break;
 					case 5:
 						cell.setCellValue(student.getNameProfFirst());
-						//cell.setCellStyle(styles[6]); 
-						XSSFCellStyle newStyle5 = wb.createCellStyle();
-						newStyle5.cloneStyleFrom(student.getCell(col));
-						cell.setCellStyle(newStyle5);
+						cell.setCellStyle(styles[6]); 
+						//XSSFCellStyle newStyle5 = wb.createCellStyle();
+						//newStyle5.cloneStyleFrom(student.getCell(col));
+						//cell.setCellStyle(newStyle5);
 						break;
 					case 6:
 						cell.setCellValue(student.getNameProfLast());
-						//cell.setCellStyle(styles[6]); 
-						XSSFCellStyle newStyle6 = wb.createCellStyle();
-						newStyle6.cloneStyleFrom(student.getCell(col));
-						cell.setCellStyle(newStyle6);
+						cell.setCellStyle(styles[6]); 
+						//XSSFCellStyle newStyle6 = wb.createCellStyle();
+						//newStyle6.cloneStyleFrom(student.getCell(col));
+						//cell.setCellStyle(newStyle6);
 						break;
 					case 7:
 						cell.setCellValue(student.getLocation());
@@ -1363,26 +1359,26 @@ public class Excel {
 						break;
 					case 11:
 						cell.setCellValue(student.getStopwatch());
-						//cell.setCellStyle(styles[1]); 
-						XSSFCellStyle newStyle11 = wb.createCellStyle();
-						newStyle11.cloneStyleFrom(student.getCell(col));
-						cell.setCellStyle(newStyle11);
+						cell.setCellStyle(styles[1]); 
+						//XSSFCellStyle newStyle11 = wb.createCellStyle();
+						//newStyle11.cloneStyleFrom(student.getCell(col));
+						//cell.setCellStyle(newStyle11);
 						break;
 					case 12:
 						cell.setCellValue(student.getComputer());
-						//cell.setCellStyle(styles[1]); 
-						XSSFCellStyle newStyle12 = wb.createCellStyle();
-						newStyle12.cloneStyleFrom(student.getCell(col));
-						cell.setCellStyle(newStyle12);
+						cell.setCellStyle(styles[1]); 
+						//XSSFCellStyle newStyle12 = wb.createCellStyle();
+						//newStyle12.cloneStyleFrom(student.getCell(col));
+						//cell.setCellStyle(newStyle12);
 						break;
 					case 13:
 						cell.setCellValue(student.getComments());
-						//cell.setCellStyle(styles[1]); 
-						if (student.getCell(col) != null) {
+						cell.setCellStyle(styles[1]); 
+						/*if (student.getCell(col) != null) {
 							XSSFCellStyle newStyle13 = wb.createCellStyle();
 							newStyle13.cloneStyleFrom(student.getCell(col));
 							cell.setCellStyle(newStyle13);
-						}
+						}*/
 						break;
 					case 14: 
 						Invigilator inv = student.getInvigilator();

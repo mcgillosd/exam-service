@@ -102,8 +102,14 @@ public class StudentsFinalSec {
 						break;
 					case 3:
 						cell = r.getCell(i);
-						String section = cell.getStringCellValue();
-						student.setSection(section); 
+						if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+							int section = (int)(cell.getNumericCellValue());
+							student.setSection(Integer.toString(section));
+						}
+						else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+							String section = cell.getStringCellValue();
+							student.setSection(section);
+						}
 						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
 						break;
 					case 4:
@@ -138,12 +144,26 @@ public class StudentsFinalSec {
 					case 8:
 						cell = r.getCell(i);
 						Date timeStart = cell.getDateCellValue();
+						Calendar cal = Calendar.getInstance();
+						cal.setTime(timeStart);
+						int year = cal.get(Calendar.YEAR);
+						if (year < 1990) {
+							cal.add(Calendar.YEAR, 100);
+							timeStart = cal.getTime();
+						}
 						student.setExamStartTime(timeStart); 
 						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
 						break;
 					case 9:
 						cell = r.getCell(i);
 						Date timeFinish = cell.getDateCellValue();
+						Calendar cal2 = Calendar.getInstance();
+						cal2.setTime(timeFinish);
+						int year2 = cal2.get(Calendar.YEAR);
+						if (year2 < 1990) {
+							cal2.add(Calendar.YEAR, 100);
+							timeFinish = cal2.getTime();
+						}
 						student.setExamFinishTime(timeFinish); 
 						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
 						break;
@@ -200,7 +220,7 @@ public class StudentsFinalSec {
 	public void addLocation() throws FileNotFoundException {
 		Collections.sort(list, new Student.DateExamCommentsComparator());
 		
-		File file = new File("rooms.xlsx");
+		File file = new File("F:\\Exams\\Files\\rooms.xlsx");
 		if (! file.exists()) {
 			new Message("File " + file.getName() + " doesn't exist");
 			throw new FileNotFoundException();
@@ -405,7 +425,7 @@ public class StudentsFinalSec {
 				// temporary, to test invigilators
 				for (int i = 0; i < 10; i++) {
 				
-					Calendar cal = Calendar.getInstance();
+					Calendar cal = Calendar.getInstance();// TODO
 					// to get the same year 
 					cal.setTime(list.get(0).getExamDate()); 
 					cal.set(Calendar.MONTH, 3);
