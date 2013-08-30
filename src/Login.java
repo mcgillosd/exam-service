@@ -136,6 +136,12 @@ public class Login extends JPanel {
 						try {
 							new StudentsMidtermInit(update).start(html);
 						} catch (FileNotFoundException e1) {
+							StringBuilder sb = new StringBuilder();
+							for (StackTraceElement element : e1.getStackTrace()) {
+								sb.append(element.toString());
+								sb.append("\n");
+							}
+							new Log(sb.toString());
 							return;
 						}
 					}

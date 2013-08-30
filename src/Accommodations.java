@@ -10,7 +10,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
 /**
- * Reads from the accommodations.xlsx file and saves info
+ * Reads from the accommodations.xlsx file and saves info to the list
  * 
  * @author Olga Tsibulevskaya
  *

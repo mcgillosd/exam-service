@@ -107,8 +107,8 @@ public class StudentsFinalInit {
 						Date date = r.getCell(i).getDateCellValue();
 						student.setExamDate(date); break;
 					case 6:
-						// gets the date in year 1899, has to increment to be after 1900
-						// to write correctly in Excel
+						/* gets the date in year 1899, has to increment to be after 1900
+						 to write correctly in Excel */
 						Date time = r.getCell(i).getDateCellValue();
 						Calendar cal = Calendar.getInstance();
 						cal.setTime(time);
@@ -158,10 +158,11 @@ public class StudentsFinalInit {
 			int rowNum = 1;
 			for (StudentFinal s : list) {
 				boolean found = false;
-				// have to save only the first row of the course which may have different sections
+				/* have to save only the first row of the course 
+				 * which may have different sections */
 				boolean first = true;
-				// memorise # of the row with the course in case there are several rows
-				// with the same course but different sections
+				/* memorise # of the row with the course in case there are several rows
+				 with the same course but different sections */
 				int rowCourse = 0; 
 							
 				while (s.getCourse().compareTo(sheet.getRow(rowNum).getCell(2).getStringCellValue()) >= 0) {

@@ -1,13 +1,15 @@
-import java.util.Calendar;
-import java.util.Date;
-
 /*
+ * Helper.java
  * Created on Aug 12, 2013 3:34:29 PM
  */
 
+import java.util.Calendar;
+import java.util.Date;
+
 /**
- * @author olga
- *
+ * Suppose to have small different functions
+ * 
+ * @author Olga Tsibulevskaya
  */
 public class Helper {
 
@@ -16,7 +18,7 @@ public class Helper {
 	 * 
 	 */
 	public Helper() {
-		// TODO Auto-generated constructor stub
+		
 	}
 	public Date getNoon(Date startTime) {
 		Calendar cal = Calendar.getInstance();
@@ -26,5 +28,4 @@ public class Helper {
 		noon = cal.getTime();
 		return noon;
 	}
-
 }

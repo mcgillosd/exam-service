@@ -61,7 +61,7 @@ public class PanelFinals extends PanelTabs {
 			String term = getOptionPane("Choose a month of the exam", false);
 			
 			String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
-			String fileFinals = "F:\\Exams\\test\\" + newterm + " final exam master list.xlsx";
+			String fileFinals = "F:\\Exams\\" + newterm + " final exam master list.xlsx";
 			File file = new File(fileFinals);			
 			if (file.exists()) {
 				new Message("File " + fileFinals + " already exists");
@@ -81,7 +81,7 @@ public class PanelFinals extends PanelTabs {
 				return;
 			
 			String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
-			final String fileFinals = "F:\\Exams\\test\\" + newterm + " final exam master list.xlsx";
+			final String fileFinals = "F:\\Exams\\" + newterm + " final exam master list.xlsx";
 			
 			File file = new File(fileFinals);
 			if (! file.exists()) {
@@ -89,7 +89,7 @@ public class PanelFinals extends PanelTabs {
 				return;
 			}
 			Path from = Paths.get(fileFinals);
-		    Path to = Paths.get("F:\\Exams\\temp.xlsx");
+		    Path to = Paths.get("temp.xlsx");
 			
 			try {
 				java.nio.file.Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
@@ -120,12 +120,26 @@ public class PanelFinals extends PanelTabs {
 			try {
 			    java.nio.file.Files.delete(to);
 			} catch (java.nio.file.NoSuchFileException x) {
-			    System.err.format("%s: no such" + " file or directory%n", to);
+				StringBuilder sb = new StringBuilder();
+				for (StackTraceElement element : x.getStackTrace()) {
+					sb.append(element.toString());
+					sb.append("\n");
+				}
+				new Log(sb.toString());
 			} catch (DirectoryNotEmptyException x) {
-			    System.err.format("%s not empty%n", to);
+				StringBuilder sb = new StringBuilder();
+				for (StackTraceElement element : x.getStackTrace()) {
+					sb.append(element.toString());
+					sb.append("\n");
+				}
+				new Log(sb.toString());
 			} catch (IOException x) {
-			    // File permission problems are caught here.
-			    System.err.println(x);
+				StringBuilder sb = new StringBuilder();
+				for (StackTraceElement element : x.getStackTrace()) {
+					sb.append(element.toString());
+					sb.append("\n");
+				}
+				new Log(sb.toString());
 			}
 			
 			
@@ -139,7 +153,7 @@ public class PanelFinals extends PanelTabs {
 				String term = getOptionPane("Choose a month of the exam", false);
 				if (term != null) {
 					String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
-					final String fileFinals = "F:\\Exams\\test\\" + newterm + " final exam master list.xlsx";
+					final String fileFinals = "F:\\Exams\\" + newterm + " final exam master list.xlsx";
 				
 					File file = new File(fileFinals);
 					if (! file.exists()) {

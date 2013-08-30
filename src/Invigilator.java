@@ -1,13 +1,19 @@
-import java.util.ArrayList;
-import java.util.Comparator;
-
 /*
+ * Invigilator.java
+ * 
  * Created on Aug 7, 2013 5:57:01 PM
  */
 
+import java.util.ArrayList;
+import java.util.Comparator;
+
+
+
 /**
+ * Gathers and keeps information about an invigilator.
+ * Receives the data from the webpage and sets the properties
+ * 
  * @author Olga Tsibulevskaya
- *
  */
 public class Invigilator {
 	

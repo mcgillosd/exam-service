@@ -1,4 +1,6 @@
 /*
+ * Combo.java
+ * 
  * Created on Aug 1, 2013 12:21:38 PM
  */
 
@@ -18,8 +20,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
+ * Used by the Editor to get info about files names (term) and 
+ * type of the exam (Midterm, Final)
+ * 
  * @author Olga Tsibulevskaya
- *
+ * @see JPanel
  */
 public class Combo extends JPanel {
 

@@ -41,11 +41,10 @@ public class Log {
 			fh = new FileHandler(path.toString(), limit,1,true);  
 		
 			logger.addHandler(fh);  
-			//logger.setLevel(Level.ALL);  
+			
 			SimpleFormatter formatter = new SimpleFormatter();  
 			fh.setFormatter(formatter);  
 	              
-	        // the following statement is used to log any messages  
 			logger.info(message); 
 			
 	              

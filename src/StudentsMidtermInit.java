@@ -18,9 +18,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 /**
- * Collects students into lists, 
- * if necessary sorts them by the term in which they take exams
- * 
+ * Collects students into lists, gathers all information from the webform results 
+ *  
  * @author Olga Tsibulevskaya
  * @see Student
  */
@@ -72,9 +71,8 @@ public class StudentsMidtermInit {
 		id = lastId.getID();
 	}
 	/**
-	 * Invokes setters to create lists of students
-	 * based on the flag <code>update</code>
-	 * (if <code>update == true</code> will only take into account new entries)
+	 * Creates lists of students by terms or one list in case of "Download" option
+	 * if <code>update == true</code> will take into account only new entries
 	 * 
 	 * @param html a <code>String</code> which contains 
 	 * all data from the web-page
@@ -88,6 +86,12 @@ public class StudentsMidtermInit {
 				setId(new LastID());
 			}
 			catch (FileNotFoundException e) {
+				StringBuilder sb = new StringBuilder();
+				for (StackTraceElement element : e.getStackTrace()) {
+					sb.append(element.toString());
+					sb.append("\n");
+				}
+				new Log(sb.toString());
 				return;
 			}
 			
@@ -98,7 +102,7 @@ public class StudentsMidtermInit {
 			lists.add(listSummer);
 			lists.add(listFall);
 			
-			label.append("-- Getting accommodations info\n");
+			label.append("-- Getting accommodations\n");
 			label.paintImmediately(label.getVisibleRect());
 			
 			for (int i = 0; i < lists.size(); i++) {
@@ -111,12 +115,12 @@ public class StudentsMidtermInit {
 				}
 			}
 			
-			/* Checking if files are available */
+			/* Checks if files are available */
 			for (int i = 0; i < 3; i++) {
 				if (lists.get(i).size() > 0) {
 					int index = (i+1)*3;
 					String term = new Term(index).getTerm();
-					String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
+					String filename = "F:\\Exams\\" + term + " exam schedule.xlsx";
 					File file = new File(filename);
 					if (file.exists()) {
 						try {
@@ -133,7 +137,7 @@ public class StudentsMidtermInit {
 			
 			String now = new Term().getTerm();
 			if (macdonald.size() > 0) {
-				String filename = "F:\\Exams\\test\\" + now + " exam schedule.xlsx";
+				String filename = "F:\\Exams\\" + now + " exam schedule.xlsx";
 				File file = new File(filename);
 				if (file.exists()) {
 					try {
@@ -145,7 +149,7 @@ public class StudentsMidtermInit {
 					}
 				}
 			}
-			/* Allocating rooms */
+			/* Allocates rooms */
 			if (now.contains("Fall")) {
 				if (listFall.size() > 0) {
 					label.append("-- Allocating rooms\n");
@@ -167,13 +171,13 @@ public class StudentsMidtermInit {
 				}
 			}
 			else if (now.contains("Summer")) {
-				if (listWinter.size() > 0) {
+				if (listSummer.size() > 0) {
 					label.append("-- Allocating rooms\n");
 					label.paintImmediately(label.getVisibleRect());
 					listOfRooms = initRooms();
 					if (listOfRooms == null)
 						return;
-					listOfRooms.addLocation(listWinter); // TODO : change to Summer, it is to test
+					listOfRooms.addLocation(listSummer); 
 				}
 			}
 			else {
@@ -182,7 +186,7 @@ public class StudentsMidtermInit {
 			
 			for (int i = 0; i < 3; i++) {
 				if (lists.get(i).size() > 0) {
-					int index = (i+1)*3; // should be any month of the term, so 3 (W), 6 (S) and 9 (F)
+					int index = (i+1)*3; /* can be any month of the term, so 3 (W), 6 (S) and 9 (F) */
 					String term = new Term(index).getTerm();
 					label.append("-- Updating Excel files\n");
 					label.paintImmediately(label.getVisibleRect());
@@ -190,10 +194,22 @@ public class StudentsMidtermInit {
 					try {
 						xl.update(lists.get(i), term);
 					} catch (InvalidFormatException e1) {
+						StringBuilder sb = new StringBuilder();
+						for (StackTraceElement element : e1.getStackTrace()) {
+							sb.append(element.toString());
+							sb.append("\n");
+						}
+						new Log(sb.toString());
 						return;
 					}
 					catch (IOException e) {
 						new Message("Error occured while writing files into Excel");
+						StringBuilder sb = new StringBuilder();
+						for (StackTraceElement element : e.getStackTrace()) {
+							sb.append(element.toString());
+							sb.append("\n");
+						}
+						new Log(sb.toString());
 						return;
 					}
 				}
@@ -201,7 +217,16 @@ public class StudentsMidtermInit {
 			if (macdonald.size() > 0) {
 				label.append("-- Adding Macdonald campus\n");
 				label.paintImmediately(label.getVisibleRect());
-				new Excel().writeMacdonald(macdonald);
+				try {
+					new Excel().writeMacdonald(macdonald);
+				} catch (IOException e) {
+					StringBuilder sb = new StringBuilder();
+					for (StackTraceElement element : e.getStackTrace()) {
+						sb.append(element.toString());
+						sb.append("\n");
+					}
+					new Log(sb.toString());
+					return;				}
 			}
 			if (! existNew) {
 				label.append("-- There are no new entries\n");
@@ -212,8 +237,6 @@ public class StudentsMidtermInit {
 				label.paintImmediately(label.getVisibleRect());
 				new LastID().setLastID(lastid); // update id;
 			}
-			label.append("-- Choose an option and click the button\n");
-			label.paintImmediately(label.getVisibleRect());
 		}
 		else { // download all
 			listOfStudents = new ArrayList<StudentMidterm>();
@@ -223,8 +246,6 @@ public class StudentsMidtermInit {
 			label.paintImmediately(label.getVisibleRect());
 			try {
 				xl.export(listOfStudents);
-				label.append("-- Choose an option and click the button\n");
-				label.paintImmediately(label.getVisibleRect());
 			}
 			catch (FileNotFoundException e) {
 				new Message("File Midterm.xlsx is currently in use.\nPlease restart when it's available");
@@ -254,18 +275,16 @@ public class StudentsMidtermInit {
 				continue;
 			}	
 
-			int index = 0; // index used to go through all @td (columns)                            
+			int index = 0; // index to go through all @td (columns)                            
 			StudentMidterm stud = new StudentMidterm();
 	        	
 			Elements td = element.select("td"); 
 						 
-			int item = Integer.parseInt(td.get(0).text()); // will be $lastid, new id for the next update
+			int item = Integer.parseInt(td.get(0).text()); 
 					 
 			if (item > id) { // new entries have been added since last visit
 				existNew = true;
 				 
-			//	if (Integer.parseInt(td.get(index).text()) <= item 
-				//		&& Integer.parseInt(td.get(index).text()) > id) { // only to test, to be removed
 				stud.setId(td.get(index++).text()); 
 				if (! lastIdSet) { // gets the first entry's id - it will be the last updated entry
 					lastid = stud.getId(); // write it only after update!
@@ -289,7 +308,7 @@ public class StudentsMidtermInit {
 				index++; // skip location
 				stud.setExamStartTime(td.get(index++).text());
 				 
-				String hours = td.get(index++).text();  // for the new form
+				String hours = td.get(index++).text();  
 				String minutes = td.get(index++).text();
 				stud.setLength(calculateLength(hours, minutes));
 				 

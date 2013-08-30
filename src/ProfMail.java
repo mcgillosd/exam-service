@@ -47,8 +47,7 @@ public class ProfMail {
 		String mail = null;
 		String term = new Term().getTerm();
 		
-		String filename = "F:\\Exams\\Files\\Winter 2013 exam schedule.xlsx"; // to test
-		//String filename = "F:\\Exams\\Files\\" + term + " exam schedule.xlsx";
+		String filename = "F:\\Exams\\Files\\" + term + " exam schedule.xlsx";
 		File file = new File(filename);	
 		
 		if (! file.exists()) {
@@ -67,7 +66,7 @@ public class ProfMail {
 			for (int rowNum = 1; rowNum <= last; rowNum++) {
 				r = sheet.getRow(rowNum);
 				if (r == null) {
-					new Excel().removeEmptyRows("Midterm", filename, false);
+					continue;
 				}
 				r = sheet.getRow(rowNum);
 				Cell cell = r.getCell(4);
@@ -153,7 +152,7 @@ public class ProfMail {
 	    
 	    GetMethod httpget = new GetMethod(url);
         try {
-           	httpClient.executeMethod(httpget); // to check it or not?
+           	httpClient.executeMethod(httpget); 
         }
         catch(Exception e) {
             e.printStackTrace();

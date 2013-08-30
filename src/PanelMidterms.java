@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.io.FileNotFoundException;
 
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
 /**
@@ -54,12 +53,19 @@ public class PanelMidterms extends PanelTabs {
 		}
 		else if (command.equalsIgnoreCase("Show the last ID")) {
 			int lastid = StudentsMidtermInit.id;
-			if (lastid == 0)
+			if (lastid == 0) {
 				try {
 					lastid = new LastID().getID();
 				} catch (FileNotFoundException e1) {
+					StringBuilder sb = new StringBuilder();
+					for (StackTraceElement element : e1.getStackTrace()) {
+						sb.append(element.toString());
+						sb.append("\n");
+					}
+					new Log(sb.toString());
 					return;
 				}
+			}
 			label.append("-- The last ID is " + lastid + "\n");
 		}
 		else if (command.equalsIgnoreCase("Download")) {

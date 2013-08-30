@@ -9,7 +9,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -57,7 +56,7 @@ public class Excel {
 		nbCol = num;
 	}
 	/**
-	 * Creates an empty Excel file with headers
+	 * Writes headers to the file for the specified term
 	 * 
 	 * @param name name of the file to be created, format of the term
 	 * @see Term 
@@ -65,7 +64,7 @@ public class Excel {
 	public void create(String name) {
 		wb = new XSSFWorkbook();
 		
-		Font font = setCustomFont(wb, "Calibri", 10, true);
+		Font font = setCustomFont(wb, "Calibri", 11, true);
 		CellStyle style = wb.createCellStyle();
 		style.setFont(font);
 		
@@ -86,48 +85,13 @@ public class Excel {
 			cell.setCellValue(headers[colXL++]);
 			cell.setCellStyle(style);
 		}
-		/*String filename = "F:\\Exams\\test\\" + name + " exam schedule.xlsx";
-		//String filename = name + " exam schedule.xlsx";
-		try {
-			File file = new File(filename);
-		/*	if (file.exists()) {
-				int result = JOptionPane.showConfirmDialog(
-						null,"The file already exists, overwrite it?", 
-						"Warning",JOptionPane.YES_NO_OPTION);
-				if (result == JOptionPane.YES_OPTION) {
-					FileOutputStream out = new FileOutputStream(file);
-					workbook.write(out);
-					out.close();
-					labelMidterm.append("-- File " + filename + " has been created\n");
-					labelMidterm.paintImmediately(labelMidterm.getVisibleRect());
-				} 
-				else {
-					// nothing
-				}
-			}
-			else {
-				FileOutputStream out = new FileOutputStream(file);
-				workbook.write(out);
-				out.flush();
-				out.close();
-				labelMidterm.append("-- File " + filename + " has been created\n");
-				labelMidterm.paintImmediately(labelMidterm.getVisibleRect());
-
-//			}
-		} catch (FileNotFoundException e) {
-		    e.printStackTrace();
-		} catch (IOException e) {
-		    e.printStackTrace();
-		}*/
-	
 	}
-	public void writeMacdonald(ArrayList<StudentMidterm> list) {
+	public void writeMacdonald(ArrayList<StudentMidterm> list) throws IOException {
 		Collections.sort(list, new Student.DateExamComparator());
 
 		String term = new Term().getTerm();
 		
-		String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
-		//String filename = term + " exam schedule.xlsx";
+		String filename = "F:\\Exams\\" + term + " exam schedule.xlsx";
 		setFile(filename);
 		
 		
@@ -135,7 +99,7 @@ public class Excel {
 			try {
 				file.createNewFile();
 			} catch (IOException e) {
-				e.printStackTrace();
+				throw e;
 			}
 			create(term);
 		}
@@ -144,7 +108,7 @@ public class Excel {
 		
 		try {
 			FileInputStream fis = new FileInputStream(file);	
-			if (wb == null)
+			if (wb == null) 
 				wb = new XSSFWorkbook(fis);
 		
 			CellStyle[] styles = getAllStyles(wb);
@@ -272,16 +236,15 @@ public class Excel {
 		// sort the list by the date of the exam
 		Collections.sort(list, new Student.DateExamComparator());
 	
-		String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
+		String filename = "F:\\Exams\\" + term + " exam schedule.xlsx";
 		setFile(filename);
 	
 		
-	if (! file.exists()) {
-		file.createNewFile();
-		create(term);
-	}
+		if (! file.exists()) {
+			file.createNewFile();
+			create(term);
+		}
 	
-
 		try {
 			FileInputStream fis = new FileInputStream(new File(filename));	
 			if (wb == null)
@@ -382,6 +345,7 @@ public class Excel {
 			wb.write(fos);
 			fos.flush();
 			fos.close();
+			wb = null;
 			labelMidterm.append("-- File " + file.getName() + " has been updated\n");
 			labelMidterm.paintImmediately(labelMidterm.getVisibleRect());
 
@@ -405,7 +369,7 @@ public class Excel {
 		XSSFCellStyle[] styles = new XSSFCellStyle[7];
 		
 		XSSFCellStyle styleHeader = (XSSFCellStyle) wb.createCellStyle();
-		Font fontHeader = setCustomFont(wb, "Arial", 11, true);
+		Font fontHeader = setCustomFont(wb, "Calibri", 11, true);
 		styleHeader.setFont(fontHeader);
 		styles[0] = styleHeader;
 		
@@ -725,7 +689,7 @@ public class Excel {
 		labelEditor.append("-- Adding empty rows\n");
 		labelEditor.paintImmediately(labelEditor.getVisibleRect());
 		if (exam.equalsIgnoreCase("Midterm")) {
-			String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
+			String filename = "F:\\Exams\\" + term + " exam schedule.xlsx";
 			setFile(filename);
 			if (! file.exists()) {
 				JOptionPane.showMessageDialog(
@@ -752,8 +716,7 @@ public class Excel {
 				
 				cell = row.getCell(COL_NUM);
 				if (cell == null) {
-					/* remove empty rows first */ 
-					//removeEmptyRows(term, frame, false);
+					
 				}
 				else {
 					datePrevious = cell.getDateCellValue();
@@ -767,7 +730,6 @@ public class Excel {
 					else {
 						cell = row.getCell(COL_NUM);
 						if (cell == null) {
-							// maybe to check if the whole row is empty, if yes remove empty?
 							String mess = "The date is missing in the row " + (rowNum+1) +
 									". Please check the file and remove empty rows first";
 							new Message(mess);
@@ -811,7 +773,7 @@ public class Excel {
 			else
 				month = "August";
 			
-			String filename = "F:\\Exams\\test\\" + month + " " + split[1] + " final exam master list.xlsx";
+			String filename = "F:\\Exams\\" + month + " " + split[1] + " final exam master list.xlsx";
 			setFile(filename);
 			if (! file.exists()) {
 				JOptionPane.showMessageDialog(
@@ -905,7 +867,7 @@ public class Excel {
 			labelEditor.paintImmediately(labelEditor.getVisibleRect());
 		}
 		if (exam.equalsIgnoreCase("Midterm")) {
-			String filename = "F:\\Exams\\test\\" + term + " exam schedule.xlsx";
+			String filename = "F:\\Exams\\" + term + " exam schedule.xlsx";
 			setFile(filename);
 			
 			if (! file.exists()) {
@@ -968,7 +930,7 @@ public class Excel {
 			else
 				month = "August";
 			
-			String filename = "F:\\Exams\\test\\" + month + " " + split[1] + " final exam master list.xlsx";
+			String filename = "F:\\Exams\\" + month + " " + split[1] + " final exam master list.xlsx";
 			setFile(filename);
 			
 			if (! file.exists()) {
@@ -1026,7 +988,7 @@ public class Excel {
 		Collections.sort(list, new Student.DateExamComparator());
 		
 		String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
-		String fileFinals = "F:\\Exams\\test\\" + newterm + " final exam master list.xlsx";
+		String fileFinals = "F:\\Exams\\" + newterm + " final exam master list.xlsx";
 		setFile(fileFinals);
 		
 		if (file.exists()) {
@@ -1298,7 +1260,7 @@ public class Excel {
 						break;
 					case 3: 
 						String section = student.getSection();
-						cell.setCellValue(section);
+						cell.setCellValue(Integer.parseInt(section));
 						//XSSFCellStyle newStyle3 = wb.createCellStyle();
 						cell.setCellStyle(styles[1]);
 						//newStyle3.cloneStyleFrom(student.getCell(col));

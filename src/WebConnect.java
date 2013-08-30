@@ -28,17 +28,14 @@ public class WebConnect {
 	
 	final String urlInv = "https://www.mcgill.ca/osd/node/884/webform-results/table?results=0";
 	
-	//final String urlMidterm = "https://www.mcgill.ca/osd/node/169/webform-results/table?results=0";
-    final String urlMidterm = "https://www.mcgill.ca/osd/node/879/webform-results/table?results=0";
+	final String urlMidterm = "https://www.mcgill.ca/osd/node/879/webform-results/table?results=0";
 	private HttpClient httpclient; 
     /**
 	 * Creates a new panel to login, sets <code>StudentsMidterm</code> data
 	 * to be used for calling after ActionListeners events
 	 * 
-	 * @param frame	To create new panels (ex. login panel)
-	 * @param label	To print the status of the current operation
-	 * @param sd	<code>StudentsList</code> will be used to call them 
-	 * 				back after an ActionListener event
+	 * @param midterm if <code>true</code>, then loads students sign-ups,
+	 * else invigilators
 	 */
 	public WebConnect(boolean midterm) {
 		httpclient = new HttpClient();
@@ -65,7 +62,7 @@ public class WebConnect {
 	 * 
 	 * @param user
 	 * @param password
-	 * @return A <code>String</code> with content of the page
+	 * @return http reponse number
 	 */
 	public int connect(String user, char[] password) {
 		

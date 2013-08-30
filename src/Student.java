@@ -25,7 +25,7 @@ public abstract class Student implements Comparable<Student> {
 	protected String nameLast;
 	protected String nameFirst;
 	
-	protected String email; // need email for Midterms?
+	protected String email;
 	
 	protected String course;
 	protected String section;
@@ -33,9 +33,8 @@ public abstract class Student implements Comparable<Student> {
 	protected String location;
 		
 	protected int examLength;
-	//private String nameProf;
-	
-	private String emailProf;  // need it for Finals?
+		
+	private String emailProf;  
 	
 	protected String extraTime;
 	protected String stopwatch;
@@ -313,7 +312,7 @@ public abstract class Student implements Comparable<Student> {
 			}
 		}
 	}
-	// sorts by students names and date of the exam, used to find conflicts
+	/* sorts by students names and date of the exam, used to find conflicts */
 	public static class StudentDateComparator implements Comparator<Student> {
 		public int compare(Student s1, Student s2) {
 			int comp = s1.getNameLast().compareTo(s2.getNameLast()); 

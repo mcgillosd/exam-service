@@ -302,7 +302,7 @@ public class StudentsFinalSec {
 			for (Invigilator invig : listInv) {
 				if (time.before(noon)) {
 					ArrayList<Boolean>morning = invig.getMorning();
-					if (morning.get(index) == true) {
+					if (index >= 0 && morning.get(index) == true) {
 						invig.getMorning().set(index, false);
 						inv[i] = invig;
 						invig.incrementAssignments();
@@ -312,7 +312,7 @@ public class StudentsFinalSec {
 				}
 				if (time.after(noon)) {
 					ArrayList<Boolean> afternoon = invig.getAfternoon();
-					if (afternoon.get(index) == true) {
+					if (index >= 0 && afternoon.get(index) == true) {
 						invig.getAfternoon().set(index, false);
 						inv[i] = invig;
 						invig.incrementAssignments();
@@ -324,7 +324,7 @@ public class StudentsFinalSec {
 			if (! set) {
 				for (Invigilator invig : listInv) {
 					ArrayList<Boolean> both = invig.getBoth();
-					if (both.get(index) == true) {
+					if (index >= 0 && both.get(index) == true) {
 						invig.getBoth().set(index, false);
 						invig.getSecond().set(index, true);
 						inv[i] = invig;
@@ -338,7 +338,7 @@ public class StudentsFinalSec {
 				if (time.after(noon)) {
 					for (Invigilator invig : listInv) {
 						ArrayList<Boolean> second = invig.getSecond();
-						if (second.get(index) == true) {
+						if (index >= 0 && second.get(index) == true) {
 							invig.getSecond().set(index, false);
 							inv[i] = invig;
 							invig.incrementAssignments();
@@ -423,9 +423,9 @@ public class StudentsFinalSec {
 				firstSkipped = true;
 				
 				// temporary, to test invigilators
-				for (int i = 0; i < 10; i++) {
+			/*	for (int i = 0; i < 10; i++) {
 				
-					Calendar cal = Calendar.getInstance();// TODO
+					Calendar cal = Calendar.getInstance();
 					// to get the same year 
 					cal.setTime(list.get(0).getExamDate()); 
 					cal.set(Calendar.MONTH, 3);
@@ -438,10 +438,10 @@ public class StudentsFinalSec {
 					Date examDate = cal.getTime();
 					dates.add(examDate);
 				}
-				
+				*/
 				// end of temporary methods
 				
-			/*	Elements td = element.select("th");
+				Elements td = element.select("th");
 				int index = 0;
 				index += 8;
 				int size = td.size();
@@ -463,7 +463,7 @@ public class StudentsFinalSec {
 					cal.set(Calendar.DATE, Integer.parseInt(d));
 					Date examDate = cal.getTime();
 					dates.add(examDate);
-				}*/
+				}
 				continue;
 			}	
 
