@@ -1,3 +1,9 @@
+/*
+ * Log.java
+ * 
+ * Created on 2013-06-28 15:04:20 PM
+ */
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -5,14 +11,10 @@ import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-
 /**
+ * Writes log messages 
  * 
- */
-
-/**
- * @author OSD Admin
- *
+ * @author Olga Tsibulevskaya
  */
 public class Log {
 	public Log(String message) {
@@ -24,12 +26,10 @@ public class Log {
 			try {
 				file.createNewFile();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		
-		
+			
 		Logger logger = Logger.getLogger("MyLog");  
 		logger.setUseParentHandlers(false);
 		

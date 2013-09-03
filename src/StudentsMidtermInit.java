@@ -345,8 +345,11 @@ public class StudentsMidtermInit {
 	private int calculateLength(String hours, String minutes) {
 		String[] hoursA = hours.split(" ");
 		String[] minutesA = minutes.split(" ");
-		int h = Integer.parseInt(hoursA[0]);
-		int m = Integer.parseInt(minutesA[0]);
+		int h = 0, m = 0;
+		if (! hoursA[0].equals(""))
+			h = Integer.parseInt(hoursA[0]);
+		if (! minutesA[0].equals(""))
+			m = Integer.parseInt(minutesA[0]);
 		int len = h*60 + m;
 		return len;
 	}

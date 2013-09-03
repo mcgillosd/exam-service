@@ -1234,6 +1234,7 @@ public class Excel {
 				StudentFinal student = list.get(i);
 				row = sheet.createRow((short) rowXL++);
 				
+				// can save only those which are important and can be formatted
 				for (int col = 0; col < NB_COL; col++) { 
 					Cell cell = row.createCell(col);
 					switch (col) {
@@ -1382,130 +1383,6 @@ public class Excel {
 			e.printStackTrace();
 		}
 	}
-	/**
-	 * Creates a new file and writes a list of students by prof. 
-	 * Looks up email addresses for the profs in mcgill.ca/directory/staff.
-	 * 
-	 * @param list list of students
-	 * @param label Label is necessary to give info about the searching process (takes time)
-	 */
-	/*public void writeListProf(ArrayList<StudentFinal> list) {
-		String filename = "List of students for profs.xlsx";
-		File file = new File(filename);
-		if (file.exists()) {
-			int result = JOptionPane.showConfirmDialog(
-					null,"The file already exists, overwrite it?", 
-					"Warning",JOptionPane.YES_NO_OPTION);
-			if (result == JOptionPane.YES_OPTION) {
-				// go on
-			}
-			else return;
-		}
-				
-		Collections.sort(list, new StudentFinal.ProfComparator());
-		
-		XSSFWorkbook wb = new XSSFWorkbook();
-		XSSFSheet sheet = wb.createSheet();
-		String[] headers = {"Prof name", "Prof email", "List of students" };
-					
-		final int NB_COL = 3;
-					
-		// creating the first header row
-		Row row = sheet.createRow((short) 0);
-		int colXL = 0;
-		while (colXL < NB_COL) {
-			Cell cell = row.createCell(colXL);
-			cell.setCellValue(headers[colXL++]);
-		}
-		
-		CellStyle styleVertical = wb.createCellStyle();
-		styleVertical.setVerticalAlignment(CellStyle.VERTICAL_TOP);
-		CellStyle styleWrap = wb.createCellStyle();
-		styleWrap.setWrapText(true);
-		
-		int rowXL = 1;
-		int i = 0;
-		
-		while (i < list.size()) {
-			boolean noProf = false;
-			StudentFinal student = list.get(i);
-			row = sheet.createRow((short) rowXL++);
-			Cell cell = row.createCell(0);
-			if (student.getNameProfLast() != "")
-				cell.setCellValue(student.getNameProfLast());
-			else {
-				cell.setCellValue("No prof info");
-				noProf = true;
-			}
-			cell.setCellStyle(styleVertical);
-			
-			
-			cell = row.createCell(1);
-			if (! noProf) {
-				String email = new ProfMail(student).getEmail();
-				if (email != null) {
-					//labelFinal.setText("-- " + student.getNameProfLast() + ": " + email + "\n");
-					//labelFinal.paintImmediately(labelFinal.getVisibleRect());
-					cell.setCellValue(email);
-				}
-				else {
-					//labelFinal.setText("-- " + student.getNameProfLast() + ": not found\n");
-					//labelFinal.paintImmediately(labelFinal.getVisibleRect());
-					cell.setCellValue("");
-				}
-			}
-			else { // do not need it since profs should be defined, if no info about profs - "", for sorting purposes 
-				labelFinal.setText(student.getNameProfLast() + ": no prof info"); 
-				labelFinal.paintImmediately(labelFinal.getVisibleRect());    
-				cell.setCellValue("email not found");
-			}
-			
-			cell.setCellStyle(styleVertical);
-			
-			DateFormat df = new SimpleDateFormat("dd-MMM");	
-			String date = df.format(student.getExamDate());
-			
-			cell = row.createCell(2);
-			cell.setCellValue(student.getNameLast() + " " + student.getNameFirst() + " (" + student.getCourse() + ")");
-			int count = 1;
-			
-			if (noProf) {
-				while (++i < list.size() && student.getCourse().equals(list.get(i).getCourse())) {
-					count++;
-					date = df.format(list.get(i).getExamDate());
-					cell.setCellValue(cell.getStringCellValue() + "\n" + list.get(i).getNameLast() + " " + 
-							list.get(i).getNameFirst() + " (" + list.get(i).getCourse() + ", " + date + ")");
-				}
-			}
-			else {
-				while (++i < list.size() && student.equalProf(list.get(i))) {
-					count++;
-					date = df.format(list.get(i).getExamDate());
-					cell.setCellValue(cell.getStringCellValue() + "\n" + list.get(i).getNameLast() + " " + 
-							list.get(i).getNameFirst() + " (" + list.get(i).getCourse() + ", " + date + ")");
-				}
-			}
-			cell.setCellStyle(styleWrap);
-			row.setHeight((short)(count*300));
-		}
-		sheet.autoSizeColumn(0);
-		sheet.autoSizeColumn(1);
-		sheet.autoSizeColumn(2);
-		
-		try {
-			FileOutputStream out = new FileOutputStream(file);
-			wb.write(out);
-			out.close();
-			labelFinal.append("-- File " + filename + " has been created\n");
-			labelFinal.paintImmediately(labelFinal.getVisibleRect());
-
-			labelFinal.append("-- Choose an option and click the button\n");
-			labelFinal.paintImmediately(labelFinal.getVisibleRect());
-			
-		} catch (FileNotFoundException e) {
-		    e.printStackTrace();
-		} catch (IOException e) {
-		    e.printStackTrace();
-		}
-	}*/
+	
+	
 }

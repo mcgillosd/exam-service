@@ -42,6 +42,13 @@ public class Worker extends SwingWorker<Void, String> {
 		labelFinal = label;
 		stopWork.set(false);
 	}
+	/**
+	 * Creates a new file and writes a list of students by prof. 
+	 * Looks up email addresses for the profs in mcgill.ca/directory/staff.
+	 * 
+	 * @param list list of students
+	 * @param label Label is necessary to give info about the searching process (takes time)
+	 */
 	@Override
 	protected Void doInBackground() throws Exception {
 		String filename = "F:\\Exams\\Lists for profs.xlsx";

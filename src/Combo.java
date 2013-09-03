@@ -32,6 +32,7 @@ public class Combo extends JPanel {
 	private JDialog dialog;
 	private JComboBox type;
 	private JComboBox name;
+	/* To choose add or remove empty rows */
 	private boolean add;
 	
 	public Combo(boolean add) {

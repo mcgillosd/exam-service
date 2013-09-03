@@ -39,18 +39,22 @@ public class ListOfAccommodations {
 			Cell cell = sheet.getRow(0).getCell(0);
 			int rowNum = 0;
 			while (! cell.getStringCellValue().equalsIgnoreCase("ID")) {
-				cell = sheet.getRow(rowNum++).getCell(0);
-				if (cell == null)
-					cell = sheet.getRow(rowNum++).getCell(0);
+				
+				Row row = sheet.getRow(rowNum++);
+				if (row == null)
+					continue;
+				cell = row.getCell(0);
+				
 			}
 						
 			Row r = sheet.getRow(rowNum);
-			cell = r.getCell(0);
-			while (cell != null) {
+			//cell = r.getCell(0);
+			while (r != null) {
+				cell = r.getCell(0);
 				Accommodations acc = new Accommodations(r);
 				listAcc.add(acc);
 				r = sheet.getRow(++rowNum);
-				cell = r.getCell(0);
+				//cell = r.getCell(0);
 			}
 			fis.close();
 			Collections.sort(listAcc, new Accommodations.IdAccComparator());
