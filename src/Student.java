@@ -219,7 +219,10 @@ public abstract class Student implements Comparable<Student> {
 		comp = nameFirst.compareTo(s.getNameFirst());
 		if (comp != 0)
 			return false;
-		return examDate.compareTo(s.getExamDate()) == 0; 
+		comp = examDate.compareTo(s.getExamDate());
+		if (comp != 0)
+			return false;
+		return course.compareTo(s.getCourse()) == 0;
 	}
 	
 	public int compareLocation(Student s) {
