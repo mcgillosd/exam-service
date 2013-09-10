@@ -120,6 +120,7 @@ public class StudentsMidtermInit {
 				if (lists.get(i).size() > 0) {
 					int index = (i+1)*3;
 					String term = new Term(index).getTerm();
+				//	String filename = term + " exam schedule.xlsx";
 					String filename = "F:\\Exams\\" + term + " exam schedule.xlsx";
 					File file = new File(filename);
 					if (file.exists()) {
@@ -137,6 +138,7 @@ public class StudentsMidtermInit {
 			
 			String now = new Term().getTerm();
 			if (macdonald.size() > 0) {
+				//String filename = now + " exam schedule.xlsx";
 				String filename = "F:\\Exams\\" + now + " exam schedule.xlsx";
 				File file = new File(filename);
 				if (file.exists()) {

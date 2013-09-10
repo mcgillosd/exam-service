@@ -3,6 +3,8 @@
  * Created on Aug 12, 2013 3:34:29 PM
  */
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -27,5 +29,10 @@ public class Helper {
 		cal.set(Calendar.MINUTE, 59);
 		noon = cal.getTime();
 		return noon;
+	}
+	public String getDateAsString(Date d) {
+		DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss a");
+  		String date = df.format(d);
+  		return date.substring(11,16);
 	}
 }

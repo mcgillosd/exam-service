@@ -20,6 +20,7 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -90,7 +91,7 @@ public class Excel {
 		Collections.sort(list, new Student.DateExamComparator());
 
 		String term = new Term().getTerm();
-		
+		//String filename = term + " exam schedule.xlsx";
 		String filename = "F:\\Exams\\" + term + " exam schedule.xlsx";
 		setFile(filename);
 		
@@ -235,7 +236,7 @@ public class Excel {
 	public void update(ArrayList<StudentMidterm> list, String term) throws IOException, InvalidFormatException {
 		// sort the list by the date of the exam
 		Collections.sort(list, new Student.DateExamComparator());
-	
+		//String filename = term + " exam schedule.xlsx";
 		String filename = "F:\\Exams\\" + term + " exam schedule.xlsx";
 		setFile(filename);
 	
@@ -437,10 +438,14 @@ public class Excel {
 				cell.setCellValue(student.getLocation());
 				cell.setCellStyle(styles[1]); break;
 			case 7:
-				cell.setCellValue(student.getExamStartTime());
+				String date = new Helper().getDateAsString(student.getExamStartTime());
+				double d = DateUtil.convertTime(date);
+				cell.setCellValue(d);
 				cell.setCellStyle(styles[4]); break;
 			case 8:
-				cell.setCellValue(student.getExamFinishTime());
+				date = new Helper().getDateAsString(student.getExamFinishTime());
+				d = DateUtil.convertTime(date);
+				cell.setCellValue(d);
 				cell.setCellStyle(styles[4]); break;
 			case 9:
 				int length = student.getExamLength();
@@ -689,6 +694,7 @@ public class Excel {
 		labelEditor.append("-- Adding empty rows\n");
 		labelEditor.paintImmediately(labelEditor.getVisibleRect());
 		if (exam.equalsIgnoreCase("Midterm")) {
+		//	String filename = term + " exam schedule.xlsx";
 			String filename = "F:\\Exams\\" + term + " exam schedule.xlsx";
 			setFile(filename);
 			if (! file.exists()) {
@@ -867,6 +873,7 @@ public class Excel {
 			labelEditor.paintImmediately(labelEditor.getVisibleRect());
 		}
 		if (exam.equalsIgnoreCase("Midterm")) {
+			//String filename = term + " exam schedule.xlsx";
 			String filename = "F:\\Exams\\" + term + " exam schedule.xlsx";
 			setFile(filename);
 			
