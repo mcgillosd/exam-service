@@ -87,6 +87,31 @@ public class Excel {
 			cell.setCellStyle(style);
 		}
 	}
+	public void createMac(String name) {
+		wb = new XSSFWorkbook();
+		
+		Font font = setCustomFont(wb, "Calibri", 11, true);
+		CellStyle style = wb.createCellStyle();
+		style.setFont(font);
+		
+		XSSFSheet sheet = wb.createSheet(name);
+		
+		setNbCol(16);
+		
+		String[] headers = {"#", "Date", "Family name", "First name", "Course number", 
+				"Section", "Start", "Finish", "Length", 
+				"Professor name", "Professor email", "Extra time", 
+				"Stopwatch", "PC", "Accommodation", "Comments" };
+	
+		Row row = sheet.createRow((short) 0);
+		int colXL = 0;
+		// write headers
+		while (colXL < nbCol) {
+			Cell cell = row.createCell(colXL);
+			cell.setCellValue(headers[colXL++]);
+			cell.setCellStyle(style);
+		}
+	}
 	public void writeMacdonald(ArrayList<StudentMidterm> list) throws IOException {
 		Collections.sort(list, new Student.DateExamComparator());
 
@@ -102,10 +127,10 @@ public class Excel {
 			} catch (IOException e) {
 				throw e;
 			}
-			create(term);
+			createMac(term);
 		}
 		
-		setNbCol(14);
+		setNbCol(16);
 		
 		try {
 			FileInputStream fis = new FileInputStream(file);	
@@ -119,7 +144,7 @@ public class Excel {
 			if (sheet == null) {
 				sheet = wb.createSheet("Macdonald");
 				String[] headers = {"#", "Date", "Family name", "First name", "Course number", 
-						"Section", "Start", "Professor name", "Professor email", "Extra time", 
+						"Section", "Start", "Finish", "Length", "Professor name", "Professor email", "Extra time", 
 						"Stopwatch", "PC", "Accommodation", "Comments" };
 			
 				Row row = sheet.createRow((short) 0);
@@ -130,8 +155,14 @@ public class Excel {
 					cell.setCellValue(headers[colXL++]);
 					cell.setCellStyle(styles[1]);
 				}
-				modifyWidth(sheet);
+				sheet.setColumnWidth(2, 15*255); // last name
+				sheet.setColumnWidth(3, 15*255); // first name
+				sheet.setColumnWidth(4, 15*255); // course number
+				sheet.setColumnWidth(8, 15*255);
+				sheet.setColumnWidth(9, 25*255);
+				sheet.setColumnWidth(10, 25*255);
 				sheet.createFreezePane(0, 1);
+				
 				for (int rowXL = 1, i = 0; i < list.size(); i++) {
 					StudentMidterm student = list.get(i);
 					row = sheet.createRow((short) rowXL++);
@@ -574,27 +605,47 @@ public class Excel {
 				cell.setCellValue(student.getSection());
 				cell.setCellStyle(styles[1]); break;
 			case 6:
-				cell.setCellValue(student.getExamStartTime());
+				String date = new Helper().getDateAsString(student.getExamStartTime());
+				double d = DateUtil.convertTime(date);
+				cell.setCellValue(d);
 				cell.setCellStyle(styles[4]); break;
 			case 7:
-				cell.setCellValue(student.getNameProf());
-				cell.setCellStyle(styles[1]); break;
+				date = new Helper().getDateAsString(student.getExamFinishTime());
+				d = DateUtil.convertTime(date);
+				cell.setCellValue(d);
+				cell.setCellStyle(styles[4]); break;
 			case 8:
-				cell.setCellValue(student.getEmailProf());
+				int length = student.getExamLength();
+				int hour = length / 60;
+				int min = length % 60;
+				if (hour != 0 && min != 0)
+					cell.setCellValue(hour + " hours " + min + " mins");
+				else if (hour != 0 && min == 0)
+					cell.setCellValue(hour + " hours");
+				else if (hour == 0 && min != 0)
+					cell.setCellValue(min + " mins");
+				else
+					cell.setCellValue("time not known");
 				cell.setCellStyle(styles[1]); break;
 			case 9:
-				cell.setCellValue(student.getExtraTime());
+				cell.setCellValue(student.getNameProf());
 				cell.setCellStyle(styles[1]); break;
 			case 10:
-				cell.setCellValue(student.getStopwatch());
+				cell.setCellValue(student.getEmailProf());
 				cell.setCellStyle(styles[1]); break;
 			case 11:
-				cell.setCellValue(student.getComputer());
+				cell.setCellValue(student.getExtraTime());
 				cell.setCellStyle(styles[1]); break;
 			case 12:
-				cell.setCellValue(student.getComments());
+				cell.setCellValue(student.getStopwatch());
 				cell.setCellStyle(styles[1]); break;
 			case 13:
+				cell.setCellValue(student.getComputer());
+				cell.setCellStyle(styles[1]); break;
+			case 14:
+				cell.setCellValue(student.getComments());
+				cell.setCellStyle(styles[1]); break;
+			case 15:
 				cell.setCellValue(student.getCommentsFromForm());
 				cell.setCellStyle(styles[1]); break;
 			}
@@ -607,7 +658,6 @@ public class Excel {
 		sheet.setColumnWidth(2, 15*255); // last name
 		sheet.setColumnWidth(3, 15*255); // first name
 		sheet.setColumnWidth(4, 15*255); // course number
-		sheet.setColumnWidth(6, 20*255);
 		sheet.setColumnWidth(9, 15*255);
 		sheet.setColumnWidth(10, 25*255);
 		sheet.setColumnWidth(11, 25*255);
@@ -694,7 +744,7 @@ public class Excel {
 		labelEditor.append("-- Adding empty rows\n");
 		labelEditor.paintImmediately(labelEditor.getVisibleRect());
 		if (exam.equalsIgnoreCase("Midterm")) {
-		//	String filename = term + " exam schedule.xlsx";
+			//String filename = term + " exam schedule.xlsx";
 			String filename = "F:\\Exams\\" + term + " exam schedule.xlsx";
 			setFile(filename);
 			if (! file.exists()) {
