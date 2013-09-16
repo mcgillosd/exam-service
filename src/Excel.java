@@ -193,7 +193,7 @@ public class Excel {
 					else {
 						Cell cell = r.getCell(1, Row.RETURN_BLANK_AS_NULL); 
 						if (cell == null) {
-							// in which cases?
+							continue; 
 						}
 						else {
 							if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
@@ -265,7 +265,7 @@ public class Excel {
 	 * @throws InvalidFormatException 
 	 */
 	public void update(ArrayList<StudentMidterm> list, String term) throws IOException, InvalidFormatException {
-		// sort the list by the date of the exam
+		/* sort the list by the date of the exam */
 		Collections.sort(list, new Student.DateExamComparator());
 		//String filename = term + " exam schedule.xlsx";
 		String filename = "F:\\Exams\\" + term + " exam schedule.xlsx";
@@ -292,7 +292,13 @@ public class Excel {
 					Row row = sheet.createRow((short) rowXL++);
 					fillRow(row, student, styles);
 				}
-				modifyWidth(sheet);
+				sheet.setColumnWidth(2, 15*255); // last name
+				sheet.setColumnWidth(3, 15*255); // first name
+				sheet.setColumnWidth(4, 15*255); // course number
+				sheet.setColumnWidth(9, 15*255);
+				sheet.setColumnWidth(10, 25*255);
+				sheet.setColumnWidth(11, 25*255);
+				sheet.setColumnWidth(12, 15*255);
 				sheet.createFreezePane(0, 1);			
 			}
 			else { // file already contains entries 
@@ -398,7 +404,7 @@ public class Excel {
 	}
 	/* Creates an array of styles for Excel cells */
 	private XSSFCellStyle[] getAllStyles(Workbook wb) {
-		XSSFCellStyle[] styles = new XSSFCellStyle[7];
+		XSSFCellStyle[] styles = new XSSFCellStyle[8];
 		
 		XSSFCellStyle styleHeader = (XSSFCellStyle) wb.createCellStyle();
 		Font fontHeader = setCustomFont(wb, "Calibri", 11, true);
@@ -439,6 +445,11 @@ public class Excel {
 		styleVertical.setFont(fontNormal);
 		styleVertical.setVerticalAlignment(CellStyle.VERTICAL_TOP);
 		styles[6] = styleVertical;
+		
+		XSSFCellStyle styleCenter = (XSSFCellStyle) wb.createCellStyle();
+		styleNormal.setFont(fontNormal);
+		styleCenter.setAlignment(CellStyle.ALIGN_CENTER);
+		styles[7] = styleCenter;
 		
 		return styles;
 	}
@@ -553,10 +564,14 @@ public class Excel {
 				cell.setCellValue(student.getSection());
 				cell.setCellStyle(styles[1]); break;
 			case 11:
-				cell.setCellValue(student.getExamStartTime());
+				String date = new Helper().getDateAsString(student.getExamStartTime());
+				double d = DateUtil.convertTime(date);
+				cell.setCellValue(d);
 				cell.setCellStyle(styles[4]); break;
 			case 12:
-				cell.setCellValue(student.getExamFinishTime());
+				date = new Helper().getDateAsString(student.getExamFinishTime());
+				d = DateUtil.convertTime(date);
+				cell.setCellValue(d);
 				cell.setCellStyle(styles[4]); break;
 			case 13:
 				cell.setCellValue(student.getNameProf());
@@ -653,16 +668,6 @@ public class Excel {
 	}
 
 	
-	/* Modifies the width of columns */
-	private void modifyWidth(Sheet sheet) {
-		sheet.setColumnWidth(2, 15*255); // last name
-		sheet.setColumnWidth(3, 15*255); // first name
-		sheet.setColumnWidth(4, 15*255); // course number
-		sheet.setColumnWidth(9, 15*255);
-		sheet.setColumnWidth(10, 25*255);
-		sheet.setColumnWidth(11, 25*255);
-		sheet.setColumnWidth(12, 15*255);
-	}
 	/**
 	 * Writes all data from the web page to the file "Midterms.xlsx"
 	 * 
@@ -732,6 +737,368 @@ public class Excel {
 			new Log(e.getStackTrace().toString());
 		}
 		
+	}
+	
+	public void writeFinals(ArrayList<StudentFinal> list, String term) {
+		Collections.sort(list, new Student.DateExamComparator());
+		
+		String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
+		String fileFinals = "F:\\Exams\\" + newterm + " final exam master list.xlsx";
+		//String fileFinals = newterm + " final exam master list.xlsx";
+		setFile(fileFinals);
+		
+		if (file.exists()) {
+			new Message("File " + fileFinals + " already exists");
+		}
+		else {
+			try {
+				XSSFWorkbook wb = new XSSFWorkbook();
+				XSSFCellStyle [] styles = getAllStyles(wb);
+				writeSheet1(list, wb, styles);
+				writeSheet2(list, wb, styles);
+							
+				FileOutputStream fos = new FileOutputStream(file);
+				wb.write(fos);
+				fos.close();
+				labelFinal.append("-- File " + fileFinals + " has been created\n");
+				labelFinal.paintImmediately(labelFinal.getVisibleRect());
+
+			}
+			catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	private void writeSheet1(ArrayList<StudentFinal> list, XSSFWorkbook wb, CellStyle[] styles) {
+		Sheet sheet = wb.createSheet("Sheet1");
+		String[] headers = {"Student ID", "Email", "Name", "Surname", 
+				"Section", "Course ID", "Prof first", "Prof last", 
+				"Date", "Start Time", "Time", "SW", "PC", "Other", "Warnings"};
+					
+		final int NB_COL = 15;
+				
+		/* creating the first header row */		
+		Row row = sheet.createRow((short) 0);
+		int colXL = 0;
+		while (colXL < NB_COL) {
+			Cell cell = row.createCell(colXL);
+			cell.setCellValue(headers[colXL++]);
+			cell.setCellStyle(styles[2]);
+		}
+		
+		for (int rowXL = 1, i = 0; i < list.size(); i++) {
+			StudentFinal student = list.get(i);
+			row = sheet.createRow((short) rowXL++);
+			
+			for (int col = 0; col < NB_COL; col++) {
+				Cell cell = row.createCell(col);
+				switch (col) {
+				case 0:
+					cell.setCellValue(student.getSidFull()); 
+					cell.setCellStyle(styles[1]); break;
+				case 1: 
+					cell.setCellValue(student.getEmail());
+					cell.setCellStyle(styles[1]); break;
+				case 2:
+					cell.setCellValue(student.getNameFirst());
+					cell.setCellStyle(styles[1]); break;
+				case 3: 
+					cell.setCellValue(student.getNameLast());
+					cell.setCellStyle(styles[1]); break;
+				case 4: 
+					String section = student.getSection();
+					if (section.length() == 1) {
+						section = "00" + section;
+					}
+					cell.setCellValue(section);
+					cell.setCellStyle(styles[1]); break;
+				case 5:
+					cell.setCellValue(student.getCourse());
+					cell.setCellStyle(styles[1]); break;
+				case 6:
+					cell.setCellValue(student.getNameProfFirst());
+					cell.setCellStyle(styles[1]); break;
+				case 7:
+					cell.setCellValue(student.getNameProfLast());
+					cell.setCellStyle(styles[1]); break;
+				case 8:
+					cell.setCellValue(student.getExamDate());
+					cell.setCellStyle(styles[3]); break;
+				case 9:
+					String date = new Helper().getDateAsStringFinal(student.getExamStartTime());
+					double d = DateUtil.convertTime(date);
+					cell.setCellValue(d);
+					cell.setCellStyle(styles[4]); break;
+				case 10:
+					cell.setCellValue(student.getExtraTime());
+					cell.setCellStyle(styles[1]); break;
+				case 11:
+					cell.setCellValue(student.getStopwatch());
+					cell.setCellStyle(styles[1]); break;
+				case 12:
+					cell.setCellValue(student.getComputer());
+					cell.setCellStyle(styles[1]); break;
+				case 13:
+					cell.setCellValue(student.getComments());
+					cell.setCellStyle(styles[1]); break;
+				case 14:
+					cell.setCellValue(student.getWarning());
+					cell.setCellStyle(styles[1]); break;
+				}
+			}
+		}
+		
+		sheet.autoSizeColumn(0);
+		sheet.setColumnWidth(1, 16*255);
+		sheet.setColumnWidth(2, 12*255); 
+		sheet.setColumnWidth(3, 12*255); 
+		sheet.autoSizeColumn(5);
+		sheet.setColumnWidth(6, 12*255); 
+		sheet.setColumnWidth(7, 12*255);
+		sheet.setColumnWidth(13, 16*255); 
+		sheet.setColumnWidth(14, 16*255); 
+		
+		sheet.createFreezePane(0, 1);		    
+	}
+	
+	private void writeSheet2(ArrayList<StudentFinal> list, XSSFWorkbook wb, XSSFCellStyle[] styles) {
+						
+		Sheet sheet = wb.createSheet("by day");
+		String[] headers = {"Date", "Name", "Surname", "Section", "Course ID", 
+				"Prof First", "Prof Last", "Location" , "Start", "Finish", 
+				"Extra", "SW", "PC", "Other", "Invigilator"};
+					
+		final int NB_COL = 15;
+					
+		/* creating the first header row */
+		Row row = sheet.createRow((short) 0);
+		int colXL = 0;
+		while (colXL < NB_COL) {
+			Cell cell = row.createCell(colXL);
+			cell.setCellValue(headers[colXL++]);
+			cell.setCellStyle(styles[2]);
+		}
+			
+		for (int rowXL = 1, i = 0; i < list.size(); i++) {
+			StudentFinal student = list.get(i);
+			row = sheet.createRow((short) rowXL++);
+			
+			for (int col = 0; col < NB_COL-1; col++) { 
+				Cell cell = row.createCell(col);
+				switch (col) {
+				case 0:
+					cell.setCellValue(student.getExamDate()); 
+					cell.setCellStyle(styles[3]); break;
+				case 1: 
+					cell.setCellValue(student.getNameFirst());
+					cell.setCellStyle(styles[1]); break;
+				case 2:
+					cell.setCellValue(student.getNameLast());
+					cell.setCellStyle(styles[1]); break;
+				case 3: 
+					String section = student.getSection();
+					cell.setCellValue(Integer.parseInt(section));
+					cell.setCellStyle(styles[7]); break;
+				case 4: 
+					cell.setCellValue(student.getCourse());
+					cell.setCellStyle(styles[1]); break;
+				case 5:
+					cell.setCellValue(student.getNameProfFirst());
+					cell.setCellStyle(styles[6]); break;
+				case 6: 
+					cell.setCellValue(student.getNameProfLast());
+					cell.setCellStyle(styles[6]); break;
+				case 7:
+					if (student.hasConflict()) {
+						cell.setCellValue("Conflict");
+					}
+					cell.setCellStyle(styles[7]); break;
+				case 8:
+					String date = new Helper().getDateAsStringFinal(student.getExamStartTime());
+					double d = DateUtil.convertTime(date);
+					cell.setCellValue(d);
+					if (student.timeChanged()) {
+						cell.setCellStyle(styles[5]); break;
+					}
+					else {
+						cell.setCellStyle(styles[4]); break;
+					}
+				case 9:
+					date = new Helper().getDateAsStringFinal(student.getExamFinishTime());
+					d = DateUtil.convertTime(date);
+					cell.setCellValue(d);
+					cell.setCellStyle(styles[4]); break;
+				case 10:
+					cell.setCellValue(student.getExtraTime());
+					cell.setCellStyle(styles[7]); break;
+				case 11:
+					cell.setCellValue(student.getStopwatch());
+					cell.setCellStyle(styles[7]); break;
+				case 12:
+					cell.setCellValue(student.getComputer());
+					cell.setCellStyle(styles[7]); break;
+				case 13:
+					cell.setCellValue(student.getComments());
+					cell.setCellStyle(styles[1]); break;
+				}
+			} // end of columns
+		} // end of rows
+									
+		sheet.setColumnWidth(0, 12*255);
+		sheet.setColumnWidth(1, 16*255);
+		sheet.setColumnWidth(2, 16*255); 
+		sheet.setColumnWidth(3, 12*255);
+		sheet.setColumnWidth(4, 14*225);
+		sheet.setColumnWidth(5, 16*225);
+		sheet.setColumnWidth(6, 16*255); 
+		sheet.setColumnWidth(7, 14*225);
+		sheet.setColumnWidth(13, 25*255);
+		sheet.setColumnWidth(14, 25*255);
+		
+		sheet.createFreezePane(0, 1);		    
+	}
+	/**
+	 * Adds locations to the file.
+	 *
+	 * @param list list of students 
+	 * @param file the file where locations should be added (the main file for finals)
+	 * @throws FileNotFoundException 
+	 */
+	
+	public void writeLocation(ArrayList<StudentFinal> list, File file) throws FileNotFoundException {
+				
+		try {
+			//FileInputStream inp = new FileInputStream(file);
+			XSSFWorkbook wb = StudentsFinalSec.wb;
+					//new XSSFWorkbook(inp);
+			
+			CellStyle[] styles = getAllStyles(wb);
+		
+			
+			Sheet sheet = wb.getSheetAt(1);
+			String[] headers = {"Date", "Name", "Surname", "Section", "Course ID", 
+					"Prof First", "Prof Last", "Location" , "Start", "Finish", 
+					"Extra", "SW", "PC", "Other", "Invigilator"};
+						
+			final int NB_COL = 15;
+						
+			/* creating the first header row */
+			Row row = sheet.createRow((short) 0);
+			int colXL = 0;
+			while (colXL < NB_COL) {
+				Cell cell = row.createCell(colXL);
+				cell.setCellValue(headers[colXL++]);
+				cell.setCellStyle(styles[2]);
+			}
+			
+			for (int rowXL = 1, i = 0; i < list.size(); i++) {
+				StudentFinal student = list.get(i);
+				row = sheet.createRow((short) rowXL++);
+				
+				// can save only those which are important and can be formatted
+				for (int col = 0; col < NB_COL; col++) { 
+					Cell cell = row.createCell(col);
+					switch (col) {
+					case 0:
+						cell.setCellValue(student.getExamDate()); 
+						cell.setCellStyle(student.getCell(col));
+						break;
+					case 1: 
+						cell.setCellValue(student.getNameFirst());
+						cell.setCellStyle(student.getCell(col));
+						break;
+					case 2:
+						cell.setCellValue(student.getNameLast());
+						cell.setCellStyle(student.getCell(col));
+						break;
+					case 3: 
+						String section = student.getSection();
+						cell.setCellValue(Integer.parseInt(section));
+						cell.setCellStyle(student.getCell(col));
+						break;
+					case 4: 
+						cell.setCellValue(student.getCourse());
+						cell.setCellStyle(student.getCell(col));
+						break;
+					case 5:
+						cell.setCellValue(student.getNameProfFirst());
+						cell.setCellStyle(student.getCell(col));
+						break;
+					case 6:
+						cell.setCellValue(student.getNameProfLast());
+						cell.setCellStyle(student.getCell(col));
+						break;
+					case 7:
+						cell.setCellValue(student.getLocation());
+						cell.setCellStyle(student.getCell(col));
+						break;
+					case 8:
+						String date = new Helper().getDateAsStringFinal(student.getExamStartTime());
+						double d = DateUtil.convertTime(date);
+						cell.setCellValue(d);
+						cell.setCellStyle(student.getCell(col));
+						break;
+					case 9:
+						date = new Helper().getDateAsStringFinal(student.getExamFinishTime());
+						d = DateUtil.convertTime(date);
+						cell.setCellValue(d);
+						cell.setCellStyle(student.getCell(col));
+						break;
+					case 10:
+						cell.setCellValue(student.getExtraTime());
+						cell.setCellStyle(student.getCell(col));
+						break;
+					case 11:
+						cell.setCellValue(student.getStopwatch());
+						cell.setCellStyle(student.getCell(col));
+						break;
+					case 12:
+						cell.setCellValue(student.getComputer());
+						cell.setCellStyle(student.getCell(col));
+						break;
+					case 13:
+						cell.setCellValue(student.getComments());
+						cell.setCellStyle(student.getCell(col));
+						break;
+					case 14: 
+						Invigilator inv = student.getInvigilator();
+						if (inv != null) {
+							cell.setCellValue(student.getInvigilator().getName());
+							cell.setCellStyle(styles[1]); break;
+						}
+						
+					}
+				} // end of columns
+			} // end of rows
+										
+		/*	sheet.autoSizeColumn(0);
+			sheet.setColumnWidth(1, 16*255);
+			sheet.setColumnWidth(2, 12*255); 
+			sheet.setColumnWidth(3, 12*255); 
+			sheet.autoSizeColumn(5);
+			sheet.setColumnWidth(6, 12*255); 
+			sheet.setColumnWidth(7, 12*255);
+			*/
+			sheet.createFreezePane(0, 1);
+			
+		
+			FileOutputStream fos = new FileOutputStream(file);
+			wb.write(fos);
+			fos.close();
+			labelFinal.append("-- File " + file.getName() + " has been updated\n");
+			labelFinal.paintImmediately(labelFinal.getVisibleRect());
+			
+		}
+		catch (FileNotFoundException e) {
+			new Message("File " + file.getName() + " is currently in use.\nPlease restart when it's available.");
+			throw e;
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	/**
 	 * Adds two empty rows between two different dates of the exam.
@@ -1022,11 +1389,10 @@ public class Excel {
 					}
 				}
 				inp.close();
-				// write into the file 
 				FileOutputStream fos = new FileOutputStream(file);
 			    wb.write(fos);
 			    fos.close();
-			    // done
+			    
 			    if (message) {
 			    	labelEditor.append("-- File " + filename + " has been updated\n");
 					labelEditor.paintImmediately(labelEditor.getVisibleRect());
@@ -1040,406 +1406,4 @@ public class Excel {
 			}
 		}
 	}
-	
-	public void writeFinals(ArrayList<StudentFinal> list, String term) {
-		Collections.sort(list, new Student.DateExamComparator());
-		
-		String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
-		String fileFinals = "F:\\Exams\\" + newterm + " final exam master list.xlsx";
-		setFile(fileFinals);
-		
-		if (file.exists()) {
-			new Message("File " + fileFinals + " already exists");
-		}
-		else {
-			try {
-				XSSFWorkbook wb = new XSSFWorkbook();
-				XSSFCellStyle [] styles = getAllStyles(wb);
-				writeSheet1(list, wb, styles);
-				writeSheet2(list, wb, styles);
-							
-				FileOutputStream fos = new FileOutputStream(file);
-				wb.write(fos);
-				fos.close();
-				labelFinal.append("-- File " + fileFinals + " has been created\n");
-				labelFinal.paintImmediately(labelFinal.getVisibleRect());
-
-			}
-			catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	private void writeSheet1(ArrayList<StudentFinal> list, XSSFWorkbook wb, CellStyle[] styles) {
-		Sheet sheet = wb.createSheet("Sheet1");
-		String[] headers = {"Student ID", "Email", "Name", "Surname", 
-				"Section", "Course ID", "Prof first", "Prof last", 
-				"Date", "Start Time", "Time", "SW", "PC", "Other", "Warnings"};
-					
-		final int NB_COL = 15;
-				
-		/* creating the first header row */		
-		Row row = sheet.createRow((short) 0);
-		int colXL = 0;
-		while (colXL < NB_COL) {
-			Cell cell = row.createCell(colXL);
-			cell.setCellValue(headers[colXL++]);
-			cell.setCellStyle(styles[2]);
-		}
-		
-		for (int rowXL = 1, i = 0; i < list.size(); i++) {
-			StudentFinal student = list.get(i);
-			row = sheet.createRow((short) rowXL++);
-			
-			for (int col = 0; col < NB_COL; col++) {
-				Cell cell = row.createCell(col);
-				switch (col) {
-				case 0:
-					cell.setCellValue(student.getSidFull()); 
-					cell.setCellStyle(styles[1]); break;
-				case 1: 
-					cell.setCellValue(student.getEmail());
-					cell.setCellStyle(styles[1]); break;
-				case 2:
-					cell.setCellValue(student.getNameFirst());
-					cell.setCellStyle(styles[1]); break;
-				case 3: 
-					cell.setCellValue(student.getNameLast());
-					cell.setCellStyle(styles[1]); break;
-				case 4: 
-					String section = student.getSection();
-					if (section.length() == 1) {
-						section = "00" + section;
-					}
-					cell.setCellValue(section);
-					cell.setCellStyle(styles[1]); break;
-				case 5:
-					cell.setCellValue(student.getCourse());
-					cell.setCellStyle(styles[1]); break;
-				case 6:
-					cell.setCellValue(student.getNameProfFirst());
-					cell.setCellStyle(styles[1]); break;
-				case 7:
-					cell.setCellValue(student.getNameProfLast());
-					cell.setCellStyle(styles[1]); break;
-				case 8:
-					cell.setCellValue(student.getExamDate());
-					cell.setCellStyle(styles[3]); break;
-				case 9:
-					cell.setCellValue(student.getExamStartTime());
-					cell.setCellStyle(styles[4]); break;
-				case 10:
-					cell.setCellValue(student.getExtraTime());
-					cell.setCellStyle(styles[1]); break;
-				case 11:
-					cell.setCellValue(student.getStopwatch());
-					cell.setCellStyle(styles[1]); break;
-				case 12:
-					cell.setCellValue(student.getComputer());
-					cell.setCellStyle(styles[1]); break;
-				case 13:
-					cell.setCellValue(student.getComments());
-					cell.setCellStyle(styles[1]); break;
-				case 14:
-					cell.setCellValue(student.getWarning());
-					cell.setCellStyle(styles[1]); break;
-				}
-			}
-		}
-		
-		sheet.autoSizeColumn(0);
-		sheet.setColumnWidth(1, 16*255);
-		sheet.setColumnWidth(2, 12*255); 
-		sheet.setColumnWidth(3, 12*255); 
-		sheet.autoSizeColumn(5);
-		sheet.setColumnWidth(6, 12*255); 
-		sheet.setColumnWidth(7, 12*255);
-		sheet.setColumnWidth(13, 16*255); 
-		sheet.setColumnWidth(14, 16*255); 
-		
-		sheet.createFreezePane(0, 1);		    
-	}
-	
-	private void writeSheet2(ArrayList<StudentFinal> list, XSSFWorkbook wb, XSSFCellStyle[] styles) {
-						
-		Sheet sheet = wb.createSheet("by day");
-		String[] headers = {"Date", "Name", "Surname", "Section", "Course ID", 
-				"Prof First", "Prof Last", "Location" , "Start", "Finish", 
-				"Extra", "SW", "PC", "Other", "Invigilator"};
-					
-		final int NB_COL = 15;
-					
-		/* creating the first header row */
-		Row row = sheet.createRow((short) 0);
-		int colXL = 0;
-		while (colXL < NB_COL) {
-			Cell cell = row.createCell(colXL);
-			cell.setCellValue(headers[colXL++]);
-			cell.setCellStyle(styles[2]);
-		}
-			
-		for (int rowXL = 1, i = 0; i < list.size(); i++) {
-			StudentFinal student = list.get(i);
-			row = sheet.createRow((short) rowXL++);
-			
-			for (int col = 0; col < NB_COL-1; col++) { 
-				Cell cell = row.createCell(col);
-				switch (col) {
-				case 0:
-					cell.setCellValue(student.getExamDate()); 
-					cell.setCellStyle(styles[3]); break;
-				case 1: 
-					cell.setCellValue(student.getNameFirst());
-					cell.setCellStyle(styles[1]); break;
-				case 2:
-					cell.setCellValue(student.getNameLast());
-					cell.setCellStyle(styles[1]); break;
-				case 3: 
-					String section = student.getSection();
-					cell.setCellValue(Integer.parseInt(section));
-					cell.setCellStyle(styles[1]); break;
-				case 4: 
-					cell.setCellValue(student.getCourse());
-					cell.setCellStyle(styles[1]); break;
-				case 5:
-					cell.setCellValue(student.getNameProfFirst());
-					cell.setCellStyle(styles[6]); break;
-				case 6: 
-					cell.setCellValue(student.getNameProfLast());
-					cell.setCellStyle(styles[6]); break;
-				case 7:
-					if (student.hasConflict()) {
-						cell.setCellValue("Conflict");
-					}
-					cell.setCellStyle(styles[1]); break;
-				case 8:
-					if (student.timeChanged()) {
-						cell.setCellValue(student.getExamStartTime());
-						cell.setCellStyle(styles[5]); break;
-					}
-					else {
-						cell.setCellValue(student.getExamStartTime());
-						cell.setCellStyle(styles[4]); break;
-					}
-				case 9:
-					cell.setCellValue(student.getExamFinishTime());
-					cell.setCellStyle(styles[4]); break;
-				case 10:
-					cell.setCellValue(student.getExtraTime());
-					cell.setCellStyle(styles[1]); break;
-				case 11:
-					cell.setCellValue(student.getStopwatch());
-					cell.setCellStyle(styles[1]); break;
-				case 12:
-					cell.setCellValue(student.getComputer());
-					cell.setCellStyle(styles[1]); break;
-				case 13:
-					cell.setCellValue(student.getComments());
-					cell.setCellStyle(styles[1]); break;
-				}
-			} // end of columns
-		} // end of rows
-									
-		sheet.autoSizeColumn(0);
-		sheet.setColumnWidth(1, 16*255);
-		sheet.setColumnWidth(2, 12*255); 
-		sheet.setColumnWidth(3, 12*255); 
-		sheet.autoSizeColumn(5);
-		sheet.setColumnWidth(6, 12*255); 
-		sheet.setColumnWidth(7, 12*255);
-		
-		sheet.createFreezePane(0, 1);		    
-	}
-	/**
-	 * Adds locations to the file.
-	 *
-	 * @param list list of students 
-	 * @param file the file where locations should be added (the main file for finals)
-	 * @throws FileNotFoundException 
-	 */
-	
-	public void writeLocation(ArrayList<StudentFinal> list, File file) throws FileNotFoundException {
-				
-		try {
-			FileInputStream inp = new FileInputStream(file);
-			XSSFWorkbook wb = new XSSFWorkbook(inp);
-			
-			CellStyle[] styles = getAllStyles(wb);
-		
-			
-			Sheet sheet = wb.getSheetAt(1);
-			String[] headers = {"Date", "Name", "Surname", "Section", "Course ID", 
-					"Prof First", "Prof Last", "Location" , "Start", "Finish", 
-					"Extra", "SW", "PC", "Other", "Invigilator"};
-						
-			final int NB_COL = 15;
-						
-			/* creating the first header row */
-			Row row = sheet.createRow((short) 0);
-			int colXL = 0;
-			while (colXL < NB_COL) {
-				Cell cell = row.createCell(colXL);
-				cell.setCellValue(headers[colXL++]);
-				cell.setCellStyle(styles[2]);
-			}
-		
-			
-			for (int rowXL = 1, i = 0; i < list.size(); i++) {
-				StudentFinal student = list.get(i);
-				row = sheet.createRow((short) rowXL++);
-				
-				// can save only those which are important and can be formatted
-				for (int col = 0; col < NB_COL; col++) { 
-					Cell cell = row.createCell(col);
-					switch (col) {
-					case 0:
-						cell.setCellValue(student.getExamDate()); 
-						cell.setCellStyle(styles[3]); 
-						//XSSFCellStyle newStyle0 = wb.createCellStyle();
-						//newStyle0.cloneStyleFrom(student.getCell(col));
-						//cell.setCellStyle(newStyle0);
-						break;
-					case 1: 
-						cell.setCellValue(student.getNameFirst());
-						cell.setCellStyle(styles[1]); 
-						//XSSFCellStyle newStyle1 = wb.createCellStyle();
-						//newStyle1.cloneStyleFrom(student.getCell(col));
-						//cell.setCellStyle(newStyle1);
-						break;
-					case 2:
-						cell.setCellValue(student.getNameLast());
-						cell.setCellStyle(styles[1]);
-						//XSSFCellStyle newStyle2 = wb.createCellStyle();
-						//newStyle2.cloneStyleFrom(student.getCell(col));
-						//cell.setCellStyle(newStyle2);
-						break;
-					case 3: 
-						String section = student.getSection();
-						cell.setCellValue(Integer.parseInt(section));
-						//XSSFCellStyle newStyle3 = wb.createCellStyle();
-						cell.setCellStyle(styles[1]);
-						//newStyle3.cloneStyleFrom(student.getCell(col));
-						//cell.setCellStyle(newStyle3);
-						break;
-					case 4: 
-						cell.setCellValue(student.getCourse());
-						cell.setCellStyle(styles[1]); 
-						//XSSFCellStyle newStyle4 = wb.createCellStyle();
-						//newStyle4.cloneStyleFrom(student.getCell(col));
-						//cell.setCellStyle(newStyle4);
-						break;
-					case 5:
-						cell.setCellValue(student.getNameProfFirst());
-						cell.setCellStyle(styles[6]); 
-						//XSSFCellStyle newStyle5 = wb.createCellStyle();
-						//newStyle5.cloneStyleFrom(student.getCell(col));
-						//cell.setCellStyle(newStyle5);
-						break;
-					case 6:
-						cell.setCellValue(student.getNameProfLast());
-						cell.setCellStyle(styles[6]); 
-						//XSSFCellStyle newStyle6 = wb.createCellStyle();
-						//newStyle6.cloneStyleFrom(student.getCell(col));
-						//cell.setCellStyle(newStyle6);
-						break;
-					case 7:
-						cell.setCellValue(student.getLocation());
-						cell.setCellStyle(styles[1]); 
-						//cell.setCellStyle(student.getCell(col));
-						break;
-					case 8:
-						if (student.timeChanged()) {
-							cell.setCellValue(student.getExamStartTime());
-							cell.setCellStyle(styles[5]); 
-							//newStyle.cloneStyleFrom(student.getCell(col));
-							//cell.setCellStyle(newStyle);
-							break;
-						}
-						else {
-							cell.setCellValue(student.getExamStartTime());
-							cell.setCellStyle(styles[4]); 
-							//newStyle.cloneStyleFrom(student.getCell(col));
-							//cell.setCellStyle(newStyle);
-							break;
-						}
-					case 9:
-						cell.setCellValue(student.getExamFinishTime());
-						cell.setCellStyle(styles[4]); 
-						//newStyle.cloneStyleFrom(student.getCell(col));
-						//cell.setCellStyle(newStyle);
-						break;
-					case 10:
-						cell.setCellValue(student.getExtraTime());
-						cell.setCellStyle(styles[1]); 
-						//newStyle.cloneStyleFrom(student.getCell(col));
-						//cell.setCellStyle(newStyle);
-						break;
-					case 11:
-						cell.setCellValue(student.getStopwatch());
-						cell.setCellStyle(styles[1]); 
-						//XSSFCellStyle newStyle11 = wb.createCellStyle();
-						//newStyle11.cloneStyleFrom(student.getCell(col));
-						//cell.setCellStyle(newStyle11);
-						break;
-					case 12:
-						cell.setCellValue(student.getComputer());
-						cell.setCellStyle(styles[1]); 
-						//XSSFCellStyle newStyle12 = wb.createCellStyle();
-						//newStyle12.cloneStyleFrom(student.getCell(col));
-						//cell.setCellStyle(newStyle12);
-						break;
-					case 13:
-						cell.setCellValue(student.getComments());
-						cell.setCellStyle(styles[1]); 
-						/*if (student.getCell(col) != null) {
-							XSSFCellStyle newStyle13 = wb.createCellStyle();
-							newStyle13.cloneStyleFrom(student.getCell(col));
-							cell.setCellStyle(newStyle13);
-						}*/
-						break;
-					case 14: 
-						Invigilator inv = student.getInvigilator();
-						if (inv != null) {
-							cell.setCellValue(student.getInvigilator().getName());
-							cell.setCellStyle(styles[1]); break;
-						}
-						
-					}
-				} // end of columns
-			} // end of rows
-										
-			sheet.autoSizeColumn(0);
-			sheet.setColumnWidth(1, 16*255);
-			sheet.setColumnWidth(2, 12*255); 
-			sheet.setColumnWidth(3, 12*255); 
-			sheet.autoSizeColumn(5);
-			sheet.setColumnWidth(6, 12*255); 
-			sheet.setColumnWidth(7, 12*255);
-			
-			sheet.createFreezePane(0, 1);
-			
-		
-			FileOutputStream fos = new FileOutputStream(file);
-			wb.write(fos);
-			fos.close();
-			labelFinal.append("-- File " + file.getName() + " has been updated\n");
-			labelFinal.paintImmediately(labelFinal.getVisibleRect());
-			
-			labelFinal.append("-- Choose an option and click the button\n");
-	    	labelFinal.paintImmediately(labelFinal.getVisibleRect());
-
-		}
-		catch (FileNotFoundException e) {
-			new Message("File " + file.getName() + " is currently in use.\nPlease restart when it's available.");
-			throw e;
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	
 }

@@ -46,7 +46,7 @@ public class StudentFinal extends Student {
 		examStartTime = examTime;
 	}
 	private void setExamStartTime() {
-		//set time to 16:05
+		//set time to 19:00
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(examStartTime);
 		cal.set(Calendar.HOUR_OF_DAY, 19);
@@ -60,17 +60,14 @@ public class StudentFinal extends Student {
 		calFinish.add(Calendar.MINUTE, examLength);
 		Date finish = calFinish.getTime();
 		if (finish.compareTo(startLate) > 0) {
-			//set to 19:00 - the latest time to finish
 			int res = (int)((finish.getTime()/60000) - (startLate.getTime()/60000));
-			//calStart.set(Calendar.HOUR_OF_DAY, 19);
-			calStart.set(Calendar.MINUTE, -res);
-			//cal.add(Calendar.MINUTE, -examLength);
+			calStart.add(Calendar.MINUTE, -res);
 			examStartTime = calStart.getTime();
 			timeChanged = true;
 		}
 	}
 	public void setExamLength() { 
-		int time = 3*60;  // for finals, exam length is 3 hours
+		int time = 3*60;  
 		if (extraTime == null)
 			examLength = time;
 		else if (extraTime.equals("T1/2") || extraTime.equalsIgnoreCase("Time+1/2"))
@@ -82,7 +79,7 @@ public class StudentFinal extends Student {
 		else if (extraTime.equals("2x"))
 			examLength = time*2;
 		else 
-			examLength = time; // what else can be?
+			examLength = time; 
 		setExamStartTime();
 		setExamFinishTime();
 	}
@@ -109,6 +106,21 @@ public class StudentFinal extends Student {
 	public void setNameProfLast(String nameLast) {
 		nameProfLast = nameLast;
 	}
+	public boolean equals(Object obj) {
+		if (this == obj) 
+			return true;
+		if (! (obj instanceof StudentFinal))
+			return false;
+		StudentFinal s = (StudentFinal)obj;
+		int comp = nameLast.compareTo(s.getNameLast()); 
+		if (comp != 0)
+			return false;
+		comp = nameFirst.compareTo(s.getNameFirst());
+		if (comp != 0)
+			return false;
+		return examDate.compareTo(s.getExamDate()) == 0;
+	}
+	
 	public XSSFCellStyle getCell(int index) {
 		return cells[index];
 	}
@@ -123,7 +135,7 @@ public class StudentFinal extends Student {
 		return (nameProfFirst.compareTo(s.nameProfFirst) == 0);
 	}
 	
-	// sorts by the prof name, used for lists of students for profs 
+	/* sorts by the professor's name, required to create lists of students for professors */
 	public static class ProfComparator implements Comparator<StudentFinal> {
 		public int compare(StudentFinal s1, StudentFinal s2) {
 			int comp = s1.getNameProfLast().compareTo(s2.getNameProfLast()); 

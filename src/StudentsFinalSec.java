@@ -36,6 +36,8 @@ public class StudentsFinalSec {
 	private ArrayList<Invigilator> listInv = new ArrayList<Invigilator>();
 	
 	private ArrayList<Date> dates = new ArrayList<Date>();
+	
+	static XSSFWorkbook wb;
 	/**
 	 * Creates an instance of the class and sets the list	
 	 * @param file
@@ -58,7 +60,7 @@ public class StudentsFinalSec {
 		
 		try {
 			FileInputStream fis = new FileInputStream(fileFinals);	
-			XSSFWorkbook wb = new XSSFWorkbook(fis);
+			wb = new XSSFWorkbook(fis);
 			XSSFSheet sheet = wb.getSheetAt(1);
 			
 			if (sheet == null) {
@@ -80,25 +82,29 @@ public class StudentsFinalSec {
 				}
 				r = sheet.getRow(rowNum);
 				Cell cell;
+				
 				for (int i = 0; i < 13; i++) {
 					switch (i) {
 					case 0 :
 						cell = r.getCell(i);
 						Date date = cell.getDateCellValue();
 						student.setExamDate(date);
-						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+						XSSFCellStyle style = (XSSFCellStyle) cell.getCellStyle();
+						student.setCell(style, i);
 						break;
 					case 1: 
 						cell = r.getCell(i);
 						String nameF = cell.getStringCellValue();
-						student.setNameFirst(nameF); 
-						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+						student.setNameFirst(nameF);
+						style = (XSSFCellStyle) cell.getCellStyle();
+						student.setCell(style, i);
 						break;
 					case 2:
 						cell = r.getCell(i);
 						String nameL = cell.getStringCellValue();
 						student.setNameLast(nameL); 
-						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+						style = (XSSFCellStyle) cell.getCellStyle();
+						student.setCell(style, i);
 						break;
 					case 3:
 						cell = r.getCell(i);
@@ -110,23 +116,27 @@ public class StudentsFinalSec {
 							String section = cell.getStringCellValue();
 							student.setSection(section);
 						}
-						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+						style = (XSSFCellStyle) cell.getCellStyle();
+						student.setCell(style, i);
 						break;
 					case 4:
 						cell = r.getCell(i);
 						String course = cell.getStringCellValue();
 						student.setCourse(course); 
-						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+						style = (XSSFCellStyle) cell.getCellStyle();
+						student.setCell(style, i);
 						break;
 					case 5:
 						cell = r.getCell(i);
 						if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
 							student.setNameProfFirst(cell.getStringCellValue()); 
+							style = (XSSFCellStyle) cell.getCellStyle();
+							student.setCell(style, i);
 						}
 						else { 
 							student.setNameProfFirst(""); // maybe better null?
 						}
-						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+						
 						break;
 					case 6:
 						cell = r.getCell(i);
@@ -136,44 +146,37 @@ public class StudentsFinalSec {
 						else { 
 							student.setNameProfLast(""); // maybe better null?
 						}
-						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+						style = (XSSFCellStyle) cell.getCellStyle();
+						student.setCell(style, i);
 						break;
 					case 7:
-						// must be empty, location
+						cell = r.getCell(i);
+						if (cell != null) {
+							style = (XSSFCellStyle) cell.getCellStyle();
+							student.setCell(style, i);
+						}
 						break;
 					case 8:
 						cell = r.getCell(i);
 						Date timeStart = cell.getDateCellValue();
-						Calendar cal = Calendar.getInstance();
-						cal.setTime(timeStart);
-						int year = cal.get(Calendar.YEAR);
-						if (year < 1990) {
-							cal.add(Calendar.YEAR, 100);
-							timeStart = cal.getTime();
-						}
 						student.setExamStartTime(timeStart); 
-						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+						style = (XSSFCellStyle) cell.getCellStyle();
+						student.setCell(style, i);
 						break;
 					case 9:
 						cell = r.getCell(i);
 						Date timeFinish = cell.getDateCellValue();
-						Calendar cal2 = Calendar.getInstance();
-						cal2.setTime(timeFinish);
-						int year2 = cal2.get(Calendar.YEAR);
-						if (year2 < 1990) {
-							cal2.add(Calendar.YEAR, 100);
-							timeFinish = cal2.getTime();
-						}
 						student.setExamFinishTime(timeFinish); 
-						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+						style = (XSSFCellStyle) cell.getCellStyle();
+						student.setCell(style, i);
 						break;
 					case 10: 
 						cell = r.getCell(i);
 						if (cell != null) {
-						//if (c.getCellType() == Cell.CELL_TYPE_STRING) {
 							String extra = cell.getStringCellValue();
 							student.setExtraTime(extra); 
-							student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+							style = (XSSFCellStyle) cell.getCellStyle();
+							student.setCell(style, i);
 							break;
 						}
 					case 11:
@@ -182,8 +185,9 @@ public class StudentsFinalSec {
 							String stopwatch = r.getCell(i).getStringCellValue();
 							if (stopwatch.equalsIgnoreCase("sw"))
 								student.setStopwatch("Yes"); 
+							style = (XSSFCellStyle) cell.getCellStyle();
+							student.setCell(style, i);
 						}
-						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
 						break;
 					case 12: 
 						cell = r.getCell(i);
@@ -191,17 +195,18 @@ public class StudentsFinalSec {
 							String pc = r.getCell(i).getStringCellValue();
 							if (pc.equalsIgnoreCase("pc"))
 								student.setComputer("Yes"); 
+							style = (XSSFCellStyle) cell.getCellStyle();
+							student.setCell(style, i);
 						}
-						student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
 						break;
 					case 13:
 						cell = r.getCell(i);
 						if (cell != null) {
 							String comments = r.getCell(i).getStringCellValue();
 							student.setComments(comments); 
-							student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
+							style = (XSSFCellStyle) cell.getCellStyle();
+							student.setCell(style, i);
 						}
-						//student.setCell((XSSFCellStyle) cell.getCellStyle(), i);
 						break;
 					}
 				}

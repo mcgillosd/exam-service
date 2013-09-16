@@ -31,7 +31,7 @@ public class Accommodations {
 		listAcc = new ArrayList<String>();
 		
 		int i = 5;
-		while (r.getCell(i) != null) { 
+		while (r.getCell(i) != null && ! r.getCell(i).getStringCellValue().equals(" ") && i < 35) { 
 			listAcc.add(r.getCell(i).getStringCellValue());
 			i+=3;
 		}

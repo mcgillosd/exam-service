@@ -138,7 +138,7 @@ public class WebConnect {
         }
          
         if (result == 200) {
-        	label.append("-- Downloading data\n");
+        	label.append("-- Getting invigilators info\n");
         	label.paintImmediately(label.getVisibleRect());
         }
         else {

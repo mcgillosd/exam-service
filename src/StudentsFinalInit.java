@@ -9,7 +9,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 
@@ -53,9 +52,7 @@ public class StudentsFinalInit {
     	label.paintImmediately(label.getVisibleRect());
     	new Excel().writeFinals(list, term);
     	
-    	label.append("-- Choose an option by clicking the button\n");
-    	label.paintImmediately(label.getVisibleRect());
-	}
+   	}
 	private void setList(String term) throws IOException {
 		final String osdReport = "F:\\Exams\\Files\\OSD report " + term + ".xlsx";
 		File fileOSDReport = new File(osdReport);
@@ -110,10 +107,10 @@ public class StudentsFinalInit {
 						/* gets the date in year 1899, has to increment to be after 1900
 						 to write correctly in Excel */
 						Date time = r.getCell(i).getDateCellValue();
-						Calendar cal = Calendar.getInstance();
-						cal.setTime(time);
-						cal.add(Calendar.YEAR, 100);
-						time = cal.getTime();
+						//Calendar cal = Calendar.getInstance();
+						//cal.setTime(time);
+						//cal.add(Calendar.YEAR, 100);
+						//time = cal.getTime();
 						student.setExamStartTime(time); 
 						break;
 					}

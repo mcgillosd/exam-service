@@ -62,6 +62,7 @@ public class PanelFinals extends PanelTabs {
 			
 			String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
 			String fileFinals = "F:\\Exams\\" + newterm + " final exam master list.xlsx";
+			//String fileFinals = newterm + " final exam master list.xlsx";
 			File file = new File(fileFinals);			
 			if (file.exists()) {
 				new Message("File " + fileFinals + " already exists");
@@ -82,7 +83,7 @@ public class PanelFinals extends PanelTabs {
 			
 			String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
 			final String fileFinals = "F:\\Exams\\" + newterm + " final exam master list.xlsx";
-			
+			//final String fileFinals = newterm + " final exam master list.xlsx";
 			File file = new File(fileFinals);
 			if (! file.exists()) {
 				new Message("File " + fileFinals + " doesn't exist");
@@ -158,7 +159,7 @@ public class PanelFinals extends PanelTabs {
 					File file = new File(fileFinals);
 					if (! file.exists()) {
 						new Message("File " + fileFinals + " doesn't exist");
-						// exit?
+						return;
 					}
 					label.append("-- Getting info from " + fileFinals + " file\n");
 					label.paintImmediately(label.getVisibleRect());

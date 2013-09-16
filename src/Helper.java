@@ -35,4 +35,9 @@ public class Helper {
   		String date = df.format(d);
   		return date.substring(11,16);
 	}
+	public String getDateAsStringFinal(Date d) {
+		DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
+  		String date = df.format(d);
+  		return date.substring(11,16);
+	}
 }
