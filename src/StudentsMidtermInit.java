@@ -312,8 +312,7 @@ public class StudentsMidtermInit {
 				index += 2; // skip phone, email
 				stud.setCourse(td.get(index++).text());
 				stud.setSection(td.get(index++).text());
-				
-				index++; // skip location
+				stud.setLocation(td.get(index++).text());
 				stud.setExamStartTime(td.get(index++).text());
 				 
 				String hours = td.get(index++).text();  

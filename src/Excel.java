@@ -99,7 +99,7 @@ public class Excel {
 		setNbCol(16);
 		
 		String[] headers = {"#", "Date", "Family name", "First name", "Course number", 
-				"Section", "Start", "Finish", "Length", 
+				"Section", "Exam location", "Start", "Finish", "Length", 
 				"Professor name", "Professor email", "Extra time", 
 				"Stopwatch", "PC", "Accommodation", "Comments" };
 	
@@ -130,7 +130,7 @@ public class Excel {
 			createMac(term);
 		}
 		
-		setNbCol(16);
+		setNbCol(17);
 		
 		try {
 			FileInputStream fis = new FileInputStream(file);	
@@ -144,7 +144,7 @@ public class Excel {
 			if (sheet == null) {
 				sheet = wb.createSheet("Macdonald");
 				String[] headers = {"#", "Date", "Family name", "First name", "Course number", 
-						"Section", "Start", "Finish", "Length", "Professor name", "Professor email", "Extra time", 
+						"Section", "Exam location", "Start", "Finish", "Length", "Professor name", "Professor email", "Extra time", 
 						"Stopwatch", "PC", "Accommodation", "Comments" };
 			
 				Row row = sheet.createRow((short) 0);
@@ -158,15 +158,16 @@ public class Excel {
 				sheet.setColumnWidth(2, 15*255); // last name
 				sheet.setColumnWidth(3, 15*255); // first name
 				sheet.setColumnWidth(4, 15*255); // course number
-				sheet.setColumnWidth(8, 15*255);
-				sheet.setColumnWidth(9, 25*255);
+				sheet.setColumnWidth(6, 25*255);
+				sheet.setColumnWidth(9, 15*255);
 				sheet.setColumnWidth(10, 25*255);
+				sheet.setColumnWidth(11, 25*255);
 				sheet.createFreezePane(0, 1);
 				
 				for (int rowXL = 1, i = 0; i < list.size(); i++) {
 					StudentMidterm student = list.get(i);
 					row = sheet.createRow((short) rowXL++);
-					fillRowMac(row, student, styles);
+					fillRow(row, student, styles);
 				}
 			}
 			else { // file already contains entries 
@@ -183,7 +184,7 @@ public class Excel {
 					Row r = sheet.getRow(rowNum);
 					if (r == null) { // the last row
 						r = sheet.createRow(rowNum);
-						fillRowMac(r, student, styles);
+						fillRow(r, student, styles);
 						
 						if (++index < list.size()) {
 							student = list.get(index);
@@ -219,7 +220,7 @@ public class Excel {
 										rowEnd++;
 								
 										Row rowNew = sheet.createRow(rowNum);
-										fillRowMac(rowNew, student, styles);
+										fillRow(rowNew, student, styles);
 									
 										if (dateToAdd.compareTo(dateInFile) <= 0)
 											rowNum--;
@@ -597,77 +598,7 @@ public class Excel {
 			}
 		}
 	}
-	private void fillRowMac(Row row, StudentMidterm student, CellStyle[] styles) {
-		for (int colXL = 0; colXL < nbCol; colXL++) {
-			Cell cell = row.createCell(colXL);
-			switch (colXL) {
-			case 0:
-				cell.setCellValue(student.getId()); 
-				cell.setCellStyle(styles[1]); break;
-			case 1: 
-				cell.setCellValue(student.getExamDate());
-				cell.setCellStyle(styles[3]); break;
-			case 2:
-				cell.setCellValue(student.getNameLast());
-				cell.setCellStyle(styles[1]); break;
-			case 3: 
-				cell.setCellValue(student.getNameFirst());
-				cell.setCellStyle(styles[1]); break;
-			case 4: 
-				cell.setCellValue(student.getCourse());
-				cell.setCellStyle(styles[2]); break;
-			case 5:
-				cell.setCellValue(student.getSection());
-				cell.setCellStyle(styles[1]); break;
-			case 6:
-				String date = new Helper().getDateAsString(student.getExamStartTime());
-				double d = DateUtil.convertTime(date);
-				cell.setCellValue(d);
-				cell.setCellStyle(styles[4]); break;
-			case 7:
-				date = new Helper().getDateAsString(student.getExamFinishTime());
-				d = DateUtil.convertTime(date);
-				cell.setCellValue(d);
-				cell.setCellStyle(styles[4]); break;
-			case 8:
-				int length = student.getExamLength();
-				int hour = length / 60;
-				int min = length % 60;
-				if (hour != 0 && min != 0)
-					cell.setCellValue(hour + " hours " + min + " mins");
-				else if (hour != 0 && min == 0)
-					cell.setCellValue(hour + " hours");
-				else if (hour == 0 && min != 0)
-					cell.setCellValue(min + " mins");
-				else
-					cell.setCellValue("time not known");
-				cell.setCellStyle(styles[1]); break;
-			case 9:
-				cell.setCellValue(student.getNameProf());
-				cell.setCellStyle(styles[1]); break;
-			case 10:
-				cell.setCellValue(student.getEmailProf());
-				cell.setCellStyle(styles[1]); break;
-			case 11:
-				cell.setCellValue(student.getExtraTime());
-				cell.setCellStyle(styles[1]); break;
-			case 12:
-				cell.setCellValue(student.getStopwatch());
-				cell.setCellStyle(styles[1]); break;
-			case 13:
-				cell.setCellValue(student.getComputer());
-				cell.setCellStyle(styles[1]); break;
-			case 14:
-				cell.setCellValue(student.getComments());
-				cell.setCellStyle(styles[1]); break;
-			case 15:
-				cell.setCellValue(student.getCommentsFromForm());
-				cell.setCellStyle(styles[1]); break;
-			}
-		}
-	}
-
-	
+		
 	/**
 	 * Writes all data from the web page to the file "Midterms.xlsx"
 	 * 
