@@ -339,15 +339,17 @@ public class Excel {
 									/* check if id is the same, then the entry already exists */
 									if (dateToAdd.compareTo(dateInFile) == 0) {
 										Cell cellPrev = r.getCell(0);
-										int idInFile = (int)cellPrev.getNumericCellValue();
-										int idToAdd = student.getId();
+										if (cellPrev != null && cellPrev.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+											int idInFile = (int)cellPrev.getNumericCellValue();
+											int idToAdd = student.getId();
 										/* the same entries, do not enter twice, takes more time, but
 										 double control if id has been lost, id.txt corrupted, etc...*/
-										if (idInFile == idToAdd) {
-											if (++index < list.size()) {
-												student = list.get(index);
-												dateToAdd = student.getExamDate();
-											} 
+											if (idInFile == idToAdd) {
+												if (++index < list.size()) {
+													student = list.get(index);
+													dateToAdd = student.getExamDate();
+												} 
+											}
 										}
 									}	
 									else {
