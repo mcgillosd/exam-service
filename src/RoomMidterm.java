@@ -77,8 +77,9 @@ public class RoomMidterm extends Room {
 			int rowLast = sheet.getLastRowNum() + 1; // column of dates
 								
 			Cell cell = row.getCell(0); // cell with the date
-			if (cell == null) {// just in case 
-				cell = row.createCell(0);
+			if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) {// just in case 
+				if (cell == null)
+					cell = row.createCell(0);
 				cell.setCellValue(date);
 				cell.setCellStyle(styleDate);
 				
@@ -95,6 +96,7 @@ public class RoomMidterm extends Room {
 					cell = row.getCell(0);
 					// given date exist
 					Date dateInFile = cell.getDateCellValue();
+					
 					if (date.compareTo(dateInFile) == 0) {
 						short colNum = 0;
 						while (++colNum <= capacity) {
@@ -117,10 +119,15 @@ public class RoomMidterm extends Room {
 						while (++col <= capacity) {
 							cell = row.getCell(col);
 							// looking for spots
-							String times = cell.getStringCellValue();
-							String[] tarray = times.split(" ");
-							LinkedList<Date> schedule = getSchedule(tarray);
-							map.put(col, schedule);
+							if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
+								//
+							}
+							else {
+								String times = cell.getStringCellValue();
+								String[] tarray = times.split(" ");
+								LinkedList<Date> schedule = getSchedule(tarray);
+								map.put(col, schedule);
+							}
 						}
 						Map<Integer, LinkedList<Date>> sorted = sort(map);
 						
@@ -195,16 +202,20 @@ public class RoomMidterm extends Room {
 	}
 	private LinkedList<Date> getSchedule(String[] array) {
 		LinkedList<Date> listSchedule = new LinkedList<Date>();
-		if (array.length != 0) {
+		if (array.length != 0 && array[0] != "") {
+			if (array[0] != "") {
 			for (int i = 0; i < array.length; i++) {
 				String[] time = array[i].split("-"); // divide start time from finish time
 				try {
-					Date date = new SimpleDateFormat("HH:mm").parse(time[0]);
-					listSchedule.add(date);
-					date = new SimpleDateFormat("HH:mm").parse(time[1]);
-					listSchedule.add(date);
+					if (time[0] != "" && time[1] != "") {
+						Date date = new SimpleDateFormat("HH:mm").parse(time[0]);
+						listSchedule.add(date);
+						date = new SimpleDateFormat("HH:mm").parse(time[1]);
+						listSchedule.add(date);
+					}
 				} catch (ParseException e) {
 					e.printStackTrace();
+				}
 				}
 			}
 		}
