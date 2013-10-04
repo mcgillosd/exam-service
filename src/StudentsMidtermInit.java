@@ -309,7 +309,8 @@ public class StudentsMidtermInit {
 				stud.setNameLast(td.get(index++).text());
 				stud.setNameFirst(td.get(index++).text());
 				stud.setSid(td.get(index++).text());
-				index += 2; // skip phone, email
+				index += 1; // skip phone, email
+				stud.setEmail(td.get(index++).text());
 				stud.setCourse(td.get(index++).text());
 				stud.setSection(td.get(index++).text());
 				stud.setLocation(td.get(index++).text());

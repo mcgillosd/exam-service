@@ -39,7 +39,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class Excel {
 	
 	private File file;
-	private int nbCol = 18;
+	private int nbCol = 19;
 	private JTextArea labelMidterm = PanelMidterms.label;
 	private JTextArea labelFinal = PanelFinals.label;
 	private JTextArea labelEditor = PanelEditor.label;
@@ -71,9 +71,9 @@ public class Excel {
 		
 		XSSFSheet sheet = wb.createSheet(name);
 		
-		setNbCol(18);
+		setNbCol(19);
 		
-		String[] headers = {"#", "Date", "Family name", "First name", "Course number", 
+		String[] headers = {"#", "Date", "Family name", "First name", "Email", "Course number", 
 				"Section", "Exam location", "Start", "Finish", "Length", 
 				"Professor name", "Professor email", "Extra time", 
 				"Stopwatch", "PC", "Accommodation", "Comments", "Invigilator"};
@@ -96,9 +96,9 @@ public class Excel {
 		
 		XSSFSheet sheet = wb.createSheet(name);
 		
-		setNbCol(16);
+		setNbCol(18);
 		
-		String[] headers = {"#", "Date", "Family name", "First name", "Course number", 
+		String[] headers = {"#", "Date", "Family name", "First name", "Email", "Course number", 
 				"Section", "Exam location", "Start", "Finish", "Length", 
 				"Professor name", "Professor email", "Extra time", 
 				"Stopwatch", "PC", "Accommodation", "Comments" };
@@ -130,7 +130,7 @@ public class Excel {
 			createMac(term);
 		}
 		
-		setNbCol(17);
+		setNbCol(18);
 		
 		try {
 			FileInputStream fis = new FileInputStream(file);	
@@ -143,7 +143,7 @@ public class Excel {
 			
 			if (sheet == null) {
 				sheet = wb.createSheet("Macdonald");
-				String[] headers = {"#", "Date", "Family name", "First name", "Course number", 
+				String[] headers = {"#", "Date", "Family name", "First name", "Email", "Course number", 
 						"Section", "Exam location", "Start", "Finish", "Length", "Professor name", "Professor email", "Extra time", 
 						"Stopwatch", "PC", "Accommodation", "Comments" };
 			
@@ -157,11 +157,12 @@ public class Excel {
 				}
 				sheet.setColumnWidth(2, 15*255); // last name
 				sheet.setColumnWidth(3, 15*255); // first name
-				sheet.setColumnWidth(4, 15*255); // course number
+				sheet.setColumnWidth(4, 25*255); // email
+				sheet.setColumnWidth(5, 15*255); // course number
 				sheet.setColumnWidth(6, 25*255);
-				sheet.setColumnWidth(9, 15*255);
-				sheet.setColumnWidth(10, 25*255);
+				sheet.setColumnWidth(10, 15*255);
 				sheet.setColumnWidth(11, 25*255);
+				sheet.setColumnWidth(12, 25*255);
 				sheet.createFreezePane(0, 1);
 				
 				for (int rowXL = 1, i = 0; i < list.size(); i++) {
@@ -295,11 +296,12 @@ public class Excel {
 				}
 				sheet.setColumnWidth(2, 15*255); // last name
 				sheet.setColumnWidth(3, 15*255); // first name
-				sheet.setColumnWidth(4, 15*255); // course number
-				sheet.setColumnWidth(9, 15*255);
-				sheet.setColumnWidth(10, 25*255);
+				sheet.setColumnWidth(4, 25*255); // email
+				sheet.setColumnWidth(5, 15*255); // course number
+				sheet.setColumnWidth(10, 15*255);
 				sheet.setColumnWidth(11, 25*255);
-				sheet.setColumnWidth(12, 15*255);
+				sheet.setColumnWidth(12, 25*255);
+				sheet.setColumnWidth(13, 15*255);
 				sheet.createFreezePane(0, 1);			
 			}
 			else { // file already contains entries 
@@ -474,25 +476,28 @@ public class Excel {
 				cell.setCellValue(student.getNameFirst());
 				cell.setCellStyle(styles[1]); break;
 			case 4: 
+				cell.setCellValue(student.getEmail());
+				cell.setCellStyle(styles[1]); break;
+			case 5: 
 				cell.setCellValue(student.getCourse());
 				cell.setCellStyle(styles[2]); break;
-			case 5:
+			case 6:
 				cell.setCellValue(student.getSection());
 				cell.setCellStyle(styles[1]); break;
-			case 6:
+			case 7:
 				cell.setCellValue(student.getLocation());
 				cell.setCellStyle(styles[1]); break;
-			case 7:
+			case 8:
 				String date = new Helper().getDateAsString(student.getExamStartTime());
 				double d = DateUtil.convertTime(date);
 				cell.setCellValue(d);
 				cell.setCellStyle(styles[4]); break;
-			case 8:
+			case 9:
 				date = new Helper().getDateAsString(student.getExamFinishTime());
 				d = DateUtil.convertTime(date);
 				cell.setCellValue(d);
 				cell.setCellStyle(styles[4]); break;
-			case 9:
+			case 10:
 				int length = student.getExamLength();
 				int hour = length / 60;
 				int min = length % 60;
@@ -505,25 +510,25 @@ public class Excel {
 				else
 					cell.setCellValue("time not known");
 				cell.setCellStyle(styles[1]); break;
-			case 10:
+			case 11:
 				cell.setCellValue(student.getNameProf());
 				cell.setCellStyle(styles[1]); break;
-			case 11:
+			case 12:
 				cell.setCellValue(student.getEmailProf());
 				cell.setCellStyle(styles[1]); break;
-			case 12:
+			case 13:
 				cell.setCellValue(student.getExtraTime());
 				cell.setCellStyle(styles[1]); break;
-			case 13:
+			case 14:
 				cell.setCellValue(student.getStopwatch());
 				cell.setCellStyle(styles[1]); break;
-			case 14:
+			case 15:
 				cell.setCellValue(student.getComputer());
 				cell.setCellStyle(styles[1]); break;
-			case 15:
+			case 16:
 				cell.setCellValue(student.getComments());
 				cell.setCellStyle(styles[1]); break;
-			case 16:
+			case 17:
 				cell.setCellValue(student.getCommentsFromForm());
 				cell.setCellStyle(styles[1]); break;
 			}
