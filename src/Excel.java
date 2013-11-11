@@ -838,8 +838,9 @@ public class Excel {
 					cell.setCellStyle(styles[1]); break;
 				case 3: 
 					String section = student.getSection();
-					cell.setCellValue(Integer.parseInt(section));
-					cell.setCellStyle(styles[7]); break;
+					//cell.setCellValue(Integer.parseInt(section));
+					cell.setCellValue(section);
+					cell.setCellStyle(styles[1]); break;
 				case 4: 
 					cell.setCellValue(student.getCourse());
 					cell.setCellStyle(styles[1]); break;
@@ -954,7 +955,7 @@ public class Excel {
 						break;
 					case 3: 
 						String section = student.getSection();
-						cell.setCellValue(Integer.parseInt(section));
+						cell.setCellValue(section);
 						cell.setCellStyle(student.getCell(col));
 						break;
 					case 4: 

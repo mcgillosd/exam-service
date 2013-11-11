@@ -55,6 +55,7 @@ public class StudentsFinalInit {
    	}
 	private void setList(String term) throws IOException {
 		final String osdReport = "F:\\Exams\\Files\\OSD report " + term + ".xlsx";
+		//final String osdReport = "OSD report " + term + ".xlsx";
 		File fileOSDReport = new File(osdReport);
 		if (! fileOSDReport.exists()) {
 			new Message("File " + osdReport + " doesn't exist");
@@ -75,6 +76,8 @@ public class StudentsFinalInit {
 			for (int rowNum = 1; ! endOfFile; rowNum++) {
 				StudentFinal student = new StudentFinal();
 				r = sheet.getRow(rowNum);
+				if (r == null)
+					break;
 				for (int i = 0; i < 7; i++) {
 					switch (i) {
 					case 0 :
@@ -95,8 +98,14 @@ public class StudentsFinalInit {
 						String nameL = r.getCell(i).getStringCellValue();
 						student.setNameLast(nameL); break;
 					case 3:
-						int section = (int)r.getCell(i).getNumericCellValue();
-						student.setSection(Integer.toString(section)); break;
+						if (r.getCell(i).getCellType() == 0) {
+							int section = (int)r.getCell(i).getNumericCellValue();
+							student.setSection(Integer.toString(section)); break;
+						}
+						else if (r.getCell(i).getCellType() == 1) {
+							String sectionS = r.getCell(i).getStringCellValue();
+							student.setSection(sectionS); break;
+						}
 					case 4:
 						String course = r.getCell(i).getStringCellValue();
 						student.setCourse(course); break;
@@ -137,6 +146,7 @@ public class StudentsFinalInit {
 		Collections.sort(list, new Student.CourseComparator());
 		
 		final String finalSchedule = "F:\\Exams\\Files\\final schedule " + term + " for OSD and storemore.xlsx";
+		//final String finalSchedule = "final schedule " + term + " for OSD and storemore.xlsx";
 		File fileFinalSchedule = new File(finalSchedule);
 		
 		if (! fileFinalSchedule.exists()) {
@@ -169,12 +179,18 @@ public class StudentsFinalInit {
 					String course = r.getCell(2).getStringCellValue();
 					if (s.getCourse().equals(course)) {
 						// compare sections
-						int section = (int)r.getCell(1).getNumericCellValue();
+						String section;
+						if (r.getCell(1).getCellType() == 0) {
+							int sectionI = (int)r.getCell(1).getNumericCellValue();
+							section = Integer.toString(sectionI);
+						}
+						else 
+							section = r.getCell(1).getStringCellValue();
 						if (first) {
 							rowCourse = rowNum;
 							first = false;
 						}
-						if (s.getSection().equals(Integer.toString(section))) {
+						if (s.getSection().equals(section)) {
 							Cell cell = r.getCell(4);
 							if (cell != null) {
 								s.setNameProfFirst(r.getCell(4).getStringCellValue());

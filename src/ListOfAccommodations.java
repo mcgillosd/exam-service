@@ -25,6 +25,7 @@ public class ListOfAccommodations {
 	public ListOfAccommodations() throws FileNotFoundException {
 				
 		final String accommodations = "F:\\Exams\\Files\\accommodations.xlsx";
+		//final String accommodations = "accommodations.xlsx";
 		File fileAccommodations = new File(accommodations);
 		
 		if (! fileAccommodations.exists()) {

@@ -109,8 +109,8 @@ public class StudentsFinalSec {
 					case 3:
 						cell = r.getCell(i);
 						if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-							int section = (int)(cell.getNumericCellValue());
-							student.setSection(Integer.toString(section));
+							String section = cell.getStringCellValue();
+							student.setSection(section);
 						}
 						else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
 							String section = cell.getStringCellValue();
@@ -226,6 +226,7 @@ public class StudentsFinalSec {
 		Collections.sort(list, new Student.DateExamCommentsComparator());
 		
 		File file = new File("F:\\Exams\\Files\\rooms.xlsx");
+		//File file = new File("rooms.xlsx");
 		if (! file.exists()) {
 			new Message("File " + file.getName() + " doesn't exist");
 			throw new FileNotFoundException();
