@@ -109,7 +109,7 @@ public class StudentsFinalSec {
 					case 3:
 						cell = r.getCell(i);
 						if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-							String section = cell.getStringCellValue();
+							String section = Integer.toString((int)cell.getNumericCellValue());
 							student.setSection(section);
 						}
 						else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
@@ -165,10 +165,13 @@ public class StudentsFinalSec {
 						break;
 					case 9:
 						cell = r.getCell(i);
-						Date timeFinish = cell.getDateCellValue();
+						Date timeFinish = null;
+						if (cell != null) {
+							timeFinish = cell.getDateCellValue();
+							style = (XSSFCellStyle) cell.getCellStyle();
+							student.setCell(style, i);
+						}
 						student.setExamFinishTime(timeFinish); 
-						style = (XSSFCellStyle) cell.getCellStyle();
-						student.setCell(style, i);
 						break;
 					case 10: 
 						cell = r.getCell(i);

@@ -155,7 +155,7 @@ public class PanelFinals extends PanelTabs {
 				if (term != null) {
 					String newterm = Character.toUpperCase(term.charAt(0)) + term.substring(1);  
 					final String fileFinals = "F:\\Exams\\" + newterm + " final exam master list.xlsx";
-				
+					//final String fileFinals = newterm + " final exam master list.xlsx";
 					File file = new File(fileFinals);
 					if (! file.exists()) {
 						new Message("File " + fileFinals + " doesn't exist");
