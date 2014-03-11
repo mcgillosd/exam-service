@@ -55,7 +55,7 @@ public class StudentsFinalInit {
    	}
 	private void setList(String term) throws IOException {
 		final String osdReport = "F:\\Exams\\Files\\OSD report " + term + ".xlsx";
-		//final String osdReport = "OSD report " + term + ".xlsx";
+		//final String osdReport = "C:\\Users\\Olga\\Documents\\OSD\\git\\exam-service\\OSD report " + term + ".xlsx";
 		File fileOSDReport = new File(osdReport);
 		if (! fileOSDReport.exists()) {
 			new Message("File " + osdReport + " doesn't exist");
@@ -83,10 +83,20 @@ public class StudentsFinalInit {
 					case 0 :
 						Cell cell = r.getCell(i);
 						if (cell != null) {
-							String sid = cell.getStringCellValue();
+							String sid = null;
+							if (cell.getCellType() == 0) { // numeric
+								sid = Integer.toString((int)cell.getNumericCellValue());
+							}
+							else {
+								sid = cell.getStringCellValue();
+							}
 							student.setSidFull(sid);
+							
 							String[] array = sid.split(" ");
-							student.setSid(array[1]);
+							if (array.length > 1)
+								student.setSid(array[1]);
+							else
+								student.setSid(array[0]);
 						}
 						else 
 							endOfFile = true;
@@ -146,7 +156,7 @@ public class StudentsFinalInit {
 		Collections.sort(list, new Student.CourseComparator());
 		
 		final String finalSchedule = "F:\\Exams\\Files\\final schedule " + term + " for OSD and storemore.xlsx";
-		//final String finalSchedule = "final schedule " + term + " for OSD and storemore.xlsx";
+		//final String finalSchedule = "C:\\Users\\Olga\\Documents\\OSD\\git\\exam-service\\final schedule " + term + " for OSD and storemore.xlsx";
 		File fileFinalSchedule = new File(finalSchedule);
 		
 		if (! fileFinalSchedule.exists()) {
