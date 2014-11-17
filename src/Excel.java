@@ -1013,17 +1013,8 @@ public class Excel {
 				} // end of columns
 			} // end of rows
 										
-		/*	sheet.autoSizeColumn(0);
-			sheet.setColumnWidth(1, 16*255);
-			sheet.setColumnWidth(2, 12*255); 
-			sheet.setColumnWidth(3, 12*255); 
-			sheet.autoSizeColumn(5);
-			sheet.setColumnWidth(6, 12*255); 
-			sheet.setColumnWidth(7, 12*255);
-			*/
 			sheet.createFreezePane(0, 1);
 			
-		
 			FileOutputStream fos = new FileOutputStream(file);
 			wb.write(fos);
 			fos.close();
@@ -1068,7 +1059,7 @@ public class Excel {
 				int rowEnd = sheet.getLastRowNum()+1;
 							
 				Row row = sheet.getRow(1);
-				/* shift the first row - why? (I forgot) */
+				/* shift the first row */
 				sheet.shiftRows(1, rowEnd, 1);
 				
 				Cell cell = null;
@@ -1294,6 +1285,7 @@ public class Excel {
 				month = "August";
 			
 			String filename = "F:\\Exams\\" + month + " " + split[1] + " final exam master list.xlsx";
+			//String filename = month + " " + split[1] + " final exam master list.xlsx";
 			setFile(filename);
 			
 			if (! file.exists()) {

@@ -49,13 +49,11 @@ public class ListOfAccommodations {
 			}
 						
 			Row r = sheet.getRow(rowNum);
-			//cell = r.getCell(0);
 			while (r != null) {
 				cell = r.getCell(0);
 				Accommodations acc = new Accommodations(r);
 				listAcc.add(acc);
 				r = sheet.getRow(++rowNum);
-				//cell = r.getCell(0);
 			}
 			fis.close();
 			Collections.sort(listAcc, new Accommodations.IdAccComparator());
@@ -122,7 +120,6 @@ public class ListOfAccommodations {
 					s.setComputer("Yes");
 				else if (code.equals("XD")) {
 					s.setExtraTime("2x");
-				//	s.setExamLength(true);
 				}
 				else if (code.equals("XE")) {
 					String comment = s.getComments();
@@ -147,7 +144,6 @@ public class ListOfAccommodations {
 				}
 				else if (code.equals("XH") && s.getExtraTime() == null) {
 					s.setExtraTime("T1/2");
-					//s.setExamLength(true);
 				}
 				else if (code.equals("XL")) {
 					String comment = s.getComments();
@@ -165,7 +161,6 @@ public class ListOfAccommodations {
 				}
 				else if (code.equals("XR") && s.getExtraTime() == null) {
 					s.setExtraTime(""); // regular time
-					//s.setExamLength(true);
 				}
 				else if (code.equals("XS")) {
 					String comment = s.getComments();

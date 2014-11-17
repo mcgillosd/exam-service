@@ -90,46 +90,72 @@ public class StudentsFinalInit {
 							else {
 								sid = cell.getStringCellValue();
 							}
-							student.setSidFull(sid);
+							String sidTrimmed = sid.trim();
+							student.setSidFull(sidTrimmed);
 							
-							String[] array = sid.split(" ");
-							if (array.length > 1)
-								student.setSid(array[1]);
-							else
-								student.setSid(array[0]);
+							int len = sidTrimmed.length();
+							String id = sidTrimmed.substring(len-9);
+							student.setSid(id);
 						}
 						else 
 							endOfFile = true;
 						break;
 					case 1: 
-						String nameF = r.getCell(i).getStringCellValue();
+						cell = r.getCell(i);
+						if (cell == null)
+							new Message("Cell in row " + (rowNum + 1) + " column " + (i + 1) + " is empty.");
+						if (cell.getCellType() != 1)
+							new Message("Cell in row " + (rowNum + 1) + " column " + (i + 1) + " has wrong format.");
+						String nameF = cell.getStringCellValue();
 						student.setNameFirst(nameF); break;
 					case 2:
-						String nameL = r.getCell(i).getStringCellValue();
+						cell = r.getCell(i);
+						if (cell == null)
+							new Message("Cell in row " + (rowNum + 1) + " column " + (i + 1) + " is empty.");
+						if (cell.getCellType() != 1)
+							new Message("Cell in row " + (rowNum + 1) + " column " + (i + 1) + " has wrong format.");
+						String nameL = cell.getStringCellValue();
 						student.setNameLast(nameL); break;
 					case 3:
-						if (r.getCell(i).getCellType() == 0) {
-							int section = (int)r.getCell(i).getNumericCellValue();
+						cell = r.getCell(i);
+						if (cell == null)
+							new Message("Cell in row " + rowNum + " column " + i + " is empty.");
+						if (cell.getCellType() == 0) {
+							int section = (int)cell.getNumericCellValue();
 							student.setSection(Integer.toString(section)); break;
 						}
-						else if (r.getCell(i).getCellType() == 1) {
-							String sectionS = r.getCell(i).getStringCellValue();
+						else if (cell.getCellType() == 1) {
+							String sectionS = cell.getStringCellValue();
 							student.setSection(sectionS); break;
 						}
+						else {
+							new Message("Cell in row " + (rowNum + 1) + " column " + (i + 1) + " has wrong format.");
+						}
 					case 4:
-						String course = r.getCell(i).getStringCellValue();
+						cell = r.getCell(i);
+						if (cell == null)
+							new Message("Cell in row " + (rowNum + 1) + " column " + (i + 1) + " is empty.");
+						if (cell.getCellType() != 1)
+							new Message("Cell in row " + (rowNum + 1) + " column " + (i + 1) + " has wrong format.");
+						String course = cell.getStringCellValue();
 						student.setCourse(course); break;
 					case 5:
-						Date date = r.getCell(i).getDateCellValue();
+						cell = r.getCell(i);
+						if (cell == null)
+							new Message("Cell in row " + (rowNum + 1) + " column " + (i + 1) + " is empty.");
+						if (cell.getCellType() != 0)
+							new Message("Cell in row " + (rowNum + 1) + " column " + (i + 1) + " has wrong format.");
+						Date date = cell.getDateCellValue();
 						student.setExamDate(date); break;
 					case 6:
 						/* gets the date in year 1899, has to increment to be after 1900
 						 to write correctly in Excel */
+						cell = r.getCell(i);
+						if (cell == null)
+							new Message("Cell in row " + (rowNum + 1) + " column " + (i + 1) + " is empty.");
+						if (cell.getCellType() != 0)
+							new Message("Cell in row " + (rowNum + 1) + " column " + (i + 1) + " has wrong format.");
 						Date time = r.getCell(i).getDateCellValue();
-						//Calendar cal = Calendar.getInstance();
-						//cal.setTime(time);
-						//cal.add(Calendar.YEAR, 100);
-						//time = cal.getTime();
 						student.setExamStartTime(time); 
 						break;
 					}
@@ -144,6 +170,14 @@ public class StudentsFinalInit {
 		catch (FileNotFoundException e1) {
 			new Message("File " + osdReport + " is not available.");
 			throw e1;
+		}
+		catch (NullPointerException e) {
+			e.printStackTrace();
+			throw e;
+		}
+		catch (IllegalStateException e) {
+			e.printStackTrace();
+			throw e;
 		}
 		catch (IOException e) {
 			new Message("Error occured while reading file " + osdReport);
