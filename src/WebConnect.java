@@ -74,7 +74,7 @@ public class WebConnect {
         httppost.addParameter("name", user);
         String pass = new String(password);
         httppost.addParameter("pass", pass);
-        httppost.addParameter("form_build_id", "form-4aca174bc2e44ec94fd77a29c1e6ba65");
+        httppost.addParameter("form_build_id", "form-ITnhneCtAHbLg9ss6u3tUe3y-NY0XJV6d8FeDa2ncX4");
         httppost.addParameter("form_id", "user_login");
         
         int result = 0;
