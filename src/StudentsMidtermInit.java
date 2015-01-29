@@ -289,7 +289,7 @@ public class StudentsMidtermInit {
 			Elements td = element.select("td"); 
 						 
 			int item = Integer.parseInt(td.get(0).text()); 
-					 
+
 			if (item > id) { // new entries have been added since last visit
 				existNew = true;
 				 
@@ -363,6 +363,7 @@ public class StudentsMidtermInit {
 	}
 	
 	private ListOfRoomsMidterm initRooms() {
+		//File file = new File("C:\\Users\\Olga\\Documents\\OSD\\git\\exam-service\\rooms_midterm.xlsx");
 		File file = new File("F:\\Exams\\Files\\rooms_midterm.xlsx");
 		if (! file.exists()) {
 			new Message("File " + file.getName() + " doesn't exist");

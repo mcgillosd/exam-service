@@ -45,7 +45,7 @@ public class StudentMidterm extends Student {
 	
 	public void setExamDate(String examDateS) {
 		try {	
-			SimpleDateFormat sdf = new SimpleDateFormat("yyy-MM-dd");
+			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
 			examDate = sdf.parse(examDateS);
 			term = new Term(examDate).getTerm();
 		}

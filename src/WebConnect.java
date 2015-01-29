@@ -26,9 +26,9 @@ public class WebConnect {
 	
 	private String url;
 	
-	final String urlInv = "https://www.mcgill.ca/osd/node/884/webform-results/table";
+	final String urlInv = "https://www.mcgill.ca/osd/node/884/webform-results/table?results=0";
 	
-	final String urlMidterm = "https://www.mcgill.ca/osd/node/879/webform-results/table";
+	final String urlMidterm = "https://www.mcgill.ca/osd/node/879/webform-results/table?results=0";
 	private HttpClient httpclient; 
     /**
 	 * Creates a new panel to login, sets <code>StudentsMidterm</code> data
@@ -41,7 +41,7 @@ public class WebConnect {
 		httpclient = new HttpClient();
         httpclient.getHttpConnectionManager().
                 getParams().setConnectionTimeout(30000);
-        httpclient.getHttpConnectionManager().getParams().setSoTimeout(10000);
+        httpclient.getHttpConnectionManager().getParams().setSoTimeout(90000);
         if (midterm) {
         	setUrl(urlMidterm);
         	setLabel(PanelMidterms.label);
